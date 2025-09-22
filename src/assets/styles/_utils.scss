@@ -1,19 +1,6 @@
 @use 'sass:map';
 @use 'sass:string';
 
-// Dark/Light Theme
-@mixin theme-light {
-    [data-theme='light'] & {
-        @content;
-    }
-}
-
-@mixin theme-dark {
-    [data-theme='dark'] & {
-        @content;
-    }
-}
-
 // Mobile-first responsive breakpoints
 $breakpoints: (
     xsm: 332px,
