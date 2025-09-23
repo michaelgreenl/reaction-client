@@ -1,5 +1,6 @@
 <script setup>
 import { ref, onMounted, onBeforeUnmount } from 'vue';
+import { useSettingsStore } from '@/stores/settingsStore';
 import Circle from '@/components/Circle.vue';
 
 const props = defineProps({
@@ -10,11 +11,13 @@ const props = defineProps({
 
 const emit = defineEmits(['endGame', 'incrementScore']);
 
+const settingsStore = useSettingsStore();
+
 const circles = ref([]);
 let spawnTimer;
 
 onMounted(() => {
-    spawnTimer = setInterval(spawnCircle, 1000);
+    spawnTimer = setInterval(spawnCircle, 1000 * settingsStore.spawnInterval);
 });
 
 onBeforeUnmount(() => {
@@ -47,6 +50,17 @@ function handleCircleClick(id) {
     emit('incrementScore');
     circles.value = circles.value.filter((c) => c.id !== id);
 }
+
+const localGameActive = ref(true);
+
+function handleGameEnd() {
+    localGameActive.value = false;
+
+    // Timeout for the circle's fade-out transitions
+    setTimeout(() => {
+        emit('endGame');
+    }, 400);
+}
 </script>
 
 <template>
@@ -57,7 +71,7 @@ function handleCircleClick(id) {
         </div>
         <div class="canvas">
             <div v-for="c in circles" :key="c.id" class="circle-wrapper" :style="{ left: c.x + 'px', top: c.y + 'px' }">
-                <Circle @click="handleCircleClick(c.id)" @endGame="$emit('endGame')" :gameActive="gameActive" />
+                <Circle @click="handleCircleClick(c.id)" @endGame="handleGameEnd()" :gameActive="localGameActive" />
             </div>
         </div>
     </div>

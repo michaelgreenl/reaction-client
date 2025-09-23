@@ -1,9 +1,11 @@
 <script setup>
 import { ref, onBeforeUnmount } from 'vue';
+import Settings from '@/components/Settings.vue';
 import Game from '@/components/Game.vue';
 import Button from '@/components/Button.vue';
 
 const gameActive = ref(false);
+const showSettings = ref(false);
 const score = ref(0);
 const gamePlayed = ref(false);
 
@@ -28,6 +30,7 @@ function stopTimer() {
 
 function startGame() {
     score.value = 0;
+    showSettings.value = false;
     gamePlayed.value = true;
     gameActive.value = true;
     startTimer();
@@ -49,6 +52,7 @@ onBeforeUnmount(() => {
 
 <template>
     <Button v-if="!gameActive" @click="startGame" text="Start" />
+    <Button v-if="!gameActive" @click="showSettings = !showSettings" text="Settings" />
     <Game
         v-if="gameActive"
         :gameActive="gameActive"
@@ -62,6 +66,7 @@ onBeforeUnmount(() => {
         <div>Score: {{ score }}</div>
         <div>Time: {{ (elapsedMs / 1000).toFixed(2) }}s</div>
     </div>
+    <Settings v-if="showSettings" />
 </template>
 
 <style lang="scss">

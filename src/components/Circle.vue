@@ -1,11 +1,14 @@
 <script setup>
 import { ref, onMounted } from 'vue';
+import { useSettingsStore } from '@/stores/settingsStore';
 
 const props = defineProps({
     gameActive: { type: Boolean },
 });
 
 const emit = defineEmits(['click', 'endGame']);
+
+const settingsStore = useSettingsStore();
 
 const animating = ref(false);
 const paused = ref(false);
@@ -21,9 +24,14 @@ function circleClick() {
 </script>
 
 <template>
-    <div>
+    <div :style="{ height: `${settingsStore.circleSize}px`, width: `${settingsStore.circleSize}px` }">
         <button
             :class="{ animate: animating, 'fade-out': paused || !gameActive }"
+            :style="{
+                animationDuration: `${settingsStore.shrinkTime}s`,
+                height: `${settingsStore.circleSize}px`,
+                width: `${settingsStore.circleSize}px`,
+            }"
             @click="circleClick()"
             @animationend="$emit('endGame')"
         ></button>
@@ -35,13 +43,9 @@ div {
     display: flex;
     align-items: center;
     justify-content: center;
-    height: 100px;
-    width: 100px;
 
     button {
         background-color: $color-white;
-        height: 100px;
-        width: 100px;
         border-radius: 100%;
         border: 0;
         opacity: 1;
@@ -58,7 +62,9 @@ div {
         }
 
         &.animate {
-            animation: shrink 1s linear forwards;
+            animation-name: shrink;
+            animation-timing-function: linear;
+            animation-fill-mode: forwards;
         }
 
         &.fade-out {
