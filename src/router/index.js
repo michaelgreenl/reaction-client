@@ -3,14 +3,16 @@ import { useAuthStore } from '@/stores/authStore';
 import LoginView from '@/views/LoginView.vue';
 import RegisterView from '@/views/RegisterView.vue';
 import GameView from '@/views/GameView.vue';
+import ProfileView from '@/views/ProfileView.vue';
 
 const DEFAULT_TITLE = 'Reaction';
 
 const routes = [
     { path: '/', redirect: '/game' },
-    { path: '/game', name: 'Game', component: GameView, meta: { title: 'Play!' } },
+    { path: '/game', name: 'Game', component: GameView },
     { path: '/login', name: 'Login', component: LoginView, meta: { title: 'Login' } },
     { path: '/register', name: 'Register', component: RegisterView, meta: { title: 'Register' } },
+    { path: '/profile', name: 'Profile', component: ProfileView, meta: { requiresAuth: true } },
 ];
 
 const router = createRouter({
@@ -18,15 +20,26 @@ const router = createRouter({
     routes,
 });
 
+router.beforeEach((to, from, next) => {
+    const auth = useAuthStore();
+
+    if (!auth.isAuthenticated && to.meta.requiresAuth) {
+        next('/login');
+    } else if ((to.name === 'Login' || to.name === 'Register') && auth.isAuthenticated) {
+        next('/profile');
+    } else {
+        next();
+    }
+});
+
 router.afterEach((to) => {
     const auth = useAuthStore();
-    const requiresAuth = to.meta.requiresAuth;
 
     let title = DEFAULT_TITLE;
 
     if (auth.isAuthenticated) {
         title += ' | ' + auth.user.username;
-    } else {
+    } else if (to.meta.title) {
         title += ' | ' + to.meta.title;
     }
 
