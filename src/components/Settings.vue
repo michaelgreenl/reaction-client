@@ -1,18 +1,19 @@
 <script setup>
-import { computed, reactive, ref } from 'vue';
+import { onMounted, onBeforeUnmount, computed, reactive, ref } from 'vue';
 import { useSettingsStore } from '@/stores/settingsStore';
+import { useAuthStore } from '@/stores/authStore';
 import Loader from '@/components/Loader.vue';
 import Button from '@/components/Button.vue';
 
 const settingsStore = useSettingsStore();
+const authStore = useAuthStore();
+const isLoading = ref(false);
 
 const localSettings = reactive({
     circleSize: settingsStore.circleSize,
     spawnInterval: settingsStore.spawnInterval,
     shrinkTime: settingsStore.shrinkTime,
 });
-
-const isLoading = ref(false);
 
 function resetLocalSettings() {
     localSettings.circleSize = settingsStore.circleSize;
@@ -28,19 +29,28 @@ const settingsChanged = computed(() => {
     );
 });
 
-function saveSettings() {
+onMounted(async () => {
+    if (authStore.isAuthenticated) {
+        await settingsStore.getSettings();
+        resetLocalSettings();
+    }
+});
+
+async function saveSettings() {
     if (!settingsChanged) return;
 
-    // TODO: Add this after adding api call
-    // isLoading.value = true;
-
-    settingsStore.$patch({ ...localSettings });
-
-    // TODO: Add this to api call
-    // .finally(() => {
-    //   isLoading.value = false;
-    // }
+    isLoading.value = true;
+    await settingsStore.setSettings({ ...localSettings }).then(() => {
+        settingsStore.$patch({ ...localSettings });
+        isLoading.value = false;
+    });
 }
+
+onBeforeUnmount(() => {
+    if (settingsChanged) {
+        resetLocalSettings();
+    }
+});
 </script>
 
 <template>

@@ -1,8 +1,11 @@
 <script setup>
 import { ref, onBeforeUnmount } from 'vue';
+import { useAuthStore } from '@/stores/authStore.js';
 import Settings from '@/components/Settings.vue';
 import Canvas from '@/components/Canvas.vue';
 import Button from '@/components/Button.vue';
+
+const authStore = useAuthStore();
 
 const gameActive = ref(false);
 const showSettings = ref(false);
@@ -38,6 +41,7 @@ function startGame() {
 
 function handleEndGame() {
     stopTimer();
+    authStore.setGame({ score: score.value, time: elapsedMs.value });
     gameActive.value = false;
 }
 
@@ -51,22 +55,29 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-    <Button v-if="!gameActive" @click="startGame" text="Start" />
-    <Button v-if="!gameActive" @click="showSettings = !showSettings" text="Settings" />
-    <Canvas
-        v-if="gameActive"
-        :gameActive="gameActive"
-        :score="score"
-        :time="elapsedMs"
-        @endGame="handleEndGame"
-        @incrementScore="handleScoreIncrement"
-    />
-    <div v-if="gamePlayed && !gameActive" class="game-over">
-        <h1>Game Over</h1>
-        <div>Score: {{ score }}</div>
-        <div>Time: {{ (elapsedMs / 1000).toFixed(2) }}s</div>
+    <div class="game-container">
+        <Button v-if="!gameActive" @click="startGame" text="Start" />
+        <Button v-if="!gameActive" @click="showSettings = !showSettings" text="Settings" />
+        <Canvas
+            v-if="gameActive"
+            :gameActive="gameActive"
+            :score="score"
+            :time="elapsedMs"
+            @endGame="handleEndGame"
+            @incrementScore="handleScoreIncrement"
+        />
+        <div v-if="gamePlayed && !gameActive" class="game-over">
+            <h1>Game Over</h1>
+            <div>Score: {{ score }}</div>
+            <div>Time: {{ (elapsedMs / 1000).toFixed(2) }}s</div>
+        </div>
+        <Settings v-if="showSettings" />
     </div>
-    <Settings v-if="showSettings" />
 </template>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.game-container {
+    height: 100%;
+    width: 100%;
+}
+</style>

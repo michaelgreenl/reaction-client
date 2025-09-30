@@ -17,6 +17,7 @@ const circles = ref([]);
 let spawnTimer;
 
 onMounted(() => {
+    spawnCircle();
     spawnTimer = setInterval(spawnCircle, 1000 * settingsStore.spawnInterval);
 });
 
@@ -29,7 +30,7 @@ function getRandomInt(min, max) {
 }
 
 function spawnCircle() {
-    const circleSize = 100;
+    const circleSize = settingsStore.circleSize;
     const vw = window.innerWidth;
     const vh = window.innerHeight;
 
@@ -81,8 +82,8 @@ function handleGameEnd() {
 .game-container {
     position: relative;
     overflow: hidden;
-    height: 100vh;
-    width: 100vw;
+    height: 100%;
+    width: 100%;
 
     .hud {
         position: absolute;

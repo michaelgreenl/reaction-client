@@ -1,13 +1,31 @@
 <script setup>
+import { onMounted, ref } from 'vue';
+import { useAuthStore } from '@/stores/authStore';
+import { useSettingsStore } from '@/stores/settingsStore';
 import Navbar from '@/components/Navbar.vue';
+
+const settingsStore = useSettingsStore();
+const authStore = useAuthStore();
+const isLoading = ref(true);
+
+onMounted(async () => {
+    if (authStore.isAuthenticated) {
+        await settingsStore.getSettings();
+        await authStore.getStats();
+    }
+    isLoading.value = false;
+});
 </script>
 
 <template>
-    <Navbar />
+    <div v-if="!isLoading" class="app-container">
+        <Navbar />
 
-    <main>
-        <router-view />
-    </main>
+        <main>
+            <router-view />
+        </main>
+    </div>
+    <div v-if="isLoading">Loading...</div>
 </template>
 
 <style lang="scss">
@@ -19,7 +37,8 @@ import Navbar from '@/components/Navbar.vue';
 
 html,
 body,
-#app {
+#app,
+.app-container {
     height: 100%;
     padding: 0;
     margin: 0;
@@ -35,6 +54,11 @@ body,
     @include bp-xxl-desktop {
         font-size: 1.2em;
     }
+}
+
+main {
+    // viewport height minus height of navbar
+    height: calc(100vh - 2em);
 }
 
 button {
