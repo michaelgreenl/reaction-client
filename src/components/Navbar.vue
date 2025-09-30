@@ -19,5 +19,6 @@ const authStore = useAuthStore();
 nav {
     display: flex;
     gap: $size-2;
+    height: 2em;
 }
 </style>
