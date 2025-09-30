@@ -60,6 +60,8 @@ export const useAuthStore = defineStore('auth', () => {
     }
 
     async function getStats() {
+        if (!isAuthenticated) return;
+
         try {
             const stats = await apiFetch(`/stats?userId=${user.value.id}`, {
                 method: 'GET',
@@ -73,6 +75,8 @@ export const useAuthStore = defineStore('auth', () => {
     }
 
     async function setStats(newStats) {
+        if (!isAuthenticated) return;
+
         try {
             userStats.value = { ...newStats };
 
@@ -87,6 +91,8 @@ export const useAuthStore = defineStore('auth', () => {
     }
 
     async function setGame(game) {
+        if (!isAuthenticated) return;
+
         try {
             const newStats = await apiFetch('/game', {
                 method: 'POST',
@@ -101,6 +107,8 @@ export const useAuthStore = defineStore('auth', () => {
     }
 
     async function getGames(limit, offset) {
+        if (!isAuthenticated) return;
+
         try {
             const games = await apiFetch(`/game?userId=${user.value.id}&limit=${limit}&offset=${offset}`, {
                 method: 'GET',

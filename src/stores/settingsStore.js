@@ -10,6 +10,8 @@ export const useSettingsStore = defineStore('settings', () => {
     const authStore = useAuthStore();
 
     async function setSettings(settings) {
+        if (!authStore.isAuthenticated) return;
+
         try {
             const userId = authStore.user.id;
             await apiFetch('/settings', {
@@ -24,6 +26,8 @@ export const useSettingsStore = defineStore('settings', () => {
     }
 
     async function getSettings() {
+        if (!authStore.isAuthenticated) return;
+
         try {
             const userId = authStore.user.id;
             const settings = await apiFetch(`/settings?userId=${userId}`, {
