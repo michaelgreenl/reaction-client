@@ -9,11 +9,13 @@ const authStore = useAuthStore();
 const isLoading = ref(true);
 
 onMounted(async () => {
-    if (authStore.isAuthenticated) {
-        await settingsStore.getSettings();
-        await authStore.getStats();
+    if (!authStore.isInitialized && !authStore.isAuthenticated) {
+        await authStore.initializeAuth().then(() => {
+            isLoading.value = false;
+        });
+    } else {
+        isLoading.value = false;
     }
-    isLoading.value = false;
 });
 </script>
 

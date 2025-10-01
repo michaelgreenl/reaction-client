@@ -20,8 +20,12 @@ const router = createRouter({
     routes,
 });
 
-router.beforeEach((to, from, next) => {
+router.beforeEach(async (to, from, next) => {
     const auth = useAuthStore();
+
+    if (auth.user === null && !auth.isInitialized) {
+        await auth.initializeAuth();
+    }
 
     if (!auth.isAuthenticated && to.meta.requiresAuth) {
         next('/login');

@@ -1,24 +1,39 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
+import { useSettingsStore } from '@/stores/settingsStore.js';
 import apiFetch from '@/api.js';
 import router from '@/router';
 
 export const useAuthStore = defineStore('auth', () => {
-    const token = ref(localStorage.getItem('token'));
-    const user = ref(JSON.parse(localStorage.getItem('user')));
+    const user = ref(null);
     const userStats = ref();
     const userGames = ref([]);
+    const isInitialized = ref(false);
+    const isAuthenticated = computed(() => !!user.value);
 
-    const isAuthenticated = computed(() => !!token.value);
+    const settingsStore = useSettingsStore();
 
-    function setToken(newToken) {
-        token.value = newToken;
-        localStorage.setItem('token', newToken);
-    }
+    async function initializeAuth() {
+        if (isInitialized.value) return;
 
-    function setUser(newUser) {
-        user.value = newUser;
-        localStorage.setItem('user', JSON.stringify(newUser));
+        try {
+            const data = await apiFetch('/users/check-auth', {
+                method: 'GET',
+            });
+
+            if (data.success) {
+                user.value = { id: data.id, username: data.username };
+                userStats.value = data.stats;
+                settingsStore.$patch({ ...data.settings });
+            } else {
+                user.value = null;
+            }
+        } catch (error) {
+            user.value = null;
+            console.error('Auth check failed:', error.message);
+        } finally {
+            isInitialized.value = true;
+        }
     }
 
     async function register(username, password) {
@@ -41,8 +56,7 @@ export const useAuthStore = defineStore('auth', () => {
                 body: { username, password },
             });
 
-            setToken(data.token);
-            setUser({ id: data.id, username: data.username });
+            user.value = { id: data.id, username: data.username };
 
             return true;
         } catch (error) {
@@ -51,11 +65,12 @@ export const useAuthStore = defineStore('auth', () => {
         }
     }
 
-    function logout() {
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
-        token.value = null;
+    async function logout() {
+        await apiFetch('/users/logout', { method: 'POST' });
         user.value = null;
+        userStats.value = null;
+        userGames.value = [];
+        isInitialized.value = false;
         router.push({ name: 'Login' });
     }
 
@@ -69,6 +84,9 @@ export const useAuthStore = defineStore('auth', () => {
 
             userStats.value = { ...stats };
         } catch (error) {
+            if (error.message.includes('401')) {
+                await logout();
+            }
             console.error('Stats fetch failed:', error.message);
             return { success: false, message: error.message };
         }
@@ -85,6 +103,9 @@ export const useAuthStore = defineStore('auth', () => {
                 body: { ...newStats },
             });
         } catch (error) {
+            if (error.message.includes('401')) {
+                await logout();
+            }
             console.error('Stats update failed:', error.message);
             return { success: false, message: error.message };
         }
@@ -101,6 +122,9 @@ export const useAuthStore = defineStore('auth', () => {
 
             userStats.value = { ...newStats };
         } catch (error) {
+            if (error.message.includes('401')) {
+                await logout();
+            }
             console.error('Posting game failed:', error.message);
             return { success: false, message: error.message };
         }
@@ -116,19 +140,21 @@ export const useAuthStore = defineStore('auth', () => {
 
             userGames.value.push(...games.games);
         } catch (error) {
+            if (error.message.includes('401')) {
+                await logout();
+            }
             console.error('Getting games failed:', error.message);
             return { success: false, message: error.message };
         }
     }
 
     return {
-        token,
         user,
         userStats,
         userGames,
         isAuthenticated,
-        setToken,
-        setUser,
+        isInitialized,
+        initializeAuth,
         register,
         login,
         logout,
