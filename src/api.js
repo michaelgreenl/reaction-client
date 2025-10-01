@@ -11,9 +11,8 @@ const API_URL = import.meta.env.VITE_API_URL;
 async function apiFetch(endpoint, options = {}) {
     const { body, ...restOptions } = options;
 
-    // During development, if we're using the Vite proxy, we can use relative paths.
-    // For production, we must use the full URL. This setup works for both if configured correctly.
     const response = await fetch(`${API_URL}${endpoint}`, {
+        credentials: 'include',
         headers: {
             'Content-Type': 'application/json',
         },
