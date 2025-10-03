@@ -105,13 +105,13 @@ export const useAuthStore = defineStore('auth', () => {
         }
     }
 
-    async function setGame(game) {
+    async function setGame(game, settings) {
         if (!isAuthenticated) return;
 
         try {
             const newStats = await apiFetch('/game', {
                 method: 'POST',
-                body: { userId: user.value.id, score: game.score, time: game.time, stats: userStats.value },
+                body: { userId: user.value.id, score: game.score, time: game.time, settings, stats: userStats.value },
             });
 
             userStats.value = { ...newStats };

@@ -1,11 +1,13 @@
 <script setup>
 import { ref, onBeforeUnmount } from 'vue';
 import { useAuthStore } from '@/stores/authStore.js';
+import { useSettingsStore } from '@/stores/settingsStore.js';
 import Settings from '@/components/Settings.vue';
 import Canvas from '@/components/Canvas.vue';
 import Button from '@/components/Button.vue';
 
 const authStore = useAuthStore();
+const settingsStore = useSettingsStore();
 
 const gameActive = ref(false);
 const showSettings = ref(false);
@@ -41,7 +43,14 @@ function startGame() {
 
 function handleEndGame() {
     stopTimer();
-    authStore.setGame({ score: score.value, time: elapsedMs.value });
+    authStore.setGame(
+        { score: score.value, time: elapsedMs.value },
+        {
+            circleSize: settingsStore.circleSize,
+            spawnInterval: settingsStore.spawnInterval,
+            shrinkTime: settingsStore.shrinkTime,
+        },
+    );
     gameActive.value = false;
 }
 
