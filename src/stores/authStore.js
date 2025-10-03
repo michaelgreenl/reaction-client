@@ -8,14 +8,11 @@ export const useAuthStore = defineStore('auth', () => {
     const user = ref(null);
     const userStats = ref();
     const userGames = ref([]);
-    const isInitialized = ref(false);
     const isAuthenticated = computed(() => !!user.value);
 
     const settingsStore = useSettingsStore();
 
     async function initializeAuth() {
-        if (isInitialized.value) return;
-
         try {
             const data = await apiFetch('/users/check-auth', {
                 method: 'GET',
@@ -31,8 +28,6 @@ export const useAuthStore = defineStore('auth', () => {
         } catch (error) {
             user.value = null;
             console.error('Auth check failed:', error.message);
-        } finally {
-            isInitialized.value = true;
         }
     }
 
@@ -70,7 +65,6 @@ export const useAuthStore = defineStore('auth', () => {
         user.value = null;
         userStats.value = null;
         userGames.value = [];
-        isInitialized.value = false;
         router.push({ name: 'Login' });
     }
 
@@ -117,7 +111,7 @@ export const useAuthStore = defineStore('auth', () => {
         try {
             const newStats = await apiFetch('/game', {
                 method: 'POST',
-                body: { userId: user.value.id, score: game.score, time: game.time, stats: userStats },
+                body: { userId: user.value.id, score: game.score, time: game.time, stats: userStats.value },
             });
 
             userStats.value = { ...newStats };
@@ -153,7 +147,6 @@ export const useAuthStore = defineStore('auth', () => {
         userStats,
         userGames,
         isAuthenticated,
-        isInitialized,
         initializeAuth,
         register,
         login,
