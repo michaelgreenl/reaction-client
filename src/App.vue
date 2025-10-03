@@ -9,7 +9,7 @@ const authStore = useAuthStore();
 const isLoading = ref(true);
 
 onMounted(async () => {
-    if (!authStore.isInitialized && !authStore.isAuthenticated) {
+    if (!authStore.isAuthenticated) {
         await authStore.initializeAuth().then(() => {
             isLoading.value = false;
         });

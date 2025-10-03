@@ -21,15 +21,15 @@ const router = createRouter({
 });
 
 router.beforeEach(async (to, from, next) => {
-    const auth = useAuthStore();
+    const authStore = useAuthStore();
 
-    if (auth.user === null && !auth.isInitialized) {
-        await auth.initializeAuth();
+    if (authStore.user === null) {
+        await authStore.initializeAuth();
     }
 
-    if (!auth.isAuthenticated && to.meta.requiresAuth) {
+    if (!authStore.isAuthenticated && to.meta.requiresAuth) {
         next('/login');
-    } else if ((to.name === 'Login' || to.name === 'Register') && auth.isAuthenticated) {
+    } else if ((to.name === 'Login' || to.name === 'Register') && authStore.isAuthenticated) {
         next('/profile');
     } else {
         next();
@@ -37,12 +37,12 @@ router.beforeEach(async (to, from, next) => {
 });
 
 router.afterEach((to) => {
-    const auth = useAuthStore();
+    const authStore = useAuthStore();
 
     let title = DEFAULT_TITLE;
 
-    if (auth.isAuthenticated) {
-        title += ' | ' + auth.user.username;
+    if (authStore.isAuthenticated) {
+        title += ' | ' + authStore.user.username;
     } else if (to.meta.title) {
         title += ' | ' + to.meta.title;
     }
