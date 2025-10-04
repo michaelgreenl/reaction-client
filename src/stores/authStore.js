@@ -142,6 +142,27 @@ export const useAuthStore = defineStore('auth', () => {
         }
     }
 
+    async function getGamesBySettings(limit, offset, filters) {
+        if (!isAuthenticated) return;
+
+        try {
+            const games = await apiFetch(
+                `/game/filter/settings?userId=${user.value.id}&limit=${limit}&offset=${offset}&filters=${encodeURIComponent(JSON.stringify(filters))}`,
+                {
+                    method: 'GET',
+                },
+            );
+
+            return games;
+        } catch (error) {
+            if (error.message.includes('401')) {
+                await logout();
+            }
+            console.error('Getting games with filter failed:', error.message);
+            return { success: false, message: error.message };
+        }
+    }
+
     return {
         user,
         userStats,
@@ -155,5 +176,6 @@ export const useAuthStore = defineStore('auth', () => {
         setStats,
         setGame,
         getGames,
+        getGamesBySettings,
     };
 });
