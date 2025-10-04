@@ -119,7 +119,13 @@ async function filterGamesBySettings() {
                 <Button type="submit" text="Save" :disabled="!filtersAdded" />
             </form>
             <ul>
-                <li v-for="(game, i) in authStore.userGames.slice(offset, offset + 10)">
+                <li
+                    v-if="!filteredGames.length > 0"
+                    v-for="(game, i) in authStore.userGames.slice(offset, offset + 10)"
+                >
+                    {{ i + 1 + offset }}:{{ game.score }}|{{ (game.time / 1000).toFixed(2) }}
+                </li>
+                <li v-else v-for="(game, i) in filteredGames.slice(offset, offset + 10)">
                     {{ i + 1 + offset }}:{{ game.score }}|{{ (game.time / 1000).toFixed(2) }}
                 </li>
             </ul>
