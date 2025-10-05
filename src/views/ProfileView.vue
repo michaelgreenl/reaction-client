@@ -11,30 +11,50 @@ const isLoading = ref(true);
 
 const offset = ref(0);
 const activePage = ref(1);
+const activeGames = reactive({
+    filtered: false,
+    sorted: false,
+    games: [],
+});
 
 const showFilters = ref(false);
 const filterToggles = reactive({ circleSize: false, spawnInterval: false, shrinkTime: false });
 const settingsFilters = reactive({ ...settingsStore });
-const filteredGames = reactive([]);
-
-onMounted(async () => {
-    await authStore.getGames().then(() => {
-        isLoading.value = false;
-    });
-});
-
-async function changePage(newOffset, pageNum) {
-    activePage.value = pageNum;
-    if (newOffset >= authStore.userGames.length) {
-        await authStore.getGames(10, newOffset); // 10 games shown per page
-    }
-}
 
 const filtersAdded = computed(() => {
     return filterToggles.circleSize || filterToggles.spawnInterval || filterToggles.shrinkTime;
 });
 
-function resetFilters() {
+onMounted(async () => {
+    await authStore.getGames().then(() => {
+        activeGames.games.push(...authStore.userGames);
+        isLoading.value = false;
+    });
+});
+
+async function switchPage(newOffset, pageNum) {
+    activePage.value = pageNum;
+    offset.value = newOffset;
+
+    if (!filtersAdded && !activeGames.filtered) {
+        getUnfilteredGames();
+    } else {
+        filterGamesBySettings();
+    }
+}
+
+async function getUnfilteredGames() {
+    // NOTE: Just add the sorted checks here?
+    if (authStore.userGames.length) {
+        activeGames.games.push(...authStore.userGames);
+    } else {
+        await authStore.getGames(10, offset.value).then(() => {
+            activeGames.games.push(...authStore.userGames);
+        });
+    }
+}
+
+async function resetFilters() {
     settingsFilters.circleSize = 100;
     settingsFilters.spawnInterval = 1;
     settingsFilters.shrinkTime = 1;
@@ -42,9 +62,23 @@ function resetFilters() {
     Object.keys(filterToggles).forEach((toggle) => {
         filterToggles[`${toggle}`] = false;
     });
+
+    offset.value = 0;
+    activePage.value = 1;
+    activeGames.games.length = 0;
+    activeGames.filtered = false;
+    await getUnfilteredGames();
 }
 
 async function filterGamesBySettings() {
+    if (!filtersAdded.value && activeGames.filtered) {
+        await resetFilters();
+        return;
+    } else if (!activeGames.filtered) {
+        activeGames.games.length = 0;
+        activeGames.filtered = true;
+    }
+
     let filters = [];
 
     Object.keys(filterToggles).forEach((toggle) => {
@@ -55,7 +89,38 @@ async function filterGamesBySettings() {
 
     const games = await authStore.getGamesBySettings(10, offset.value, filters);
 
-    filteredGames.push(...games.games);
+    activeGames.games.push(...games.games);
+}
+
+function formatDate(isoString) {
+    const date = new Date(isoString);
+    if (isNaN(date)) throw new Error('Invalid ISO date string');
+
+    const parts = new Intl.DateTimeFormat('en-US', {
+        hour: 'numeric',
+        minute: '2-digit',
+        hour12: true,
+        month: 'numeric',
+        day: 'numeric',
+        year: '2-digit',
+    }).formatToParts(date);
+
+    const get = (type) => parts.find((p) => p.type === type)?.value;
+
+    const hour = get('hour');
+    const minute = get('minute');
+    const ampm = get('dayPeriod')?.toLowerCase();
+    const month = get('month');
+    const day = get('day');
+    const year = get('year');
+
+    const now = new Date();
+    const sameDay =
+        now.getFullYear() === date.getFullYear() &&
+        now.getMonth() === date.getMonth() &&
+        now.getDate() === date.getDate();
+
+    return sameDay ? `${hour}:${minute}${ampm}` : `${hour}:${minute}${ampm} ${month}-${day}-${year}`;
 }
 </script>
 
@@ -116,24 +181,40 @@ async function filterGamesBySettings() {
                     />
                 </div>
                 <Button text="Reset" @click="resetFilters" :disabled="!filtersAdded" />
-                <Button type="submit" text="Save" :disabled="!filtersAdded" />
+                <Button type="submit" text="Save" :disabled="!filtersAdded && !activeGames.filtered" />
             </form>
-            <ul>
-                <li
-                    v-if="!filteredGames.length > 0"
-                    v-for="(game, i) in authStore.userGames.slice(offset, offset + 10)"
-                >
-                    {{ i + 1 + offset }}:{{ game.score }}|{{ (game.time / 1000).toFixed(2) }}
-                </li>
-                <li v-else v-for="(game, i) in filteredGames.slice(offset, offset + 10)">
-                    {{ i + 1 + offset }}:{{ game.score }}|{{ (game.time / 1000).toFixed(2) }}
-                </li>
-            </ul>
-            <Button text="prev" @click="changePage((offset -= 10), activePage - 1)" :disabled="offset === 0" />
+            <table>
+                <thead>
+                    <tr>
+                        <th>
+                            <Button v-if="true" @click="" :text="true ? '▲' : '▼'" />
+                            date
+                        </th>
+                        <th>
+                            <Button v-if="true" @click="" :text="true ? '▲' : '▼'" />
+                            score
+                        </th>
+                        <th>
+                            <Button v-if="true" @click="" :text="true ? '▲' : '▼'" />
+                            time
+                        </th>
+                        <th>settings</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="(game, i) in activeGames.games.slice(offset, offset + 10)">
+                        <td>{{ formatDate(game.createdAt) }}</td>
+                        <td>{{ game.score }}</td>
+                        <td>{{ (game.time / 1000).toFixed(2) }}</td>
+                        <td><Button text="Show Settings" /></td>
+                    </tr>
+                </tbody>
+            </table>
+            <Button text="prev" @click="switchPage((offset -= 10), activePage - 1)" :disabled="offset === 0" />
             {{ activePage }}
             <Button
                 text="next"
-                @click="changePage((offset += 10), activePage + 1)"
+                @click="switchPage((offset += 10), activePage + 1)"
                 :disabled="authStore.userStats.totalGames < 10 || offset + 10 >= authStore.userStats.totalGames"
             />
         </div>
