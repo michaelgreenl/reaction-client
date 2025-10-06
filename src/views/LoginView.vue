@@ -4,12 +4,15 @@ import { useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/authStore';
 import Loader from '@/components/Loader.vue';
 
+const authStore = useAuthStore();
+
 const username = ref('');
 const password = ref('');
 const errorMessage = ref(null);
 const isLoading = ref(false);
+const showPassword = ref(false);
+const passwordHideButton = ref(false);
 
-const authStore = useAuthStore();
 const router = useRouter();
 
 const handleLogin = async () => {
@@ -44,7 +47,24 @@ const handleLogin = async () => {
             </div>
             <div class="form-group">
                 <label for="password">Password</label>
-                <input id="password" v-model="password" type="password" required :disabled="isLoading" />
+                <input
+                    id="password"
+                    v-model="password"
+                    :type="showPassword ? 'text' : 'password'"
+                    required
+                    :disabled="isLoading"
+                    @focus="passwordHideButton = true"
+                    @blur="passwordHideButton = false"
+                />
+                <button
+                    v-if="passwordHideButton"
+                    type="button"
+                    @click="showPassword = !showPassword"
+                    class="toggle-password"
+                    @mousedown.prevent
+                >
+                    {{ showPassword ? 'Hide' : 'Show' }}
+                </button>
             </div>
             <button type="submit" :disabled="isLoading">
                 <Loader v-if="isLoading" />
