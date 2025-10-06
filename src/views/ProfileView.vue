@@ -13,7 +13,7 @@ const offset = ref(0);
 const activePage = ref(1);
 const activeGames = reactive({
     filtered: false,
-    sorted: false,
+    sorted: { by: 'createdAt', order: 'DESC' },
     games: [],
 });
 
@@ -26,8 +26,7 @@ const filtersAdded = computed(() => {
 });
 
 onMounted(async () => {
-    await authStore.getGames().then(() => {
-        activeGames.games.push(...authStore.userGames);
+    await getUnfilteredGames().then(() => {
         isLoading.value = false;
     });
 });
@@ -36,7 +35,7 @@ async function switchPage(newOffset, pageNum) {
     activePage.value = pageNum;
     offset.value = newOffset;
 
-    if (!filtersAdded && !activeGames.filtered) {
+    if (!filtersAdded.value && !activeGames.filtered) {
         getUnfilteredGames();
     } else {
         filterGamesBySettings();
@@ -44,14 +43,11 @@ async function switchPage(newOffset, pageNum) {
 }
 
 async function getUnfilteredGames() {
-    // NOTE: Just add the sorted checks here?
-    if (authStore.userGames.length) {
-        activeGames.games.push(...authStore.userGames);
-    } else {
-        await authStore.getGames(10, offset.value).then(() => {
-            activeGames.games.push(...authStore.userGames);
-        });
-    }
+    activeGames.games.length = 0;
+    activeGames.filtered = false;
+
+    const games = await authStore.getGames(10, offset.value, activeGames.sorted);
+    activeGames.games.push(...games);
 }
 
 async function resetFilters() {
@@ -65,8 +61,6 @@ async function resetFilters() {
 
     offset.value = 0;
     activePage.value = 1;
-    activeGames.games.length = 0;
-    activeGames.filtered = false;
     await getUnfilteredGames();
 }
 
@@ -87,9 +81,24 @@ async function filterGamesBySettings() {
         }
     });
 
-    const games = await authStore.getGamesBySettings(10, offset.value, filters);
+    const games = await authStore.getGamesBySettings(10, offset.value, filters, activeGames.sorted);
 
-    activeGames.games.push(...games.games);
+    activeGames.games.push(...games);
+}
+
+async function handleSort(by) {
+    if (activeGames.sorted.by === by) {
+        activeGames.sorted.order = activeGames.sorted.order === 'DESC' ? 'ASC' : 'DESC';
+    } else {
+        activeGames.sorted.by = by;
+        activeGames.sorted.order = 'DESC';
+    }
+
+    if (!filtersAdded.value && !activeGames.filtered) {
+        await getUnfilteredGames();
+    } else {
+        await filterGamesBySettings();
+    }
 }
 
 function formatDate(isoString) {
@@ -187,15 +196,27 @@ function formatDate(isoString) {
                 <thead>
                     <tr>
                         <th>
-                            <Button v-if="true" @click="" :text="true ? '▲' : '▼'" />
+                            <Button
+                                @click="handleSort('createdAt')"
+                                :text="activeGames.sorted.order === 'ASC' ? '▲' : '▼'"
+                                :showText="activeGames.sorted.by === 'createdAt'"
+                            />
                             date
                         </th>
                         <th>
-                            <Button v-if="true" @click="" :text="true ? '▲' : '▼'" />
+                            <Button
+                                @click="handleSort('score')"
+                                :text="activeGames.sorted.order === 'ASC' ? '▲' : '▼'"
+                                :showText="activeGames.sorted.by === 'score'"
+                            />
                             score
                         </th>
                         <th>
-                            <Button v-if="true" @click="" :text="true ? '▲' : '▼'" />
+                            <Button
+                                @click="handleSort('time')"
+                                :text="activeGames.sorted.order === 'ASC' ? '▲' : '▼'"
+                                :showText="activeGames.sorted.by === 'time'"
+                            />
                             time
                         </th>
                         <th>settings</th>

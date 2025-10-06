@@ -81,6 +81,7 @@ export const useAuthStore = defineStore('auth', () => {
             if (error.message.includes('401')) {
                 await logout();
             }
+
             console.error('Stats fetch failed:', error.message);
             return { success: false, message: error.message };
         }
@@ -100,6 +101,7 @@ export const useAuthStore = defineStore('auth', () => {
             if (error.message.includes('401')) {
                 await logout();
             }
+
             console.error('Stats update failed:', error.message);
             return { success: false, message: error.message };
         }
@@ -119,45 +121,51 @@ export const useAuthStore = defineStore('auth', () => {
             if (error.message.includes('401')) {
                 await logout();
             }
+
             console.error('Posting game failed:', error.message);
             return { success: false, message: error.message };
         }
     }
 
-    async function getGames(limit, offset) {
-        if (!isAuthenticated) return;
-
-        try {
-            const games = await apiFetch(`/game?userId=${user.value.id}&limit=${limit}&offset=${offset}`, {
-                method: 'GET',
-            });
-
-            userGames.value.push(...games.games);
-        } catch (error) {
-            if (error.message.includes('401')) {
-                await logout();
-            }
-            console.error('Getting games failed:', error.message);
-            return { success: false, message: error.message };
-        }
-    }
-
-    async function getGamesBySettings(limit, offset, filters) {
+    async function getGames(limit, offset, sorted) {
         if (!isAuthenticated) return;
 
         try {
             const games = await apiFetch(
-                `/game/filter/settings?userId=${user.value.id}&limit=${limit}&offset=${offset}&filters=${encodeURIComponent(JSON.stringify(filters))}`,
+                `/game?userId=${user.value.id}&limit=${limit}&offset=${offset}&sortedBy=${sorted.by}&sortedOrder=${sorted.order}`,
                 {
                     method: 'GET',
                 },
             );
 
-            return games;
+            return [...games.games];
         } catch (error) {
             if (error.message.includes('401')) {
                 await logout();
             }
+
+            console.error('Getting games failed:', error.message);
+            return { success: false, message: error.message };
+        }
+    }
+
+    async function getGamesBySettings(limit, offset, filters, sorted) {
+        if (!isAuthenticated) return;
+
+        try {
+            const games = await apiFetch(
+                `/game/filter/settings?userId=${user.value.id}&limit=${limit}&offset=${offset}&filters=${encodeURIComponent(JSON.stringify(filters))}&sortedBy=${sorted.by}&sortedOrder=${sorted.order}`,
+                {
+                    method: 'GET',
+                },
+            );
+
+            return [...games.games];
+        } catch (error) {
+            if (error.message.includes('401')) {
+                await logout();
+            }
+
             console.error('Getting games with filter failed:', error.message);
             return { success: false, message: error.message };
         }
