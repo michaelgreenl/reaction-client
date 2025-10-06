@@ -136,6 +136,18 @@ function formatDate(isoString) {
 
     return sameDay ? `${hour}:${minute}${ampm}` : `${hour}:${minute}${ampm} ${month}-${day}-${year}`;
 }
+
+function formatTime(time) {
+    let seconds = (time / 1000).toFixed(2);
+
+    if (seconds < 59.99) {
+        return `${seconds}s`;
+    } else {
+        const mins = Math.floor(seconds / 60);
+        seconds = seconds % 60;
+        return `${mins}:${seconds}`;
+    }
+}
 </script>
 
 <template>
@@ -239,7 +251,7 @@ function formatDate(isoString) {
                     <tr v-for="(game, i) in activeGames.games">
                         <td>{{ formatDate(game.createdAt) }}</td>
                         <td>{{ game.score }}</td>
-                        <td>{{ (game.time / 1000).toFixed(2) }}</td>
+                        <td>{{ formatTime(game.time) }}</td>
                         <td v-if="!showSettings">
                             <Button text="Show Settings" @click="showSettings = true" />
                         </td>
