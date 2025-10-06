@@ -20,6 +20,7 @@ const activeGames = reactive({
 const showFilters = ref(false);
 const filterToggles = reactive({ circleSize: false, spawnInterval: false, shrinkTime: false });
 const settingsFilters = reactive({ ...settingsStore });
+const showSettings = ref(false);
 
 const filtersAdded = computed(() => {
     return filterToggles.circleSize || filterToggles.spawnInterval || filterToggles.shrinkTime;
@@ -47,7 +48,9 @@ async function getUnfilteredGames() {
     activeGames.filtered = false;
 
     const games = await authStore.getGames(10, offset.value, activeGames.sorted);
+    console.log(games);
     activeGames.games.push(...games);
+    console.log(activeGames.games);
 }
 
 async function resetFilters() {
@@ -139,6 +142,7 @@ function formatDate(isoString) {
         <div v-if="isLoading">Loading...</div>
         <div v-else>
             <Button text="Show Filters" @click="showFilters = !showFilters" />
+            <Button v-if="showSettings" text="Hide Settings" @click="showSettings = false" />
             <div v-if="showFilters">
                 <Button
                     :text="filterToggles.circleSize ? 'Circle Size -' : 'Circle Size +'"
@@ -219,15 +223,23 @@ function formatDate(isoString) {
                             />
                             time
                         </th>
-                        <th>settings</th>
+                        <th v-if="!showSettings">settings</th>
+                        <th v-if="showSettings">Circle Size</th>
+                        <th v-if="showSettings">Spawn Interval</th>
+                        <th v-if="showSettings">Shrink Time</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="(game, i) in activeGames.games.slice(offset, offset + 10)">
+                    <tr v-for="(game, i) in activeGames.games">
                         <td>{{ formatDate(game.createdAt) }}</td>
                         <td>{{ game.score }}</td>
                         <td>{{ (game.time / 1000).toFixed(2) }}</td>
-                        <td><Button text="Show Settings" /></td>
+                        <td v-if="!showSettings">
+                            <Button text="Show Settings" @click="showSettings = true" />
+                        </td>
+                        <td v-if="showSettings">{{ game.settings.circleSize }}</td>
+                        <td v-if="showSettings">{{ game.settings.spawnInterval }}</td>
+                        <td v-if="showSettings">{{ game.settings.shrinkTime }}</td>
                     </tr>
                 </tbody>
             </table>
