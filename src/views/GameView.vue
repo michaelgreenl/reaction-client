@@ -61,6 +61,18 @@ function handleScoreIncrement() {
 onBeforeUnmount(() => {
     stopTimer();
 });
+
+function formatTime(time) {
+    let seconds = (time / 1000).toFixed(2);
+
+    if (seconds < 59.99) {
+        return `${seconds}s`;
+    } else {
+        const mins = Math.floor(seconds / 60);
+        seconds = seconds % 60;
+        return `${mins}:${seconds}`;
+    }
+}
 </script>
 
 <template>
@@ -78,7 +90,7 @@ onBeforeUnmount(() => {
         <div v-if="gamePlayed && !gameActive" class="game-over">
             <h1>Game Over</h1>
             <div>Score: {{ score }}</div>
-            <div>Time: {{ (elapsedMs / 1000).toFixed(2) }}s</div>
+            <div>Time: {{ formatTime(elapsedMs) }}</div>
         </div>
         <Settings v-if="showSettings" />
     </div>
