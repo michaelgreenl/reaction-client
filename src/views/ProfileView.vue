@@ -8,6 +8,7 @@ const authStore = useAuthStore();
 const settingsStore = useSettingsStore();
 
 const isLoading = ref(true);
+const loadingGames = ref(true);
 
 const offset = ref(0);
 const activePage = ref(1);
@@ -29,6 +30,7 @@ const filtersAdded = computed(() => {
 onMounted(async () => {
     await getUnfilteredGames().then(() => {
         isLoading.value = false;
+        loadingGames.value = false;
     });
 });
 
@@ -47,10 +49,10 @@ async function getUnfilteredGames() {
     activeGames.games.length = 0;
     activeGames.filtered = false;
 
+    loadingGames.value = true;
     const games = await authStore.getGames(10, offset.value, activeGames.sorted);
-    console.log(games);
+    loadingGames.value = false;
     activeGames.games.push(...games);
-    console.log(activeGames.games);
 }
 
 async function resetFilters() {
@@ -77,15 +79,15 @@ async function filterGamesBySettings() {
     }
 
     let filters = [];
-
     Object.keys(filterToggles).forEach((toggle) => {
         if (filterToggles[`${toggle}`]) {
             filters.push({ filter: toggle, value: settingsFilters[`${toggle}`] });
         }
     });
 
+    loadingGames.value = true;
     const games = await authStore.getGamesBySettings(10, offset.value, filters, activeGames.sorted);
-
+    loadingGames.value = false;
     activeGames.games.push(...games);
 }
 
@@ -141,6 +143,7 @@ function formatDate(isoString) {
         <h1>Profile</h1>
         <div v-if="isLoading">Loading...</div>
         <div v-else>
+            <p v-if="loadingGames">Loading...</p>
             <Button text="Show Filters" @click="showFilters = !showFilters" />
             <Button v-if="showSettings" text="Hide Settings" @click="showSettings = false" />
             <div v-if="showFilters">
@@ -166,7 +169,7 @@ function formatDate(isoString) {
                         type="range"
                         min="50"
                         max="150"
-                        :disabled="!filterToggles.circleSize"
+                        :disabled="loadingGames || !filterToggles.circleSize"
                     />
                 </div>
                 <div class="form-group" v-if="filterToggles.spawnInterval">
@@ -178,7 +181,7 @@ function formatDate(isoString) {
                         min="0.25"
                         max="2"
                         step="0.25"
-                        :disabled="!filterToggles.spawnInterval"
+                        :disabled="loadingGames || !filterToggles.spawnInterval"
                     />
                 </div>
                 <div class="form-group" v-if="filterToggles.shrinkTime">
@@ -190,7 +193,7 @@ function formatDate(isoString) {
                         min="0.25"
                         max="2"
                         step="0.25"
-                        :disabled="!filterToggles.shrinkTime"
+                        :disabled="loadingGames || !filterToggles.shrinkTime"
                     />
                 </div>
                 <Button text="Reset" @click="resetFilters" :disabled="!filtersAdded" />
@@ -204,6 +207,7 @@ function formatDate(isoString) {
                                 @click="handleSort('createdAt')"
                                 :text="activeGames.sorted.order === 'ASC' ? '▲' : '▼'"
                                 :showText="activeGames.sorted.by === 'createdAt'"
+                                :disabled="loadingGames"
                             />
                             date
                         </th>
@@ -212,6 +216,7 @@ function formatDate(isoString) {
                                 @click="handleSort('score')"
                                 :text="activeGames.sorted.order === 'ASC' ? '▲' : '▼'"
                                 :showText="activeGames.sorted.by === 'score'"
+                                :disabled="loadingGames"
                             />
                             score
                         </th>
@@ -220,6 +225,7 @@ function formatDate(isoString) {
                                 @click="handleSort('time')"
                                 :text="activeGames.sorted.order === 'ASC' ? '▲' : '▼'"
                                 :showText="activeGames.sorted.by === 'time'"
+                                :disabled="loadingGames"
                             />
                             time
                         </th>
@@ -243,12 +249,18 @@ function formatDate(isoString) {
                     </tr>
                 </tbody>
             </table>
-            <Button text="prev" @click="switchPage((offset -= 10), activePage - 1)" :disabled="offset === 0" />
+            <Button
+                text="prev"
+                @click="switchPage((offset -= 10), activePage - 1)"
+                :disabled="loadingGames || offset === 0"
+            />
             {{ activePage }}
             <Button
                 text="next"
                 @click="switchPage((offset += 10), activePage + 1)"
-                :disabled="authStore.userStats.totalGames < 10 || offset + 10 >= authStore.userStats.totalGames"
+                :disabled="
+                    loadingGames || authStore.userStats.totalGames < 10 || offset + 10 >= authStore.userStats.totalGames
+                "
             />
         </div>
     </div>
