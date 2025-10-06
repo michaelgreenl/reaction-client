@@ -1,13 +1,14 @@
 <script setup>
 defineEmits(['click']);
 
-defineProps({
+const props = defineProps({
     text: { type: String },
+    showText: { type: Boolean, default: true },
 });
 </script>
 
 <template>
     <button @click="$emit('click')">
-        {{ text }}
+        {{ showText ? text : null }}
     </button>
 </template>
