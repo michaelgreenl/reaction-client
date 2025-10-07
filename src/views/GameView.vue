@@ -18,6 +18,23 @@ const elapsedMs = ref(0);
 let timerId;
 let startTimestamp = 0;
 
+const count = ref(3);
+const showCount = ref(false);
+
+function countdown(n) {
+    count.value = n;
+    return new Promise((resolve) => {
+        if (n === 0) {
+            showCount.value = false;
+            resolve(true);
+            return;
+        }
+        setTimeout(() => {
+            countdown(n - 1).then(resolve);
+        }, 1000);
+    });
+}
+
 function startTimer() {
     elapsedMs.value = 0;
     startTimestamp = performance.now();
@@ -33,11 +50,14 @@ function stopTimer() {
     }
 }
 
-function startGame() {
+async function startGame() {
+    count.value = 3;
     score.value = 0;
     showSettings.value = false;
     gamePlayed.value = true;
     gameActive.value = true;
+    showCount.value = true;
+    await countdown(3);
     startTimer();
 }
 
@@ -108,6 +128,9 @@ function formatTime(time) {
 
 <template>
     <div class="game-container">
+        <div v-if="showCount">
+            {{ count }}
+        </div>
         <ul v-if="!gameActive">
             <li v-for="game in authStore.recentUserGames" :key="game.createdAt">
                 {{ formatDate(game.createdAt) }} | {{ game.score }} |
@@ -116,7 +139,7 @@ function formatTime(time) {
         <Button v-if="!gameActive" @click="startGame" text="Start" />
         <Button v-if="!gameActive" @click="showSettings = !showSettings" text="Settings" />
         <Canvas
-            v-if="gameActive"
+            v-if="gameActive && count === 0"
             :gameActive="gameActive"
             :score="score"
             :time="elapsedMs"
