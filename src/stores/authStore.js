@@ -8,6 +8,7 @@ export const useAuthStore = defineStore('auth', () => {
     const user = ref(null);
     const userStats = ref();
     const userGames = ref([]);
+    const recentUserGames = ref([]);
     const isAuthenticated = computed(() => !!user.value);
 
     const settingsStore = useSettingsStore();
@@ -22,6 +23,11 @@ export const useAuthStore = defineStore('auth', () => {
                 user.value = { id: data.id, username: data.username };
                 userStats.value = data.stats;
                 settingsStore.$patch({ ...data.settings });
+
+                if (!recentUserGames.value.length) {
+                    const games = await getGames(5, 0, { by: 'createdAt', order: 'DESC' });
+                    recentUserGames.value.push(...games);
+                }
             } else {
                 user.value = null;
             }
@@ -116,6 +122,15 @@ export const useAuthStore = defineStore('auth', () => {
                 body: { userId: user.value.id, score: game.score, time: game.time, settings, stats: userStats.value },
             });
 
+            recentUserGames.value.pop();
+            recentUserGames.value.unshift({
+                userId: user.value.id,
+                createdAt: new Date(),
+                score: game.score,
+                time: game.time,
+                settings,
+            });
+
             userStats.value = { ...newStats };
         } catch (error) {
             if (error.message.includes('401')) {
@@ -178,6 +193,7 @@ export const useAuthStore = defineStore('auth', () => {
         isAuthenticated,
         initializeAuth,
         register,
+        recentUserGames,
         login,
         logout,
         getStats,

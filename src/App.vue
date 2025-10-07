@@ -6,28 +6,16 @@ import Navbar from '@/components/Navbar.vue';
 
 const settingsStore = useSettingsStore();
 const authStore = useAuthStore();
-const isLoading = ref(true);
-
-onMounted(async () => {
-    if (!authStore.isAuthenticated) {
-        await authStore.initializeAuth().then(() => {
-            isLoading.value = false;
-        });
-    } else {
-        isLoading.value = false;
-    }
-});
 </script>
 
 <template>
-    <div v-if="!isLoading" class="app-container">
+    <div class="app-container">
         <Navbar />
 
         <main>
             <router-view />
         </main>
     </div>
-    <div v-if="isLoading">Loading...</div>
 </template>
 
 <style lang="scss">

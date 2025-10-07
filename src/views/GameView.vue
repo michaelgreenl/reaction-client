@@ -62,6 +62,37 @@ onBeforeUnmount(() => {
     stopTimer();
 });
 
+function formatDate(isoString) {
+    const date = new Date(isoString);
+    if (isNaN(date)) throw new Error('Invalid ISO date string');
+
+    const parts = new Intl.DateTimeFormat('en-US', {
+        hour: 'numeric',
+        minute: '2-digit',
+        hour12: true,
+        month: 'numeric',
+        day: 'numeric',
+        year: '2-digit',
+    }).formatToParts(date);
+
+    const get = (type) => parts.find((p) => p.type === type)?.value;
+
+    const hour = get('hour');
+    const minute = get('minute');
+    const ampm = get('dayPeriod')?.toLowerCase();
+    const month = get('month');
+    const day = get('day');
+    const year = get('year');
+
+    const now = new Date();
+    const sameDay =
+        now.getFullYear() === date.getFullYear() &&
+        now.getMonth() === date.getMonth() &&
+        now.getDate() === date.getDate();
+
+    return sameDay ? `${hour}:${minute}${ampm}` : `${hour}:${minute}${ampm} ${month}-${day}-${year}`;
+}
+
 function formatTime(time) {
     let seconds = (time / 1000).toFixed(2);
 
@@ -77,6 +108,11 @@ function formatTime(time) {
 
 <template>
     <div class="game-container">
+        <ul v-if="!gameActive">
+            <li v-for="game in authStore.recentUserGames" :key="game.createdAt">
+                {{ formatDate(game.createdAt) }} | {{ game.score }} |
+            </li>
+        </ul>
         <Button v-if="!gameActive" @click="startGame" text="Start" />
         <Button v-if="!gameActive" @click="showSettings = !showSettings" text="Settings" />
         <Canvas
