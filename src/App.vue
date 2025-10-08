@@ -1,8 +1,5 @@
 <script setup>
 import Navbar from '@/components/Navbar.vue';
-
-const settingsStore = useSettingsStore();
-const authStore = useAuthStore();
 </script>
 
 <template>
