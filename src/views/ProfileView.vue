@@ -271,7 +271,9 @@ function formatTime(time) {
                 text="next"
                 @click="switchPage((offset += 10), activePage + 1)"
                 :disabled="
-                    loadingGames || authStore.userStats.totalGames < 10 || offset + 10 >= authStore.userStats.totalGames
+                    loadingGames ||
+                    authStore.userStats?.totalGames < 10 ||
+                    offset + 10 >= authStore.userStats?.totalGames
                 "
             />
         </div>
