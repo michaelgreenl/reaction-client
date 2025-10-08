@@ -1,7 +1,4 @@
 <script setup>
-import { onMounted, ref } from 'vue';
-import { useAuthStore } from '@/stores/authStore';
-import { useSettingsStore } from '@/stores/settingsStore';
 import Navbar from '@/components/Navbar.vue';
 
 const settingsStore = useSettingsStore();
