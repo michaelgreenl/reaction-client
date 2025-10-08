@@ -32,7 +32,7 @@ function circleClick() {
                 height: `${settingsStore.circleSize}px`,
                 width: `${settingsStore.circleSize}px`,
             }"
-            @click="circleClick()"
+            @mousedown="circleClick()"
             @animationend="$emit('endGame')"
         ></button>
     </div>
