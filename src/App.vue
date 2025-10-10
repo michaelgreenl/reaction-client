@@ -14,7 +14,6 @@ import Navbar from '@/components/Navbar.vue';
 
 <style lang="scss">
 @use './assets/styles/_fonts.scss';
-@use './assets/styles/_variables.scss';
 
 * {
     box-sizing: border-box;
