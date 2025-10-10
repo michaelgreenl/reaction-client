@@ -13,6 +13,7 @@ import Navbar from '@/components/Navbar.vue';
 </template>
 
 <style lang="scss">
+@use './assets/styles/_fonts.scss';
 @use './assets/styles/_variables.scss';
 
 * {
