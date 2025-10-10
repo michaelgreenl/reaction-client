@@ -131,7 +131,7 @@ function formatTime(time) {
         <div v-if="showCount">
             {{ count }}
         </div>
-        <ul v-if="!gameActive">
+        <ul v-if="!gameActive && authStore.recentUserGames.length">
             <li v-for="game in authStore.recentUserGames" :key="game.createdAt">
                 {{ formatDate(game.createdAt) }} | {{ game.score }} |
             </li>
