@@ -9,7 +9,6 @@ const authStore = useAuthStore();
     <nav>
         <router-link to="/">Play</router-link>
         <router-link v-if="!authStore.isAuthenticated" to="/login">Login</router-link>
-        <router-link v-if="!authStore.isAuthenticated" to="/register">Register</router-link>
         <router-link v-if="authStore.isAuthenticated" to="/profile">Profile</router-link>
         <Button v-if="authStore.isAuthenticated" @click="authStore.logout" text="Logout" />
     </nav>
