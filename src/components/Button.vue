@@ -5,12 +5,16 @@ const props = defineProps({
     text: { type: String },
     showText: { type: Boolean, default: true },
     preset: { type: String, default: 'primary' },
+    iconLeft: { type: Object },
+    iconRight: { type: Object },
 });
 </script>
 
 <template>
     <button :class="preset" @click="$emit('click')">
-        <span>{{ showText ? text : null }}</span>
+        <component class="icon icon-left" :is="iconLeft" />
+        <span v-if="showText">{{ text }}</span>
+        <component class="icon icon-right" :is="iconRight" />
     </button>
 </template>
 
@@ -30,16 +34,44 @@ button {
     }
 
     &.primary {
-        background: $color-gray2;
+        background: $color-bg-secondary;
+
+        &:disabled {
+            background: $color-gray5;
+            color: $color-gray3;
+        }
     }
 
     &.secondary {
         background: $color-accent;
+
+        &:disabled {
+            background: $color-gray5;
+            color: $color-gray3;
+        }
     }
 
-    &:disabled {
-        background: $color-gray5;
-        color: $color-gray3;
+    &.primary,
+    &.secondary {
+        transition: transform 0.1s ease;
+
+        &:hover {
+            transform: scale(1.05);
+        }
+
+        &:active {
+            transform: scale(0.95);
+        }
+    }
+
+    &.icon-only {
+        border-radius: 20px;
+        padding: $size-2;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: $color-bg-secondary;
+        transition: background 0.1s ease;
     }
 }
 </style>
