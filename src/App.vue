@@ -42,7 +42,12 @@ body,
 
 main {
     // viewport height minus height of navbar
-    height: calc(100vh - 2em);
+    height: calc(100vh - 3.2em);
+}
+
+h2 {
+    font-style: oblique;
+    font-weight: 600;
 }
 
 button {
@@ -55,5 +60,9 @@ button:focus-visible {
 
 a {
     text-decoration: none;
+}
+
+a:visted {
+    color: inherit;
 }
 </style>
