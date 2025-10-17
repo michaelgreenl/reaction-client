@@ -86,7 +86,7 @@ const handleLogin = async () => {
 
 .auth-form {
     padding: $size-5;
-    border-radius: 16px;
+    border-radius: $border-radius-xl;
     width: 100%;
     max-width: 400px;
     display: flex;
@@ -95,7 +95,7 @@ const handleLogin = async () => {
 
     h2 {
         text-align: center;
-        color: $color-text-primary;
+        color: $color-text-primary-light;
         margin-bottom: $size-4;
     }
 
@@ -105,16 +105,16 @@ const handleLogin = async () => {
         gap: $size-1;
 
         label {
-            color: $color-text-primary;
+            color: $color-text-secondary-dark;
             font-size: 0.9rem;
         }
 
         input {
             padding: $size-2;
             border: 1px solid $color-primary;
-            border-radius: 12px;
+            border-radius: $border-radius-md;
             background-color: $color-bg-secondary;
-            color: $color-text-secondary;
+            color: $color-text-secondary-dark;
 
             &:focus {
                 outline: none;

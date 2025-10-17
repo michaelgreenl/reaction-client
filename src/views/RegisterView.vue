@@ -147,7 +147,7 @@ const handleRegister = async () => {
 
 .auth-form {
     padding: $size-5;
-    border-radius: 16px;
+    border-radius: $border-radius-xl;
     width: 100%;
     max-width: 400px;
     display: flex;
@@ -156,7 +156,7 @@ const handleRegister = async () => {
 
     h2 {
         text-align: center;
-        color: $color-text-primary;
+        color: $color-text-primary-light;
         margin-bottom: $size-4;
     }
 
@@ -166,16 +166,16 @@ const handleRegister = async () => {
         gap: $size-1;
 
         label {
-            color: $color-text-primary;
+            color: $color-text-primary-light;
             font-size: 0.9rem;
         }
 
         input {
             padding: $size-2;
             border: 1px solid $color-primary;
-            border-radius: 12px;
+            border-radius: $border-radius-md;
             background-color: $color-bg-secondary;
-            color: $color-text-secondary;
+            color: $color-text-secondary-dark;
             width: 100%;
 
             &:focus {
@@ -201,12 +201,12 @@ const handleRegister = async () => {
             transform: translateY(-50%);
             background: none;
             border: none;
-            color: $color-text-primary;
+            color: $color-text-primary-light;
             cursor: pointer;
             font-size: 0.8rem;
 
             &:hover {
-                color: $color-text-secondary;
+                color: $color-text-secondary-dark;
             }
         }
     }
@@ -216,7 +216,7 @@ const handleRegister = async () => {
         padding: 0;
         margin-top: $size-2;
         font-size: 0.9rem;
-        color: $color-text-primary;
+        color: $color-text-primary-light;
 
         li {
             display: flex;
