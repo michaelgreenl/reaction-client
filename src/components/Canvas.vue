@@ -56,7 +56,6 @@ const localGameActive = ref(true);
 
 function handleGameEnd() {
     localGameActive.value = false;
-
     // Timeout for the circle's fade-out transitions
     setTimeout(() => {
         emit('endGame');
@@ -67,8 +66,14 @@ function handleGameEnd() {
 <template>
     <div class="game-container">
         <div class="hud">
-            <span>Score: {{ score }}</span>
-            <span>Time: {{ (time / 1000).toFixed(2) }}s</span>
+            <div class="stat-wrapper">
+                <span class="label">Score:</span>
+                <span>{{ score }}</span>
+            </div>
+            <div class="stat-wrapper">
+                <span class="label">Time:</span>
+                <span>{{ (time / 1000).toFixed(2) }}s</span>
+            </div>
         </div>
         <div class="canvas">
             <div v-for="c in circles" :key="c.id" class="circle-wrapper" :style="{ left: c.x + 'px', top: c.y + 'px' }">
@@ -87,7 +92,26 @@ function handleGameEnd() {
 
     .hud {
         position: absolute;
-        color: $color-white;
+        top: $size-1;
+        left: $size-2;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: $color-bg-secondary;
+        padding: $size-2 $size-4;
+        border-radius: $border-radius-sm;
+        gap: $size-2;
+
+        .stat-wrapper {
+            display: flex;
+            gap: $size-1;
+
+            .label {
+                color: $color-accent;
+                font-weight: 600;
+                font-style: oblique;
+            }
+        }
     }
 
     .canvas {
