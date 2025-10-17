@@ -25,7 +25,7 @@ button {
     font-family: $primary-font-stack;
     border: 0;
     padding: 0.25em 1em;
-    border-radius: 8px;
+    border-radius: $border-radius-xs;
 
     span {
         font-size: 1.1em;
