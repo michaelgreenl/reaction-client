@@ -28,8 +28,11 @@ export const useAuthStore = defineStore('auth', () => {
                     const games = await getGames(5, 0, { by: 'createdAt', order: 'DESC' });
                     recentUserGames.value.push(...games);
                 }
+
+                localStorage.setItem('AUTHORIZED', true);
             } else {
                 user.value = null;
+                localStorage.setItem('AUTHORIZED', false);
             }
         } catch (error) {
             user.value = null;
@@ -58,6 +61,7 @@ export const useAuthStore = defineStore('auth', () => {
             });
 
             user.value = { id: data.id, username: data.username };
+            localStorage.setItem('AUTHORIZED', true);
 
             return true;
         } catch (error) {
@@ -71,6 +75,7 @@ export const useAuthStore = defineStore('auth', () => {
         user.value = null;
         userStats.value = null;
         userGames.value = [];
+        localStorage.setItem('AUTHORIZED', false);
         router.push({ name: 'Login' });
     }
 
