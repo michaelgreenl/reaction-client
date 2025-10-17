@@ -1,4 +1,5 @@
 <script setup>
+import Loader from '@/components/Loader.vue';
 defineEmits(['click']);
 
 const props = defineProps({
@@ -7,13 +8,15 @@ const props = defineProps({
     preset: { type: String, default: 'primary' },
     iconLeft: { type: Object },
     iconRight: { type: Object },
+    isLoading: { type: Boolean, default: false },
 });
 </script>
 
 <template>
     <button :class="preset" @click="$emit('click')">
         <component class="icon icon-left" :is="iconLeft" />
-        <span v-if="showText">{{ text }}</span>
+        <span v-if="showText && !isLoading">{{ text }}</span>
+        <Loader v-if="isLoading" />
         <component class="icon icon-right" :is="iconRight" />
     </button>
 </template>

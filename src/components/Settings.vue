@@ -163,9 +163,13 @@ onBeforeUnmount(() => {
         </div>
         <div v-if="showSettings" class="form-buttons">
             <Button text="Cancel" @click="resetLocalSettings()" :disabled="!settingsChanged" />
-
-            <!-- TODO: Add <Loader /> after adding api call -->
-            <Button type="submit" @click="saveSettings()" text="Save" :disabled="isLoading || !settingsChanged" />
+            <Button
+                type="submit"
+                @click="saveSettings()"
+                text="Save"
+                :isLoading="isLoading"
+                :disabled="isLoading || !settingsChanged"
+            />
             <slot name="startButton"></slot>
         </div>
     </div>

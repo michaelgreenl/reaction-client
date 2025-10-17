@@ -19,3 +19,9 @@ onUnmounted(() => {
 <template>
     <div class="loading-text">{{ loadingText }}</div>
 </template>
+
+<style lang="scss" scoped>
+div {
+    width: 7ch;
+}
+</style>
