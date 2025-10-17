@@ -4,6 +4,8 @@ import { useSettingsStore } from '@/stores/settingsStore';
 
 const props = defineProps({
     gameActive: { type: Boolean },
+    animation: { type: Boolean, default: true },
+    localSize: { required: false },
 });
 
 const emit = defineEmits(['click', 'endGame']);
@@ -14,7 +16,9 @@ const animating = ref(false);
 const paused = ref(false);
 
 onMounted(() => {
-    animating.value = true;
+    if (props.animation) {
+        animating.value = true;
+    }
 });
 
 function circleClick() {
@@ -24,15 +28,20 @@ function circleClick() {
 </script>
 
 <template>
-    <div :style="{ height: `${settingsStore.circleSize}px`, width: `${settingsStore.circleSize}px` }">
+    <div
+        :style="{
+            height: `${localSize ? localSize : settingsStore.circleSize}px`,
+            width: `${localSize ? localSize : settingsStore.circleSize}px`,
+        }"
+    >
         <button
             :class="{ animate: animating, 'fade-out': paused || !gameActive }"
             :style="{
                 animationDuration: `${settingsStore.shrinkTime}s`,
-                height: `${settingsStore.circleSize}px`,
-                width: `${settingsStore.circleSize}px`,
+                height: `${localSize ? localSize : settingsStore.circleSize}px`,
+                width: `${localSize ? localSize : settingsStore.circleSize}px`,
             }"
-            @mousedown="circleClick()"
+            @mousedown="animation ? circleClick() : null"
             @animationend="$emit('endGame')"
         ></button>
     </div>
@@ -45,7 +54,7 @@ div {
     justify-content: center;
 
     button {
-        background-color: $color-white;
+        background-color: $color-bg-secondary;
         border-radius: 100%;
         border: 0;
         opacity: 1;

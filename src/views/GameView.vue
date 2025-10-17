@@ -128,16 +128,36 @@ function formatTime(time) {
 
 <template>
     <div class="game-container">
-        <div v-if="showCount">
-            {{ count }}
+        <div v-if="!gameActive" class="game-start">
+            <ul v-if="authStore.recentUserGames.length">
+                <li v-for="game in authStore.recentUserGames" :key="game.createdAt">
+                    {{ formatDate(game.createdAt) }} | {{ game.score }} |
+                </li>
+            </ul>
+            <div v-if="gamePlayed && !showSettings" class="game-end">
+                <h1>Game Over</h1>
+                <div>Score: {{ score }}</div>
+                <div>Time: {{ formatTime(elapsedMs) }}</div>
+                <div class="buttons">
+                    <Button @click="showSettings = !showSettings" text="Settings" />
+                    <Button @click="startGame" text="Start" />
+                </div>
+            </div>
+            <div v-else>
+                <Settings class="settings" :showSettings="showSettings" @closeSettings="showSettings = false">
+                    <template #startButton>
+                        <Button @click="startGame" text="Start" />
+                    </template>
+                </Settings>
+                <div v-if="!showSettings" class="buttons">
+                    <Button @click="showSettings = !showSettings" text="Settings" />
+                    <Button @click="startGame" text="Start" />
+                </div>
+            </div>
         </div>
-        <ul v-if="!gameActive && authStore.recentUserGames.length">
-            <li v-for="game in authStore.recentUserGames" :key="game.createdAt">
-                {{ formatDate(game.createdAt) }} | {{ game.score }} |
-            </li>
-        </ul>
-        <Button v-if="!gameActive" @click="startGame" text="Start" />
-        <Button v-if="!gameActive" @click="showSettings = !showSettings" text="Settings" />
+        <div class="countdown" v-if="showCount">
+            <span>{{ count }}</span>
+        </div>
         <Canvas
             v-if="gameActive && count === 0"
             :gameActive="gameActive"
@@ -146,18 +166,23 @@ function formatTime(time) {
             @endGame="handleEndGame"
             @incrementScore="handleScoreIncrement"
         />
-        <div v-if="gamePlayed && !gameActive" class="game-over">
-            <h1>Game Over</h1>
-            <div>Score: {{ score }}</div>
-            <div>Time: {{ formatTime(elapsedMs) }}</div>
-        </div>
-        <Settings v-if="showSettings" />
     </div>
 </template>
 
 <style lang="scss" scoped>
 .game-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     height: 100%;
     width: 100%;
+
+    .game-start {
+        .buttons {
+            display: flex;
+            gap: $size-2;
+            margin-top: $size-8;
+        }
+    }
 }
 </style>
