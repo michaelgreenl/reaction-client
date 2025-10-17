@@ -134,10 +134,21 @@ function formatTime(time) {
                     {{ formatDate(game.createdAt) }} | {{ game.score }} |
                 </li>
             </ul>
-            <div v-if="gamePlayed && !showSettings" class="game-end">
-                <h1>Game Over</h1>
-                <div>Score: {{ score }}</div>
-                <div>Time: {{ formatTime(elapsedMs) }}</div>
+            <div v-if="gamePlayed && !showSettings" class="end-screen-wrapper">
+                <div class="end-screen">
+                    <h1>Game Over</h1>
+                    <hr />
+                    <div class="stats">
+                        <div class="stat-wrapper">
+                            <span class="label">Score:</span>
+                            <span class="value">{{ score }}</span>
+                        </div>
+                        <div class="stat-wrapper">
+                            <span class="label">Time:</span>
+                            <span class="value">{{ formatTime(elapsedMs) }}</span>
+                        </div>
+                    </div>
+                </div>
                 <div class="buttons">
                     <Button @click="showSettings = !showSettings" text="Settings" />
                     <Button @click="startGame" text="Start" />
@@ -183,15 +194,53 @@ function formatTime(time) {
             gap: $size-2;
             margin-top: $size-8;
         }
-    }
 
-    .countdown {
-        font-family: $primary-font-stack;
-        color: $color-text-primary-light;
-        font-weight: 600;
-        font-size: 2.5em;
-        animation: shrink 1s ease-in-out;
-        animation-iteration-count: 3;
+        .end-screen-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+
+            .end-screen {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                background: $color-bg-secondary;
+                padding: $size-2 $size-5 $size-3;
+                border-radius: $border-radius-md;
+
+                h1 {
+                    margin: 0;
+                    color: $color-accent;
+                    font-weight: 600;
+                }
+
+                hr {
+                    width: 100%;
+                    border: 0;
+                    height: 2px;
+                    background-color: $color-primary-light;
+                    margin: 0 0 $size-2;
+                }
+
+                .stats {
+                    font-size: 1.1em;
+                    display: flex;
+                    gap: $size-2;
+
+                    .stat-wrapper {
+                        display: flex;
+                        gap: $size-1;
+
+                        .label {
+                            color: $color-accent;
+                            font-weight: 600;
+                            font-style: oblique;
+                        }
+                    }
+                }
+            }
+        }
     }
 
     @keyframes shrink {
@@ -202,6 +251,15 @@ function formatTime(time) {
         to {
             font-size: 1.5em;
         }
+    }
+
+    .countdown {
+        font-family: $primary-font-stack;
+        color: $color-text-primary-light;
+        font-weight: 600;
+        font-size: 2.5em;
+        animation: shrink 1s ease-in-out;
+        animation-iteration-count: 3;
     }
 }
 </style>
