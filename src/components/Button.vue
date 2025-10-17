@@ -47,6 +47,7 @@ button {
 
     &.secondary {
         background: $color-accent;
+        color: $color-gray1;
 
         &:disabled {
             background: $color-gray5;
