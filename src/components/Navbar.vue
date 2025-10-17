@@ -13,7 +13,11 @@ const route = useRoute();
             <LogoSVG />
             <h2>Reaction</h2>
         </router-link>
-        <router-link class="nav-link" v-if="!authStore.isAuthenticated && route.fullPath !== '/login'" to="/login">
+        <router-link
+            class="nav-link"
+            v-if="!authStore.isAuthenticated && route.fullPath !== '/login' && route.fullPath !== '/register'"
+            to="/login"
+        >
             Login
         </router-link>
         <router-link class="nav-link" v-if="authStore.isAuthenticated && route.fullPath !== '/profile'" to="/profile"
