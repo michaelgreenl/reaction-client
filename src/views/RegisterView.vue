@@ -1,8 +1,9 @@
 <script setup>
 import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
-import { useAuthStore } from '../stores/authStore';
-import Loader from '../components/Loader.vue';
+import { useAuthStore } from '@/stores/authStore';
+import Button from '@/components/Button.vue';
+import LogoSVG from '@/components/Icons/LogoSVG.vue';
 
 const authStore = useAuthStore();
 const router = useRouter();
@@ -55,55 +56,61 @@ const handleRegister = async () => {
 <template>
     <div class="auth-container">
         <form @submit.prevent="handleRegister" class="auth-form">
-            <h2>Register</h2>
-            <div class="form-group">
-                <label for="username">Username</label>
-                <input id="username" v-model="username" type="text" required :disabled="isLoading" />
+            <div class="auth-header">
+                <LogoSVG />
+                <h2>Register</h2>
             </div>
-            <div class="form-group">
-                <label for="password">Password</label>
-                <div class="password-input-wrapper">
-                    <input
-                        id="password"
-                        v-model="password"
-                        :type="showPassword ? 'text' : 'password'"
-                        required
-                        @focus="passwordHideButton = true"
-                        @blur="passwordHideButton = false"
-                        :disabled="isLoading"
-                    />
-                    <button
-                        v-if="passwordHideButton"
-                        type="button"
-                        @click="showPassword = !showPassword"
-                        class="toggle-password"
-                        @mousedown.prevent
-                    >
-                        {{ showPassword ? 'Hide' : 'Show' }}
-                    </button>
+            <hr />
+            <div class="form-groups">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input id="username" v-model="username" type="text" required :disabled="isLoading" />
                 </div>
-            </div>
-            <div class="form-group">
-                <label for="retype-password">Re-type Password</label>
-                <div class="password-input-wrapper">
-                    <input
-                        id="retype-password"
-                        v-model="retypePassword"
-                        :type="showPassword ? 'text' : 'password'"
-                        required
-                        @focus="rePasswordHideButton = true"
-                        @blur="rePasswordHideButton = false"
-                        :disabled="isLoading"
-                    />
-                    <button
-                        v-if="rePasswordHideButton"
-                        type="button"
-                        @click="showPassword = !showPassword"
-                        @mousedown.prevent
-                        class="toggle-password"
-                    >
-                        {{ showPassword ? 'Hide' : 'Show' }}
-                    </button>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <div class="password-input-wrapper">
+                        <input
+                            id="password"
+                            v-model="password"
+                            :type="showPassword ? 'text' : 'password'"
+                            required
+                            :disabled="isLoading"
+                            @focus="passwordHideButton = true"
+                            @blur="passwordHideButton = false"
+                        />
+                        <button
+                            v-if="passwordHideButton"
+                            type="button"
+                            class="toggle-password"
+                            @click="showPassword = !showPassword"
+                            @mousedown.prevent
+                        >
+                            {{ showPassword ? 'Hide' : 'Show' }}
+                        </button>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="retype-password">Re-type Password</label>
+                    <div class="password-input-wrapper">
+                        <input
+                            id="retype-password"
+                            v-model="retypePassword"
+                            :type="showPassword ? 'text' : 'password'"
+                            required
+                            :disabled="isLoading"
+                            @focus="rePasswordHideButton = true"
+                            @blur="rePasswordHideButton = false"
+                        />
+                        <button
+                            v-if="rePasswordHideButton"
+                            type="button"
+                            class="toggle-password"
+                            @click="showPassword = !showPassword"
+                            @mousedown.prevent
+                        >
+                            {{ showPassword ? 'Hide' : 'Show' }}
+                        </button>
+                    </div>
                 </div>
             </div>
             <ul class="password-requirements">
@@ -125,12 +132,8 @@ const handleRegister = async () => {
                     Contains a number
                 </li>
             </ul>
-            {{ isLoading.value }}
 
-            <button type="submit" :disabled="isLoading">
-                <Loader v-if="isLoading" />
-                <span v-else> Register </span>
-            </button>
+            <Button type="submit" text="Register" preset="secondary" :isLoading="isLoading" :disabled="isLoading" />
             <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
             <p class="form-link">Already have an account? <router-link to="/login">Login</router-link></p>
         </form>
@@ -139,134 +142,154 @@ const handleRegister = async () => {
 
 <style lang="scss" scoped>
 .auth-container {
+    font-size: 0.8em;
+    height: 100%;
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: $size-4;
-}
+    padding: 0 $size-4 $size-12;
 
-.auth-form {
-    padding: $size-5;
-    border-radius: $border-radius-xl;
-    width: 100%;
-    max-width: 400px;
-    display: flex;
-    flex-direction: column;
-    gap: $size-3;
-
-    h2 {
-        text-align: center;
-        color: $color-text-primary-light;
-        margin-bottom: $size-4;
-    }
-
-    .form-group {
+    .auth-form {
+        padding: $size-4 $size-6 $size-2;
+        border-radius: $border-radius-xl;
+        width: 100%;
+        max-width: 400px;
         display: flex;
         flex-direction: column;
         gap: $size-1;
+        background: $color-bg-secondary;
+        border-radius: $border-radius-md;
 
-        label {
-            color: $color-text-primary-light;
-            font-size: 0.9rem;
-        }
-
-        input {
-            padding: $size-2;
-            border: 1px solid $color-primary;
-            border-radius: $border-radius-md;
-            background-color: $color-bg-secondary;
-            color: $color-text-secondary-dark;
-            width: 100%;
-
-            &:focus {
-                outline: none;
-                border-color: $color-accent;
-            }
-        }
-    }
-
-    .password-input-wrapper {
-        position: relative;
-        display: flex;
-        align-items: center;
-
-        input {
-            padding-right: 60px;
-        }
-
-        .toggle-password {
-            position: absolute;
-            right: 10px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: none;
-            border: none;
-            color: $color-text-primary-light;
-            cursor: pointer;
-            font-size: 0.8rem;
-
-            &:hover {
-                color: $color-text-secondary-dark;
-            }
-        }
-    }
-
-    .password-requirements {
-        list-style: none;
-        padding: 0;
-        margin-top: $size-2;
-        font-size: 0.9rem;
-        color: $color-text-primary-light;
-
-        li {
+        .auth-header {
+            align-self: flex-start;
             display: flex;
             align-items: center;
+            justify-content: center;
+
+            svg {
+                height: $size-9;
+                width: $size-9;
+            }
+
+            h2 {
+                font-size: 2.2em;
+                color: $color-accent;
+                margin: 0;
+            }
+        }
+
+        hr {
+            border: 0;
+            height: 2px;
+            background-color: $color-primary-light;
+            margin: 0 0 $size-2;
+        }
+
+        .form-groups {
+            display: flex;
+            flex-direction: column;
             gap: $size-2;
-            margin-bottom: $size-1;
+            padding: $size-1 $size-2;
 
-            .icon {
-                font-size: 1.2rem;
-                line-height: 1;
-            }
+            .form-group {
+                display: flex;
+                flex-direction: column;
+                gap: $size-1;
 
-            &.valid {
-                color: $color-success;
-            }
+                label {
+                    color: $color-text-secondary-dark;
+                }
 
-            &.invalid {
-                color: $color-error;
+                input {
+                    padding: $size-2;
+                    outline: 1px solid transparent;
+                    border: 1px solid $color-primary;
+                    border-radius: $border-radius-md;
+                    background-color: $color-bg-secondary;
+                    color: $color-text-secondary-dark;
+                    width: 100%;
+
+                    &:focus {
+                        outline: 1px solid $color-accent;
+                        border-color: $color-accent;
+                    }
+                }
             }
         }
-    }
 
-    button[type='submit'] {
-        width: 100%;
-        padding: $size-2;
-        margin-top: $size-3;
-        font-size: 1.1rem;
-        min-height: 48px;
+        .password-input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
 
-        &:disabled {
-            opacity: 0.7;
-            cursor: not-allowed;
+            input {
+                padding-right: 60px;
+            }
+
+            .toggle-password {
+                font-size: 0.8em;
+                position: absolute;
+                right: 8px;
+                top: 50%;
+                transform: translateY(-50%);
+                background: none;
+                border: none;
+                color: $color-accent-light;
+
+                &:hover {
+                    color: $color-accent;
+                }
+            }
         }
-    }
 
-    .error-message {
-        color: $color-error;
-        text-align: center;
-        margin-top: $size-3;
-    }
+        .password-requirements {
+            list-style: none;
+            padding: 0 1em;
+            font-size: 0.9em;
+            margin: $size-2 0 0;
+            color: $color-text-secondary-dark;
 
-    .form-link {
-        text-align: center;
-        margin-top: $size-3;
+            li {
+                display: flex;
+                align-items: center;
+                gap: $size-2;
+                margin-bottom: $size-1;
 
-        a {
-            color: $color-primary;
+                .icon {
+                    line-height: 1;
+                }
 
-            &:hover {
-                text-decoration: underline;
+                &.valid {
+                    color: $color-success;
+                }
+
+                &.invalid {
+                    color: $color-error;
+                }
+            }
+        }
+
+        button[type='submit'] {
+            align-self: flex-end;
+        }
+
+        .error-message {
+            color: $color-error;
+            text-align: center;
+            margin-top: $size-3;
+        }
+
+        .form-link {
+            text-align: center;
+            margin-top: $size-3;
+            color: $color-text-secondary-dark;
+
+            a {
+                color: $color-primary;
+
+                &:hover {
+                    text-decoration: underline;
+                }
             }
         }
     }
