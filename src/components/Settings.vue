@@ -119,7 +119,7 @@ onBeforeUnmount(() => {
                                     :disabled="isLoading || localSettings.spawnInterval >= 2"
                                     type="button"
                                 >
-                                    -
+                                    −
                                 </button>
                             </div>
                         </div>
@@ -147,7 +147,7 @@ onBeforeUnmount(() => {
                                     :disabled="isLoading || localSettings.shrinkTime >= 2"
                                     type="button"
                                 >
-                                    -
+                                    −
                                 </button>
                             </div>
                         </div>
