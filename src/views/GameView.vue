@@ -184,5 +184,24 @@ function formatTime(time) {
             margin-top: $size-8;
         }
     }
+
+    .countdown {
+        font-family: $primary-font-stack;
+        color: $color-text-primary-light;
+        font-weight: 600;
+        font-size: 2.5em;
+        animation: shrink 1s ease-in-out;
+        animation-iteration-count: 3;
+    }
+
+    @keyframes shrink {
+        from {
+            font-size: 2.5em;
+        }
+
+        to {
+            font-size: 1.5em;
+        }
+    }
 }
 </style>
