@@ -2,7 +2,8 @@
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/authStore';
-import Loader from '@/components/Loader.vue';
+import Button from '@/components/Button.vue';
+import LogoSVG from '@/components/Icons/LogoSVG.vue';
 
 const authStore = useAuthStore();
 
@@ -40,36 +41,42 @@ const handleLogin = async () => {
 <template>
     <div class="auth-container">
         <form @submit.prevent="handleLogin" class="auth-form">
-            <h2>Login</h2>
-            <div class="form-group">
-                <label for="username">Username</label>
-                <input id="username" v-model="username" type="text" required :disabled="isLoading" />
+            <div class="auth-header">
+                <LogoSVG />
+                <h2>Login</h2>
             </div>
-            <div class="form-group">
-                <label for="password">Password</label>
-                <input
-                    id="password"
-                    v-model="password"
-                    :type="showPassword ? 'text' : 'password'"
-                    required
-                    :disabled="isLoading"
-                    @focus="passwordHideButton = true"
-                    @blur="passwordHideButton = false"
-                />
-                <button
-                    v-if="passwordHideButton"
-                    type="button"
-                    @click="showPassword = !showPassword"
-                    class="toggle-password"
-                    @mousedown.prevent
-                >
-                    {{ showPassword ? 'Hide' : 'Show' }}
-                </button>
+            <hr class="header-border" />
+            <div class="form-groups">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input id="username" v-model="username" type="text" required :disabled="isLoading" />
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <div class="password-input-wrapper">
+                        <input
+                            id="password"
+                            v-model="password"
+                            :type="showPassword ? 'text' : 'password'"
+                            required
+                            :disabled="isLoading"
+                            @focus="passwordHideButton = true"
+                            @blur="passwordHideButton = false"
+                        />
+                        <button
+                            v-if="passwordHideButton"
+                            type="button"
+                            class="toggle-password"
+                            @click="showPassword = !showPassword"
+                            @mousedown.prevent
+                        >
+                            {{ showPassword ? 'Hide' : 'Show' }}
+                        </button>
+                    </div>
+                </div>
             </div>
-            <button type="submit" :disabled="isLoading">
-                <Loader v-if="isLoading" />
-                <span v-else>Login</span>
-            </button>
+            <Button type="submit" text="Login" preset="secondary" :isLoading="isLoading" :disabled="isLoading" />
+            <hr class="bottom-border" />
             <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
             <p class="form-link">Don't have an account? <router-link to="/register">Register</router-link></p>
         </form>
@@ -78,82 +85,138 @@ const handleLogin = async () => {
 
 <style lang="scss" scoped>
 .auth-container {
+    font-size: 0.8em;
+    height: 100%;
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: $size-4;
-}
+    padding: 0 $size-4 $size-12;
 
-.auth-form {
-    padding: $size-5;
-    border-radius: $border-radius-xl;
-    width: 100%;
-    max-width: 400px;
-    display: flex;
-    flex-direction: column;
-    gap: $size-3;
-
-    h2 {
-        text-align: center;
-        color: $color-text-primary-light;
-        margin-bottom: $size-4;
-    }
-
-    .form-group {
+    .auth-form {
+        padding: $size-4 $size-6 0;
+        border-radius: $border-radius-xl;
+        width: 100%;
+        max-width: 400px;
         display: flex;
         flex-direction: column;
         gap: $size-1;
+        background: $color-bg-secondary;
+        border-radius: $border-radius-md;
+        box-shadow: $box-shadow;
 
-        label {
-            color: $color-text-secondary-dark;
-            font-size: 0.9rem;
-        }
+        .auth-header {
+            align-self: flex-start;
+            display: flex;
+            align-items: center;
+            justify-content: center;
 
-        input {
-            padding: $size-2;
-            border: 1px solid $color-primary;
-            border-radius: $border-radius-md;
-            background-color: $color-bg-secondary;
-            color: $color-text-secondary-dark;
+            svg {
+                height: $size-9;
+                width: $size-9;
+            }
 
-            &:focus {
-                outline: none;
-                border-color: $color-accent;
+            h2 {
+                font-size: 2.2em;
+                color: $color-accent;
+                margin: 0;
             }
         }
-    }
 
-    button[type='submit'] {
-        width: 100%;
-        padding: $size-2;
-        margin-top: $size-3;
-        font-size: 1.1rem;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        min-height: 48px;
-
-        &:disabled {
-            opacity: 0.7;
-            cursor: not-allowed;
+        .header-border {
+            border: 0;
+            height: 2px;
+            background-color: $color-primary-light;
+            margin: 0 0 $size-1;
         }
-    }
 
-    .error-message {
-        color: $color-error;
-        text-align: center;
-        margin-top: $size-2;
-    }
+        .form-groups {
+            display: flex;
+            flex-direction: column;
+            gap: $size-3;
+            padding: $size-1 $size-2 $size-2;
 
-    .form-link {
-        text-align: center;
-        margin-top: $size-3;
+            .form-group {
+                display: flex;
+                flex-direction: column;
+                gap: $size-1;
 
-        a {
-            color: $color-primary;
+                label {
+                    font-size: 0.9em;
+                    color: $color-text-secondary-dark;
+                }
 
-            &:hover {
-                text-decoration: underline;
+                input {
+                    padding: $size-2;
+                    outline: 1px solid transparent;
+                    border: 1px solid $color-primary;
+                    border-radius: $border-radius-md;
+                    background-color: $color-bg-secondary;
+                    color: $color-text-secondary-dark;
+                    width: 100%;
+
+                    &:focus {
+                        outline: 1px solid $color-accent;
+                        border-color: $color-accent;
+                    }
+                }
+            }
+        }
+
+        .password-input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+
+            input {
+                padding-right: 60px;
+            }
+
+            .toggle-password {
+                font-size: 0.8em;
+                position: absolute;
+                right: 8px;
+                top: 50%;
+                transform: translateY(-50%);
+                background: none;
+                border: none;
+                color: $color-accent-light;
+
+                &:hover {
+                    color: $color-accent;
+                }
+            }
+        }
+
+        button[type='submit'] {
+            align-self: flex-end;
+            margin-right: $size-4;
+        }
+
+        .bottom-border {
+            border: 0;
+            height: 1px;
+            width: 90%;
+            background-color: $color-gray4;
+            margin: $size-2 auto 0;
+        }
+
+        .error-message {
+            color: $color-error;
+            text-align: center;
+            margin-top: $size-1;
+        }
+
+        .form-link {
+            text-align: center;
+            margin-top: $size-2;
+            color: $color-text-secondary-dark;
+
+            a {
+                color: $color-primary;
+
+                &:hover {
+                    text-decoration: underline;
+                }
             }
         }
     }

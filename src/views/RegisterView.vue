@@ -60,7 +60,7 @@ const handleRegister = async () => {
                 <LogoSVG />
                 <h2>Register</h2>
             </div>
-            <hr />
+            <hr class="header-border" />
             <div class="form-groups">
                 <div class="form-group">
                     <label for="username">Username</label>
@@ -134,6 +134,7 @@ const handleRegister = async () => {
             </ul>
 
             <Button type="submit" text="Register" preset="secondary" :isLoading="isLoading" :disabled="isLoading" />
+            <hr class="bottom-border" />
             <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
             <p class="form-link">Already have an account? <router-link to="/login">Login</router-link></p>
         </form>
@@ -150,7 +151,7 @@ const handleRegister = async () => {
     padding: 0 $size-4 $size-12;
 
     .auth-form {
-        padding: $size-4 $size-6 $size-2;
+        padding: $size-4 $size-6 0;
         border-radius: $border-radius-xl;
         width: 100%;
         max-width: 400px;
@@ -159,6 +160,7 @@ const handleRegister = async () => {
         gap: $size-1;
         background: $color-bg-secondary;
         border-radius: $border-radius-md;
+        box-shadow: $box-shadow;
 
         .auth-header {
             align-self: flex-start;
@@ -178,7 +180,7 @@ const handleRegister = async () => {
             }
         }
 
-        hr {
+        .header-border {
             border: 0;
             height: 2px;
             background-color: $color-primary-light;
@@ -188,7 +190,7 @@ const handleRegister = async () => {
         .form-groups {
             display: flex;
             flex-direction: column;
-            gap: $size-2;
+            gap: $size-3;
             padding: $size-1 $size-2;
 
             .form-group {
@@ -272,17 +274,26 @@ const handleRegister = async () => {
 
         button[type='submit'] {
             align-self: flex-end;
+            margin-right: $size-4;
+        }
+
+        .bottom-border {
+            border: 0;
+            height: 1px;
+            width: 90%;
+            background-color: $color-gray4;
+            margin: $size-2 auto 0;
         }
 
         .error-message {
             color: $color-error;
             text-align: center;
-            margin-top: $size-3;
+            margin-top: $size-1;
         }
 
         .form-link {
             text-align: center;
-            margin-top: $size-3;
+            margin-top: $size-2;
             color: $color-text-secondary-dark;
 
             a {
