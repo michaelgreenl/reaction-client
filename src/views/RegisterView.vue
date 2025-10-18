@@ -197,6 +197,7 @@ const handleRegister = async () => {
                 gap: $size-1;
 
                 label {
+                    font-size: 0.9em;
                     color: $color-text-secondary-dark;
                 }
 
