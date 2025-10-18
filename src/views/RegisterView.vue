@@ -151,13 +151,12 @@ const handleRegister = async () => {
     padding: 0 $size-4 $size-12;
 
     .auth-form {
-        padding: $size-4 $size-6 0;
-        border-radius: $border-radius-xl;
-        width: 100%;
-        max-width: 400px;
         display: flex;
         flex-direction: column;
         gap: $size-1;
+        padding: $size-4 $size-6 0;
+        width: 100%;
+        max-width: 400px;
         background: $color-bg-secondary;
         border-radius: $border-radius-md;
         box-shadow: $box-shadow;
