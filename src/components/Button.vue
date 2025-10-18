@@ -36,6 +36,19 @@ button {
         letter-spacing: 0.05em;
     }
 
+    &.primary,
+    &.secondary {
+        transition: transform 0.1s ease;
+
+        &:hover {
+            transform: scale(1.05);
+        }
+
+        &:active {
+            transform: scale(0.95);
+        }
+    }
+
     &.primary {
         background: $color-bg-secondary;
 
@@ -52,19 +65,6 @@ button {
         &:disabled {
             background: $color-gray5;
             color: $color-gray3;
-        }
-    }
-
-    &.primary,
-    &.secondary {
-        transition: transform 0.1s ease;
-
-        &:hover {
-            transform: scale(1.05);
-        }
-
-        &:active {
-            transform: scale(0.95);
         }
     }
 
