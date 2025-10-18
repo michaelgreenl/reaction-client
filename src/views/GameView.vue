@@ -5,12 +5,15 @@ import { useSettingsStore } from '@/stores/settingsStore.js';
 import Settings from '@/components/Settings.vue';
 import Canvas from '@/components/Canvas.vue';
 import Button from '@/components/Button.vue';
+import ArrowSVG from '@/components/Icons/ArrowSVG.vue';
+import CloseSVG from '@/components/Icons/CloseSVG.vue';
 
 const authStore = useAuthStore();
 const settingsStore = useSettingsStore();
 
 const gameActive = ref(false);
 const showSettings = ref(false);
+const showRecentGames = ref(false);
 const score = ref(0);
 const gamePlayed = ref(false);
 
@@ -129,11 +132,35 @@ function formatTime(time) {
 <template>
     <div class="game-container">
         <div v-if="!gameActive" class="game-start">
-            <ul v-if="authStore.recentUserGames.length">
-                <li v-for="game in authStore.recentUserGames" :key="game.createdAt">
-                    {{ formatDate(game.createdAt) }} | {{ game.score }} |
-                </li>
-            </ul>
+            <div class="recent-games" v-if="authStore.recentUserGames.length">
+                <div class="recent-games-header">
+                    <h2>Scores</h2>
+                    <!-- TODO: Add arrow icon btn -->
+                    <Button
+                        v-if="!showRecentGames"
+                        preset="icon-only"
+                        :iconLeft="ArrowSVG"
+                        @click="showRecentGames = !showRecentGames"
+                    />
+                    <Button
+                        v-if="showRecentGames"
+                        preset="icon-only"
+                        :iconLeft="CloseSVG"
+                        @click="showRecentGames = !showRecentGames"
+                    />
+                </div>
+                <hr />
+                <ul class="recent-games-list" v-if="showRecentGames">
+                    <li v-for="game in authStore.recentUserGames" :key="game.createdAt">
+                        <span>
+                            {{ game.score }}
+                        </span>
+                        <span>
+                            {{ formatTime(game.time) }}
+                        </span>
+                    </li>
+                </ul>
+            </div>
             <div v-if="gamePlayed && !showSettings" class="end-screen-wrapper">
                 <div class="end-screen">
                     <h1>Game Over</h1>
@@ -182,6 +209,7 @@ function formatTime(time) {
 
 <style lang="scss" scoped>
 .game-container {
+    position: relative;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -189,6 +217,78 @@ function formatTime(time) {
     width: 100%;
 
     .game-start {
+        .recent-games {
+            position: absolute;
+            top: $size-1;
+            left: $size-3;
+            display: flex;
+            flex-direction: column;
+            padding: $size-1 $size-2 $size-1 $size-3;
+            background: $color-bg-secondary;
+            border-radius: $border-radius-xs;
+
+            &-header {
+                display: flex;
+                justify-content: space-between;
+
+                h2 {
+                    font-size: 1.3em;
+                    color: $color-accent;
+                    font-weight: 600;
+                    margin: 0;
+                }
+
+                button {
+                    padding: $size-3;
+                    transform: scale(0.9);
+
+                    &:hover {
+                        background: #ec6e9e22;
+                    }
+
+                    :deep(.icon) {
+                        height: 1em;
+                        width: 1em;
+                        stroke: $color-accent;
+                    }
+                }
+            }
+
+            hr {
+                border: 0;
+                height: 2px;
+                background-color: $color-primary-light;
+                margin: 0 0 $size-1;
+                width: 99%;
+            }
+
+            &-list {
+                display: flex;
+                flex-direction: column;
+                list-style: none;
+                padding: $size-1 $size-2;
+                margin: 0;
+                width: 8em;
+
+                li {
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+
+                    span {
+                        &:first-child {
+                            color: $color-text-secondary-dark;
+                        }
+
+                        &:last-child {
+                            font-size: 0.8em;
+                            color: $color-text-muted;
+                        }
+                    }
+                }
+            }
+        }
+
         .buttons {
             display: flex;
             gap: $size-2;
@@ -245,7 +345,7 @@ function formatTime(time) {
 
     @keyframes shrink {
         from {
-            font-size: 2.5em;
+            font-size: 3.5em;
         }
 
         to {
@@ -257,7 +357,7 @@ function formatTime(time) {
         font-family: $primary-font-stack;
         color: $color-text-primary-light;
         font-weight: 600;
-        font-size: 2.5em;
+        font-size: 3.5em;
         animation: shrink 1s ease-in-out;
         animation-iteration-count: 3;
     }
