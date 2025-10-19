@@ -91,8 +91,8 @@ onBeforeUnmount(() => {
                             id="circleSize"
                             v-model="localSettings.circleSize"
                             type="range"
-                            min="50"
-                            max="150"
+                            min="25"
+                            max="125"
                             :disabled="isLoading"
                         />
                     </div>
@@ -216,6 +216,10 @@ onBeforeUnmount(() => {
                         height: 0.9em;
                         width: 0.9em;
                         stroke: $color-accent;
+
+                        path {
+                            stroke-width: 14 !important;
+                        }
                     }
                 }
             }
