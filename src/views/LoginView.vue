@@ -179,8 +179,10 @@ const handleLogin = async () => {
                 background: none;
                 border: none;
                 color: $color-accent-light;
+                transition: all 0.1s ease;
 
                 &:hover {
+                    transform: translateY(-50%) scale(1.05);
                     color: $color-accent;
                 }
             }
