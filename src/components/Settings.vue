@@ -116,7 +116,7 @@ onBeforeUnmount(() => {
                                 </button>
                                 <button
                                     @click="localSettings.spawnInterval -= 0.25"
-                                    :disabled="isLoading || localSettings.spawnInterval >= 2"
+                                    :disabled="isLoading || localSettings.spawnInterval === 0.25"
                                     type="button"
                                 >
                                     −
@@ -144,7 +144,7 @@ onBeforeUnmount(() => {
                                 </button>
                                 <button
                                     @click="localSettings.shrinkTime -= 0.25"
-                                    :disabled="isLoading || localSettings.shrinkTime >= 2"
+                                    :disabled="isLoading || localSettings.shrinkTime === 0.25"
                                     type="button"
                                 >
                                     −
@@ -289,12 +289,13 @@ onBeforeUnmount(() => {
                             border: 0;
                             font-size: 1.1em;
                             padding: 0 $size-1;
-                            color: $color-accent;
+                            color: $color-gray4;
                             transition: all 0.1s ease;
                             line-height: 1ch;
 
                             &:hover {
                                 transform: scale(1.1);
+                                color: $color-accent;
                             }
 
                             &:active {
