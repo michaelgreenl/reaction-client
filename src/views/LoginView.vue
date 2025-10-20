@@ -87,9 +87,7 @@ const handleLogin = async () => {
 .auth-container {
     font-size: 0.8em;
     height: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    @include flexCenterAll;
     padding: 0 $size-4 $size-12;
 
     .auth-form {
@@ -105,9 +103,7 @@ const handleLogin = async () => {
 
         .auth-header {
             align-self: flex-start;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            @include flexCenterAll;
 
             svg {
                 height: $size-9;

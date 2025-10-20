@@ -44,9 +44,7 @@ const route = useRoute();
     padding-right: $size-4;
 
     &-logo {
-        display: flex;
-        align-items: center;
-        justify-content: center;
+        @include flexCenterAll;
         transition: transform 0.2s ease;
 
         svg {

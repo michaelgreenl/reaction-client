@@ -49,9 +49,7 @@ function circleClick() {
 
 <style lang="scss" scoped>
 div {
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    @include flexCenterAll;
 
     button {
         background-color: $color-bg-secondary;

@@ -94,9 +94,7 @@ function handleGameEnd() {
         position: absolute;
         top: $size-1;
         left: $size-2;
-        display: flex;
-        align-items: center;
-        justify-content: center;
+        @include flexCenterAll;
         background: $color-bg-secondary;
         padding: $size-2 $size-4;
         border-radius: $border-radius-sm;

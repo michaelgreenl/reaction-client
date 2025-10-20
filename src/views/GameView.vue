@@ -243,9 +243,7 @@ function getTimePassed(pastTime) {
 <style lang="scss" scoped>
 .game-container {
     position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    @include flexCenterAll;
     height: 100%;
     width: 100%;
 
@@ -349,15 +347,11 @@ function getTimePassed(pastTime) {
         }
 
         .end-screen-wrapper {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            @include flexCenterAll;
 
             .end-screen {
-                display: flex;
+                @include flexCenterAll;
                 flex-direction: column;
-                align-items: center;
-                justify-content: center;
                 background: $color-bg-secondary;
                 padding: $size-3 $size-5 $size-3;
                 border-radius: $border-radius-md;

@@ -70,12 +70,9 @@ button {
     }
 
     &.icon-only {
+        @include flexCenterAll;
         border-radius: 20px;
-        // padding: $size-2;
         padding: 0.6em;
-        display: flex;
-        align-items: center;
-        justify-content: center;
         background: $color-bg-secondary;
         transition: background 0.1s ease;
     }

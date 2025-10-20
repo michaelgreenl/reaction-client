@@ -177,9 +177,7 @@ onBeforeUnmount(() => {
 
 <style lang="scss" scoped>
 .settings-container {
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    @include flexCenterAll;
     flex-direction: column;
     gap: $size-4;
     margin-bottom: $size-4;
@@ -235,7 +233,6 @@ onBeforeUnmount(() => {
             .form-group {
                 display: flex;
                 justify-content: space-between;
-
                 padding: $size-1;
 
                 label {
@@ -270,9 +267,7 @@ onBeforeUnmount(() => {
                 }
 
                 .number-input {
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
+                    @include flexCenterAll;
 
                     span {
                         text-align: center;
@@ -282,10 +277,8 @@ onBeforeUnmount(() => {
                     }
 
                     .step-buttons {
-                        display: flex;
+                        @include flexCenterAll;
                         flex-direction: column;
-                        align-items: center;
-                        justify-content: center;
                         height: 100%;
 
                         button {

@@ -48,9 +48,7 @@ body,
 }
 
 .loader {
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    @include flexCenterAll;
     height: 90%;
     color: $color-text-primary-light;
 }
