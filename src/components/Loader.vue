@@ -1,8 +1,12 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 
+const props = defineProps({
+    text: { type: String, default: 'Loading' },
+});
+
 const dotCount = ref(0);
-const loadingText = computed(() => `Loading${'.'.repeat(dotCount.value)}`);
+const loadingText = computed(() => `${props.text}${'.'.repeat(dotCount.value)}`);
 
 let intervalId = null;
 onMounted(() => {
@@ -17,11 +21,15 @@ onUnmounted(() => {
 </script>
 
 <template>
-    <div class="loading-text">{{ loadingText }}</div>
+    <div class="loading-text" :style="{ width: `${text.length}ch` }">
+        <span>
+            {{ loadingText }}
+        </span>
+    </div>
 </template>
 
 <style lang="scss" scoped>
-div {
-    width: 7ch;
+span {
+    text-wrap: nowrap;
 }
 </style>
