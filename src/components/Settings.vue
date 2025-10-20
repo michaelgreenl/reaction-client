@@ -203,6 +203,7 @@ onBeforeUnmount(() => {
 
                 h2 {
                     font-size: 1.4em;
+                    font-family: $secondary-font-stack;
                     margin: 0;
                     color: $color-accent;
                 }
@@ -228,7 +229,7 @@ onBeforeUnmount(() => {
                 border: 0;
                 height: 2px;
                 background-color: $color-primary-light;
-                margin: $size-1 0 $size-2;
+                margin: $size-2 0;
             }
 
             .form-group {

@@ -116,6 +116,7 @@ const handleLogin = async () => {
 
             h2 {
                 font-size: 2.2em;
+                font-family: $secondary-font-stack;
                 color: $color-accent;
                 margin: 0;
             }

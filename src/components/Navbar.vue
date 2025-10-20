@@ -55,6 +55,7 @@ const route = useRoute();
         }
 
         h2 {
+            font-family: $secondary-font-stack;
             color: $color-gray1;
             font-style: italic;
             font-weight: 300;

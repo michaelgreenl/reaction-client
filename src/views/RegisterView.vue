@@ -173,6 +173,7 @@ const handleRegister = async () => {
             }
 
             h2 {
+                font-family: $secondary-font-stack;
                 font-size: 2.2em;
                 color: $color-accent;
                 margin: 0;

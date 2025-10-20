@@ -25,10 +25,7 @@ const props = defineProps({
 button {
     position: relative;
     cursor: pointer;
-    font-family: $primary-font-stack;
     border: 0;
-    padding: 0.25em 1em;
-    border-radius: $border-radius-xs;
 
     span {
         font-size: 1.1em;
@@ -38,7 +35,10 @@ button {
 
     &.primary,
     &.secondary {
+        font-family: $secondary-font-stack;
         transition: transform 0.1s ease;
+        border-radius: $border-radius-xs;
+        padding: $size-2 $size-4;
 
         &:hover {
             transform: scale(1.05);
@@ -51,6 +51,7 @@ button {
 
     &.primary {
         background: $color-bg-secondary;
+        color: $color-gray7;
 
         &:disabled {
             background: $color-gray5;
@@ -70,7 +71,8 @@ button {
 
     &.icon-only {
         border-radius: 20px;
-        padding: $size-2;
+        // padding: $size-2;
+        padding: 0.6em;
         display: flex;
         align-items: center;
         justify-content: center;
