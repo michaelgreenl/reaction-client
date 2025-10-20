@@ -4,7 +4,7 @@ import apiFetch from '@/api.js';
 import { useAuthStore } from '@/stores/authStore.js';
 
 export const useSettingsStore = defineStore('settings', () => {
-    const circleSize = ref(75);
+    const circleSize = ref(100);
     const spawnInterval = ref(1);
     const shrinkTime = ref(1);
     const authStore = useAuthStore();
