@@ -278,7 +278,6 @@ function getTimePassed(pastTime) {
                     padding: 0.6em;
                     margin-top: 1px;
                     transform: scale(0.75) translate(-5px, -4px);
-                    // transform: scale(0.75) translate(-5px, -2px);
 
                     &:hover {
                         background: #ec6e9e22;
@@ -287,8 +286,6 @@ function getTimePassed(pastTime) {
                     :deep(.icon) {
                         height: 1em;
                         width: 1em;
-                        // height: 0.9em;
-                        // width: 0.9em;
                         stroke: $color-accent;
                     }
                 }
@@ -309,7 +306,7 @@ function getTimePassed(pastTime) {
                 list-style: none;
                 padding: 0 $size-4 $size-1 $size-1;
                 margin: 0;
-                width: 16em;
+                width: 18em;
 
                 li {
                     display: flex;
