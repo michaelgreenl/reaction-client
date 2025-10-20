@@ -81,6 +81,20 @@ function handleScoreIncrement() {
     score.value += 1;
 }
 
+function toggleSettings() {
+    showRecentGames.value = false;
+    showSettings.value = true;
+}
+
+function toggleRecentGames() {
+    showRecentGames.value = !showRecentGames.value;
+    console.log(showRecentGames.value);
+
+    if (showRecentGames.value && showSettings.value) {
+        showSettings.value = false;
+    }
+}
+
 onBeforeUnmount(() => {
     stopTimer();
 });
@@ -127,6 +141,27 @@ function formatTime(time) {
         return `${mins}:${seconds}`;
     }
 }
+
+function getTimePassed(pastTime) {
+    const pastDate = new Date(pastTime);
+    const now = new Date();
+    const diff = now - pastDate;
+
+    if (diff < 0) {
+        return;
+    }
+
+    const seconds = Math.floor(diff / 1000);
+    const minutes = Math.floor(seconds / 60);
+    const hours = Math.floor(minutes / 60);
+    const days = Math.floor(hours / 24);
+
+    if (days > 0) return `${days}d ago`;
+    if (hours > 0) return `${hours}h ago`;
+    if (minutes > 0) return `${minutes}m ago`;
+    if (seconds === 0) return 'just now';
+    return `${seconds}s ago`;
+}
 </script>
 
 <template>
@@ -134,36 +169,34 @@ function formatTime(time) {
         <div v-if="!gameActive" class="game-start">
             <div class="recent-games" v-if="authStore.recentUserGames.length">
                 <div class="recent-games-header">
-                    <h2>Scores</h2>
-                    <!-- TODO: Add arrow icon btn -->
+                    <h2>Recent Scores</h2>
                     <Button
-                        v-if="!showRecentGames"
+                        v-if="!showRecentGames || showSettings"
                         preset="icon-only"
                         :iconLeft="ArrowSVG"
-                        @click="showRecentGames = !showRecentGames"
+                        @click="toggleRecentGames()"
                     />
                     <Button
-                        v-if="showRecentGames"
+                        v-if="showRecentGames && !showSettings"
                         preset="icon-only"
                         :iconLeft="CloseSVG"
-                        @click="showRecentGames = !showRecentGames"
+                        @click="toggleRecentGames()"
                     />
                 </div>
                 <hr />
-                <ul class="recent-games-list" v-if="showRecentGames">
+                <ul class="recent-games-list" v-if="showRecentGames && !showSettings">
                     <li v-for="game in authStore.recentUserGames" :key="game.createdAt">
-                        <span>
-                            {{ game.score }}
-                        </span>
-                        <span>
-                            {{ formatTime(game.time) }}
-                        </span>
+                        <span class="label">Score:</span>
+                        <span class="stat">{{ game.score }}</span>
+                        <span class="label">Time:</span>
+                        <span class="stat">{{ formatTime(game.time) }}</span>
+                        <span>{{ getTimePassed(game.createdAt) }} </span>
                     </li>
                 </ul>
             </div>
             <div v-if="gamePlayed && !showSettings" class="end-screen-wrapper">
                 <div class="end-screen">
-                    <h1>Game Over</h1>
+                    <h1>Game Over!</h1>
                     <hr />
                     <div class="stats">
                         <div class="stat-wrapper">
@@ -218,29 +251,34 @@ function formatTime(time) {
 
     .game-start {
         .recent-games {
+            font-size: 1.1em;
             position: absolute;
             top: $size-1;
             left: $size-3;
             display: flex;
             flex-direction: column;
-            padding: $size-1 $size-2 $size-1 $size-3;
+            padding: $size-2 $size-1 $size-1 $size-3;
             background: $color-bg-secondary;
             border-radius: $border-radius-xs;
 
             &-header {
                 display: flex;
                 justify-content: space-between;
+                gap: 2px;
 
                 h2 {
-                    font-size: 1.3em;
+                    // font-size: 0.9em;
+                    font-family: $secondary-font-stack;
+                    font-size: 1em;
                     color: $color-accent;
-                    font-weight: 600;
                     margin: 0;
                 }
 
                 button {
-                    padding: $size-3;
-                    transform: scale(0.9);
+                    padding: 0.6em;
+                    margin-top: 1px;
+                    transform: scale(0.75) translate(-5px, -4px);
+                    // transform: scale(0.75) translate(-5px, -2px);
 
                     &:hover {
                         background: #ec6e9e22;
@@ -249,6 +287,8 @@ function formatTime(time) {
                     :deep(.icon) {
                         height: 1em;
                         width: 1em;
+                        // height: 0.9em;
+                        // width: 0.9em;
                         stroke: $color-accent;
                     }
                 }
@@ -259,30 +299,46 @@ function formatTime(time) {
                 height: 2px;
                 background-color: $color-primary-light;
                 margin: 0 0 $size-1;
-                width: 99%;
+                width: 95%;
             }
 
             &-list {
+                font-size: 0.85em;
                 display: flex;
                 flex-direction: column;
                 list-style: none;
-                padding: $size-1 $size-2;
+                padding: 0 $size-4 $size-1 $size-1;
                 margin: 0;
-                width: 8em;
+                width: 16em;
 
                 li {
                     display: flex;
                     align-items: center;
-                    justify-content: space-between;
+                    border-bottom: solid 1px $color-gray2;
+                    padding: 0.15em;
+
+                    &:last-child {
+                        border: 0;
+                    }
 
                     span {
-                        &:first-child {
-                            color: $color-text-secondary-dark;
-                        }
+                        font-size: 0.9em;
 
                         &:last-child {
-                            font-size: 0.8em;
+                            margin-left: auto;
+                            font-size: 0.65em;
                             color: $color-text-muted;
+                        }
+
+                        &.label {
+                            color: $color-accent;
+                            font-style: oblique;
+                            font-weight: 600;
+                        }
+
+                        &.stat {
+                            color: $color-text-secondary-dark;
+                            margin: 0 $size-4 0 $size-2;
                         }
                     }
                 }
@@ -306,13 +362,13 @@ function formatTime(time) {
                 align-items: center;
                 justify-content: center;
                 background: $color-bg-secondary;
-                padding: $size-2 $size-5 $size-3;
+                padding: $size-3 $size-5 $size-3;
                 border-radius: $border-radius-md;
 
                 h1 {
+                    font-family: $secondary-font-stack;
                     margin: 0;
                     color: $color-accent;
-                    font-weight: 600;
                 }
 
                 hr {
@@ -320,7 +376,7 @@ function formatTime(time) {
                     border: 0;
                     height: 2px;
                     background-color: $color-primary-light;
-                    margin: 0 0 $size-2;
+                    margin: $size-2 0 $size-2;
                 }
 
                 .stats {
