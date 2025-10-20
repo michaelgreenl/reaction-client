@@ -1,12 +1,19 @@
 <script setup>
 import Navbar from '@/components/Navbar.vue';
+import Loader from '@/components/Loader.vue';
+import { useAuthStore } from '@/stores/authStore.js';
+
+const authStore = useAuthStore();
 </script>
 
 <template>
     <div class="app-container">
         <Navbar />
 
-        <main>
+        <div v-if="authStore.initLoading" class="loader">
+            <Loader />
+        </div>
+        <main v-else>
             <router-view />
         </main>
     </div>
@@ -38,6 +45,14 @@ body,
     @include bp-xxl-desktop {
         font-size: 1.2em;
     }
+}
+
+.loader {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 90%;
+    color: $color-text-primary-light;
 }
 
 main {

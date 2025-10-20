@@ -10,6 +10,7 @@ export const useAuthStore = defineStore('auth', () => {
     const userGames = ref([]);
     const recentUserGames = ref([]);
     const isAuthenticated = computed(() => !!user.value);
+    const initLoading = ref(true);
 
     const settingsStore = useSettingsStore();
 
@@ -30,9 +31,11 @@ export const useAuthStore = defineStore('auth', () => {
                 }
 
                 localStorage.setItem('AUTHORIZED', true);
+                initLoading.value = false;
             } else {
                 user.value = null;
                 localStorage.setItem('AUTHORIZED', false);
+                initLoading.value = false;
             }
         } catch (error) {
             user.value = null;
@@ -197,6 +200,7 @@ export const useAuthStore = defineStore('auth', () => {
         userGames,
         isAuthenticated,
         initializeAuth,
+        initLoading,
         register,
         recentUserGames,
         login,

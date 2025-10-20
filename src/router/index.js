@@ -26,6 +26,7 @@ router.beforeEach(async (to, from, next) => {
 
     if (authorized) {
         await authStore.initializeAuth();
+        authStore.initLoading = false;
     }
 
     if (!authStore.isAuthenticated && to.meta.requiresAuth) {
