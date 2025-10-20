@@ -265,7 +265,6 @@ function getTimePassed(pastTime) {
                 gap: 2px;
 
                 h2 {
-                    // font-size: 0.9em;
                     font-family: $secondary-font-stack;
                     font-size: 1em;
                     color: $color-accent;
