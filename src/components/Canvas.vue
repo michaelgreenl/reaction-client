@@ -56,6 +56,7 @@ const localGameActive = ref(true);
 
 function handleGameEnd() {
     localGameActive.value = false;
+
     // Timeout for the circle's fade-out transitions
     setTimeout(() => {
         emit('endGame');
@@ -70,6 +71,7 @@ function handleGameEnd() {
                 <span class="label">Score:</span>
                 <span>{{ score }}</span>
             </div>
+            <span> | </span>
             <div class="stat-wrapper">
                 <span class="label">Time:</span>
                 <span>{{ (time / 1000).toFixed(2) }}s</span>
@@ -100,14 +102,25 @@ function handleGameEnd() {
         border-radius: $border-radius-sm;
         gap: $size-2;
 
+        span {
+            color: $color-text-secondary-dark;
+            font-weight: 500;
+            font-size: 0.5em;
+        }
+
         .stat-wrapper {
             display: flex;
             gap: $size-1;
 
-            .label {
-                color: $color-accent;
-                font-weight: 600;
-                font-style: oblique;
+            span {
+                font-size: 1em !important;
+                color: $color-text-secondary-dark;
+
+                &.label {
+                    font-family: $secondary-font-stack;
+                    color: $color-accent;
+                    line-height: 1.6ch;
+                }
             }
         }
     }

@@ -186,10 +186,17 @@ function getTimePassed(pastTime) {
                 <hr />
                 <ul class="recent-games-list" v-if="showRecentGames && !showSettings">
                     <li v-for="game in authStore.recentUserGames" :key="game.createdAt">
-                        <span class="label">Score:</span>
-                        <span class="stat">{{ game.score }}</span>
-                        <span class="label">Time:</span>
-                        <span class="stat">{{ formatTime(game.time) }}</span>
+                        <div class="stat-wrapper">
+                            <span class="label">Score:</span>
+                            <span class="stat">{{ game.score }}</span>
+                        </div>
+                        <span class="separator"> | </span>
+                        <div class="stat-wrapper">
+                            <span class="label">Time:</span>
+                            <span class="stat">{{ formatTime(game.time) }}</span>
+                        </div>
+
+                        <span class="separator"> - </span>
                         <span>{{ getTimePassed(game.createdAt) }} </span>
                     </li>
                 </ul>
@@ -203,6 +210,7 @@ function getTimePassed(pastTime) {
                             <span class="label">Score:</span>
                             <span class="value">{{ score }}</span>
                         </div>
+                        <span> • </span>
                         <div class="stat-wrapper">
                             <span class="label">Time:</span>
                             <span class="value">{{ formatTime(elapsedMs) }}</span>
@@ -307,32 +315,39 @@ function getTimePassed(pastTime) {
 
                 li {
                     display: flex;
+                    justify-content: space-evenly;
                     align-items: center;
                     border-bottom: solid 1px $color-gray2;
-                    padding: 0.15em;
+                    padding: 0.3em 0.15em;
 
                     &:last-child {
                         border: 0;
                     }
 
                     span {
-                        font-size: 0.9em;
+                        font-size: 1em;
 
                         &:last-child {
-                            margin-left: auto;
                             font-size: 0.65em;
                             color: $color-text-muted;
                         }
 
                         &.label {
+                            font-family: $secondary-font-stack;
                             color: $color-accent;
-                            font-style: oblique;
-                            font-weight: 600;
                         }
 
                         &.stat {
+                            font-size: 0.95em;
                             color: $color-text-secondary-dark;
-                            margin: 0 $size-4 0 $size-2;
+                            font-weight: 500;
+                            margin-left: 0.2em;
+                        }
+
+                        &.separator {
+                            color: $color-text-muted;
+                            font-size: 0.7em;
+                            margin: 0 $size-2;
                         }
                     }
                 }
@@ -343,10 +358,15 @@ function getTimePassed(pastTime) {
             display: flex;
             gap: $size-2;
             margin-top: $size-8;
+
+            :deep(button) {
+                font-size: 1.4em;
+            }
         }
 
         .end-screen-wrapper {
             @include flexCenterAll;
+            flex-direction: column;
 
             .end-screen {
                 @include flexCenterAll;
@@ -372,16 +392,27 @@ function getTimePassed(pastTime) {
                 .stats {
                     font-size: 1.1em;
                     display: flex;
+                    align-items: center;
                     gap: $size-2;
+
+                    span {
+                        color: $color-text-secondary-dark;
+                        font-weight: 500;
+                        font-size: 0.7em;
+                    }
 
                     .stat-wrapper {
                         display: flex;
                         gap: $size-1;
 
-                        .label {
-                            color: $color-accent;
-                            font-weight: 600;
-                            font-style: oblique;
+                        span {
+                            font-size: 1em !important;
+
+                            &.label {
+                                font-family: $secondary-font-stack;
+                                color: $color-accent;
+                                line-height: 1.6ch;
+                            }
                         }
                     }
                 }
@@ -400,7 +431,7 @@ function getTimePassed(pastTime) {
     }
 
     .countdown {
-        font-family: $primary-font-stack;
+        font-family: $secondary-font-stack;
         color: $color-text-primary-light;
         font-weight: 600;
         font-size: 3.5em;
