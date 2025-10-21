@@ -5,7 +5,8 @@ import { useSettingsStore } from '@/stores/settingsStore';
 const props = defineProps({
     gameActive: { type: Boolean },
     animation: { type: Boolean, default: true },
-    localSize: { required: false },
+    localSize: { type: Boolean },
+    inputActive: { type: Boolean },
 });
 
 const emit = defineEmits(['click', 'endGame']);
@@ -43,13 +44,29 @@ function circleClick() {
             }"
             @mousedown="animation ? circleClick() : null"
             @animationend="$emit('endGame')"
-        ></button>
+        >
+            <span v-if="inputActive && localSize >= 50">{{ localSize }}px</span>
+        </button>
+        <span v-if="inputActive && localSize < 50" class="outer-value">{{ localSize }}px</span>
     </div>
 </template>
 
 <style lang="scss" scoped>
 div {
+    position: relative;
     @include flexCenterAll;
+
+    span {
+        font-family: $secondary-font-stack;
+        color: $color-text-secondary-dark;
+        font-weight: 500;
+
+        &.outer-value {
+            position: absolute;
+            right: -$size-11;
+            color: $color-text-primary-light;
+        }
+    }
 
     button {
         background-color: $color-bg-secondary;

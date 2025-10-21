@@ -16,6 +16,7 @@ const emit = defineEmits(['closeSettings']);
 const settingsStore = useSettingsStore();
 const authStore = useAuthStore();
 const isLoading = ref(false);
+const rangeInputActive = ref(false);
 
 const localSettings = reactive({
     circleSize: settingsStore.circleSize,
@@ -94,6 +95,8 @@ onBeforeUnmount(() => {
                             min="25"
                             max="125"
                             :disabled="isLoading"
+                            @mousedown="rangeInputActive = true"
+                            @mouseup="rangeInputActive = false"
                         />
                     </div>
                     <div class="form-group">
@@ -159,6 +162,7 @@ onBeforeUnmount(() => {
                 :gameActive="true"
                 :animation="false"
                 :localSize="localSettings.circleSize"
+                :inputActive="rangeInputActive"
             />
         </div>
         <div v-if="showSettings" class="form-buttons">
