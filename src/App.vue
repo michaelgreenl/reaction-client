@@ -50,7 +50,7 @@ body,
 .loader {
     @include flexCenterAll;
     height: 90%;
-    color: $color-text-primary-light;
+    color: $color-bg-secondary;
 }
 
 main {
