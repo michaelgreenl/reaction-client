@@ -28,7 +28,6 @@ button {
     border: 0;
 
     span {
-        font-size: 1.1em;
         white-space: nowrap;
         letter-spacing: 0.05em;
     }
@@ -38,7 +37,6 @@ button {
         font-family: $secondary-font-stack;
         transition: transform 0.1s ease;
         border-radius: $border-radius-xs;
-        padding: $size-2 $size-4;
 
         &:hover {
             transform: scale(1.05);
@@ -50,16 +48,19 @@ button {
     }
 
     &.primary {
-        background: $color-bg-secondary;
-        color: $color-gray7;
+        text-shadow: 1px 1px 2px #00000033;
+
+        background: transparent;
+        color: $color-bg-secondary;
+        font-style: oblique;
 
         &:disabled {
-            background: $color-gray5;
-            color: $color-gray3;
+            opacity: 0.5;
         }
     }
 
     &.secondary {
+        padding: $size-2 $size-4;
         background: $color-accent;
         color: $color-gray1;
 
