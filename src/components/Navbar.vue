@@ -58,6 +58,7 @@ const route = useRoute();
             font-style: italic;
             font-weight: 300;
             margin: 0;
+            text-shadow: 1px 1px 2px #00000033;
         }
 
         a {
@@ -72,7 +73,7 @@ const route = useRoute();
     &-link {
         position: relative;
         font-size: 0.9em;
-        font-family: $primary-font-stack;
+        font-family: $secondary-font-stack;
         color: $color-gray1;
         font-weight: 300;
         background: transparent;
@@ -82,12 +83,13 @@ const route = useRoute();
         &::after {
             content: '';
             position: absolute;
-            bottom: -2px;
+            bottom: -5px;
             left: -10%;
             right: 110%;
-            height: 1px;
+            height: 2px;
             background: $color-bg-secondary;
-            transition: all 0.1s ease;
+            transition: all 0.2s ease;
+            border-radius: 2px;
         }
 
         &:hover {
