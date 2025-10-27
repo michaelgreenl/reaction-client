@@ -139,19 +139,19 @@ const handleLogin = async () => {
                 label {
                     font-size: 0.9em;
                     color: $color-text-secondary-dark;
+                    font-family: $secondary-font-stack;
                 }
 
                 input {
+                    border-radius: $border-radius-sm;
                     padding: $size-2;
-                    outline: 1px solid transparent;
-                    border: 1px solid $color-primary;
-                    border-radius: $border-radius-md;
+                    outline: 0;
+                    border: 2px solid $color-primary-light;
                     background-color: $color-bg-secondary;
                     color: $color-text-secondary-dark;
                     width: 100%;
 
                     &:focus {
-                        outline: 1px solid $color-accent;
                         border-color: $color-accent;
                     }
                 }
