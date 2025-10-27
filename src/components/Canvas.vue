@@ -11,6 +11,8 @@ const props = defineProps({
 
 const emit = defineEmits(['endGame', 'incrementScore']);
 
+const canvas = ref(null);
+
 const settingsStore = useSettingsStore();
 
 const circles = ref([]);
@@ -31,9 +33,12 @@ function getRandomInt(min, max) {
 
 function spawnCircle() {
     const circleSize = settingsStore.circleSize;
-    const vw = window.innerWidth;
-    const vh = window.innerHeight;
 
+    // minus 10 just to be safe
+    const vw = canvas.value.offsetWidth - 10;
+    const vh = canvas.value.offsetHeight - 10;
+
+    console.log(vw - circleSize);
     const maxX = Math.max(0, vw - circleSize);
     const maxY = Math.max(0, vh - circleSize);
 
@@ -62,19 +67,33 @@ function handleGameEnd() {
         emit('endGame');
     }, 400);
 }
+
+function timeValueSize(timeMs) {
+    const time = timeMs / 1000;
+
+    if (time >= 100) {
+        return '2.8ch';
+    } else if (time >= 20) {
+        return '2.4ch';
+    } else if (time >= 10) {
+        return '2.2ch';
+    }
+
+    return '2ch';
+}
 </script>
 
 <template>
-    <div class="game-container">
+    <div ref="canvas" class="game-container">
         <div class="hud">
             <div class="stat-wrapper">
                 <span class="label">Score:</span>
-                <span>{{ score }}</span>
+                <span class="stat">{{ score }}</span>
             </div>
             <span> | </span>
             <div class="stat-wrapper">
                 <span class="label">Time:</span>
-                <span>{{ (time / 1000).toFixed(2) }}s</span>
+                <span class="stat" :style="{ width: timeValueSize(time) }">{{ (time / 1000).toFixed(2) }}</span>
             </div>
         </div>
         <div class="canvas">
@@ -88,19 +107,24 @@ function handleGameEnd() {
 <style lang="scss" scoped>
 .game-container {
     position: relative;
-    overflow: hidden;
     height: 100%;
     width: 100%;
 
     .hud {
         position: absolute;
-        top: $size-1;
-        left: $size-2;
-        @include flexCenterAll;
+        top: -2.6em;
+        left: 0;
+        right: 0;
+        margin: 0 auto;
+        display: flex;
+        align-items: center;
+        justify-content: space-around;
         background: $color-bg-secondary;
-        padding: $size-2 $size-4;
+        padding: $size-2 $size-8 $size-2 $size-4;
         border-radius: $border-radius-sm;
         gap: $size-2;
+        border: solid 1px $color-gray3;
+        box-shadow: $box-shadow;
 
         span {
             color: $color-text-secondary-dark;
@@ -115,11 +139,20 @@ function handleGameEnd() {
             span {
                 font-size: 1em !important;
                 color: $color-text-secondary-dark;
+                font-family: $secondary-font-stack;
+                line-height: 1.6ch;
 
                 &.label {
                     font-family: $secondary-font-stack;
                     color: $color-accent;
-                    line-height: 1.6ch;
+                }
+            }
+
+            &:last-child {
+                span {
+                    &.stat {
+                        width: 2ch;
+                    }
                 }
             }
         }
