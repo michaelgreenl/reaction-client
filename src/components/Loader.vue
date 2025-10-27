@@ -21,15 +21,23 @@ onUnmounted(() => {
 </script>
 
 <template>
-    <div class="loading-text" :style="{ width: `${text.length}ch` }">
-        <span>
-            {{ loadingText }}
-        </span>
+    <div class="loading-wrapper">
+        <div class="loading-text" :style="{ width: `${text.length}ch` }">
+            <span>
+                {{ loadingText }}
+            </span>
+        </div>
     </div>
 </template>
 
 <style lang="scss" scoped>
-span {
-    text-wrap: nowrap;
+.loading-wrapper {
+    @include flexCenterAll;
+
+    span {
+        font-family: $secondary-font-stack;
+        text-wrap: nowrap;
+        text-shadow: 1px 1px 2px #00000033;
+    }
 }
 </style>
