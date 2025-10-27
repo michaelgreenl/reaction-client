@@ -196,6 +196,8 @@ onBeforeUnmount(() => {
             background: $color-bg-secondary;
             padding: $size-3 $size-5;
             border-radius: $border-radius-md;
+            box-shadow: $box-shadow;
+            border: solid 1px $color-gray3;
             width: 20em;
 
             .form-header {
@@ -237,11 +239,12 @@ onBeforeUnmount(() => {
             .form-group {
                 display: flex;
                 justify-content: space-between;
+                align-items: center;
                 padding: $size-1;
 
                 label {
                     font-size: 0.9em;
-                    font-family: $primary-font-stack;
+                    font-family: $secondary-font-stack;
                     color: $color-text-secondary-dark;
                 }
 
@@ -272,24 +275,26 @@ onBeforeUnmount(() => {
 
                 .number-input {
                     @include flexCenterAll;
+                    gap: 0.1em;
 
                     span {
                         text-align: center;
                         font-size: 0.85em;
-                        font-family: $primary-font-stack;
+                        font-family: $secondary-font-stack;
                         color: $color-text-secondary-dark;
                     }
 
                     .step-buttons {
                         @include flexCenterAll;
                         flex-direction: column;
+                        gap: 0.1em;
                         height: 100%;
 
                         button {
                             flex: 1;
                             background: transparent;
                             border: 0;
-                            font-size: 1.1em;
+                            font-size: 1.5em;
                             padding: 0 $size-1;
                             color: $color-gray4;
                             transition: all 0.1s ease;
@@ -313,6 +318,10 @@ onBeforeUnmount(() => {
     .form-buttons {
         display: flex;
         gap: $size-2;
+
+        :deep(button) {
+            font-size: 1.2em;
+        }
     }
 }
 </style>
