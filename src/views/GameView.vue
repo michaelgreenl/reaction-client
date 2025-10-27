@@ -88,7 +88,6 @@ function toggleSettings() {
 
 function toggleRecentGames() {
     showRecentGames.value = !showRecentGames.value;
-    console.log(showRecentGames.value);
 
     if (showRecentGames.value && showSettings.value) {
         showSettings.value = false;
@@ -219,7 +218,7 @@ function getTimePassed(pastTime) {
                 </div>
                 <div class="buttons">
                     <Button @click="showSettings = !showSettings" text="Settings" />
-                    <Button @click="startGame" text="Start" />
+                    <Button @click="startGame" text="Play Again" />
                 </div>
             </div>
             <div v-else>
@@ -251,6 +250,7 @@ function getTimePassed(pastTime) {
 <style lang="scss" scoped>
 .game-container {
     position: relative;
+    z-index: 1;
     @include flexCenterAll;
     height: 100%;
     width: 100%;
@@ -259,6 +259,7 @@ function getTimePassed(pastTime) {
         .recent-games {
             font-size: 1.1em;
             position: absolute;
+            z-index: 1;
             top: $size-1;
             left: $size-3;
             display: flex;
@@ -266,6 +267,8 @@ function getTimePassed(pastTime) {
             padding: $size-2 $size-1 $size-1 $size-3;
             background: $color-bg-secondary;
             border-radius: $border-radius-xs;
+            box-shadow: $box-shadow;
+            border: solid 1px $color-gray3;
 
             &-header {
                 display: flex;
@@ -338,7 +341,8 @@ function getTimePassed(pastTime) {
                         }
 
                         &.stat {
-                            font-size: 0.95em;
+                            font-family: $secondary-font-stack;
+                            font-size: 0.9em;
                             color: $color-text-secondary-dark;
                             font-weight: 500;
                             margin-left: 0.2em;
@@ -374,6 +378,8 @@ function getTimePassed(pastTime) {
                 background: $color-bg-secondary;
                 padding: $size-3 $size-5 $size-3;
                 border-radius: $border-radius-md;
+                border: solid 1px $color-gray3;
+                box-shadow: $box-shadow;
 
                 h1 {
                     font-family: $secondary-font-stack;
@@ -406,12 +412,12 @@ function getTimePassed(pastTime) {
                         gap: $size-1;
 
                         span {
+                            font-family: $secondary-font-stack;
                             font-size: 1em !important;
+                            line-height: 1.6ch;
 
                             &.label {
-                                font-family: $secondary-font-stack;
                                 color: $color-accent;
-                                line-height: 1.6ch;
                             }
                         }
                     }
@@ -435,6 +441,7 @@ function getTimePassed(pastTime) {
         color: $color-text-primary-light;
         font-weight: 600;
         font-size: 3.5em;
+        text-shadow: 1px 1px 2px #00000033;
         animation: shrink 1s ease-in-out;
         animation-iteration-count: 3;
     }
