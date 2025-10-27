@@ -39,7 +39,6 @@ button {
         border-radius: $border-radius-xs;
 
         &:hover {
-            transform: scale(1.05) translateY(-1px);
             transform: scale(1.05);
         }
 
