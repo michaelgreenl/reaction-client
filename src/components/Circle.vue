@@ -65,6 +65,7 @@ div {
             position: absolute;
             right: -$size-11;
             color: $color-text-primary-light;
+            text-shadow: 1px 1px 2px #00000033;
         }
     }
 
@@ -74,6 +75,7 @@ div {
         border: 0;
         opacity: 1;
         transition: opacity 0.3s ease;
+        box-shadow: 1px 2px 3px #00000011;
 
         @keyframes shrink {
             0% {
