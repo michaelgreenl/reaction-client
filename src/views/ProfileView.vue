@@ -181,22 +181,6 @@ function formatTime(time) {
 
 <template>
     <div class="profile-container">
-        <!-- <div class="user-stats"> -->
-        <!--     <div class="stat-wrapper"> -->
-        <!--         <span class="label">High Score:</span> -->
-        <!--         <span class="stat">{{ authStore.userStats.highScore }}</span> -->
-        <!--     </div> -->
-        <!--     <!-1- <span> • </span> -1-> -->
-        <!--     <div class="stat-wrapper"> -->
-        <!--         <span class="label">Longest Time:</span> -->
-        <!--         <span class="stat">{{ formatTime(authStore.userStats.highTime) }}</span> -->
-        <!--     </div> -->
-        <!--     <!-1- <span> • </span> -1-> -->
-        <!--     <div class="stat-wrapper"> -->
-        <!--         <span class="label">Games Played:</span> -->
-        <!--         <span class="stat">{{ authStore.userStats.totalGames }}</span> -->
-        <!--     </div> -->
-        <!-- </div> -->
         <div class="loader" v-if="isLoading">
             <Loader text="Loading Games" />
         </div>
@@ -468,60 +452,6 @@ function formatTime(time) {
     @include bp-xl-desktop {
         padding-bottom: 3.2em;
     }
-
-    // .user-stats {
-    //     // position: relative;
-    //     @include flexCenterAll;
-    //     gap: $size-4;
-    //     padding: $size-2 $size-3 $size-2;
-    //     // background: $color-bg-secondary;
-    //     // border-radius: $border-radius-md;
-    //     // box-shadow: $box-shadow;
-    //     // border: solid 1px $color-gray3;
-    //     // width: 34.5em;
-
-    //     position: absolute;
-    //     // top: -2.75em;
-    //     top: 0;
-    //     left: $size-3;
-    //     align-items: flex-start;
-    //     flex-direction: column;
-    //     gap: 0;
-
-    //     // &::after {
-    //     //     content: '';
-    //     //     position: absolute;
-    //     //     right: $size-2;
-    //     //     bottom: 0.5em;
-    //     //     left: $size-2;
-    //     //     height: 1px;
-    //     //     background: $color-primary-light;
-    //     // }
-
-    //     span {
-    //         color: $color-text-secondary-dark;
-    //         color: $color-text-primary-light;
-    //         font-weight: 500;
-    //         font-size: 0.9em;
-    //     }
-
-    //     .stat-wrapper {
-    //         display: flex;
-    //         gap: $size-1;
-
-    //         span {
-    //             font-size: 0.95em !important;
-    //             font-family: $secondary-font-stack;
-    //             line-height: 1.6ch;
-
-    //             &.label {
-    //                 // color: $color-accent;
-    //                 color: $color-text-primary-light;
-    //                 line-height: 1.6ch;
-    //             }
-    //         }
-    //     }
-    // }
 
     .loader {
         margin-bottom: $size-8;
