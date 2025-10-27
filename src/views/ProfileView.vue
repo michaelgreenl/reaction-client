@@ -3,6 +3,8 @@ import { computed, ref, reactive, onMounted } from 'vue';
 import { useAuthStore } from '@/stores/authStore.js';
 import { useSettingsStore } from '@/stores/settingsStore.js';
 import Button from '@/components/Button.vue';
+import Loader from '@/components/Loader.vue';
+import LogoSVG from '@/components/Icons/LogoSVG.vue';
 
 const authStore = useAuthStore();
 const settingsStore = useSettingsStore();
@@ -18,14 +20,33 @@ const activeGames = reactive({
     games: [],
 });
 
+const filterDropdownRef = ref(null);
 const showFilters = ref(false);
 const filterToggles = reactive({ circleSize: false, spawnInterval: false, shrinkTime: false });
 const settingsFilters = reactive({ ...settingsStore });
-const showSettings = ref(false);
+const showSettings = ref(true);
+const rangeInputActive = ref(false);
 
 const filtersAdded = computed(() => {
     return filterToggles.circleSize || filterToggles.spawnInterval || filterToggles.shrinkTime;
 });
+
+const dropdownListener = (e) => {
+    if (!showFilters.value) {
+        showFilters.value = true;
+    } else if (e.target !== filterDropdownRef.value && !e.composedPath().includes(filterDropdownRef.value)) {
+        showFilters.value = false;
+        window.removeEventListener('click', dropdownListener);
+    }
+};
+
+function toggleDropdown() {
+    if (!showFilters.value) {
+        window.addEventListener('click', dropdownListener);
+    } else {
+        window.removeEventListener('click', dropdownListener);
+    }
+}
 
 onMounted(async () => {
     await getUnfilteredGames().then(() => {
@@ -46,12 +67,12 @@ async function switchPage(newOffset, pageNum) {
 }
 
 async function getUnfilteredGames() {
-    activeGames.games.length = 0;
     activeGames.filtered = false;
 
     loadingGames.value = true;
     const games = await authStore.getGames(10, offset.value, activeGames.sorted);
     loadingGames.value = false;
+    activeGames.games.length = 0;
     activeGames.games.push(...games);
 }
 
@@ -74,7 +95,6 @@ async function filterGamesBySettings() {
         await resetFilters();
         return;
     } else if (!activeGames.filtered) {
-        activeGames.games.length = 0;
         activeGames.filtered = true;
     }
 
@@ -88,6 +108,7 @@ async function filterGamesBySettings() {
     loadingGames.value = true;
     const games = await authStore.getGamesBySettings(10, offset.value, filters, activeGames.sorted);
     loadingGames.value = false;
+    activeGames.games.length = 0;
     activeGames.games.push(...games);
 }
 
@@ -106,6 +127,14 @@ async function handleSort(by) {
     }
 }
 
+function addAllFilters() {
+    Object.keys(filterToggles).forEach((filter) => {
+        filterToggles[`${filter}`] = true;
+    });
+
+    showFilters.value = false;
+}
+
 function formatDate(isoString) {
     const date = new Date(isoString);
     if (isNaN(date)) throw new Error('Invalid ISO date string');
@@ -114,9 +143,9 @@ function formatDate(isoString) {
         hour: 'numeric',
         minute: '2-digit',
         hour12: true,
-        month: 'numeric',
+        month: 'long',
         day: 'numeric',
-        year: '2-digit',
+        year: 'numeric',
     }).formatToParts(date);
 
     const get = (type) => parts.find((p) => p.type === type)?.value;
@@ -124,7 +153,7 @@ function formatDate(isoString) {
     const hour = get('hour');
     const minute = get('minute');
     const ampm = get('dayPeriod')?.toLowerCase();
-    const month = get('month');
+    const month = get('month')?.slice(0, 3);
     const day = get('day');
     const year = get('year');
 
@@ -134,7 +163,7 @@ function formatDate(isoString) {
         now.getMonth() === date.getMonth() &&
         now.getDate() === date.getDate();
 
-    return sameDay ? `${hour}:${minute}${ampm}` : `${hour}:${minute}${ampm} ${month}-${day}-${year}`;
+    return sameDay ? `${hour}:${minute}${ampm}` : `${month} ${day}, ${year}`;
 }
 
 function formatTime(time) {
@@ -152,132 +181,743 @@ function formatTime(time) {
 
 <template>
     <div class="profile-container">
-        <h1>Profile</h1>
-        <div v-if="isLoading">Loading...</div>
-        <div v-else>
-            <p v-if="loadingGames">Loading...</p>
-            <Button text="Show Filters" @click="showFilters = !showFilters" />
-            <Button v-if="showSettings" text="Hide Settings" @click="showSettings = false" />
-            <div v-if="showFilters">
-                <Button
-                    :text="filterToggles.circleSize ? 'Circle Size -' : 'Circle Size +'"
-                    @click="filterToggles.circleSize = !filterToggles.circleSize"
-                />
-                <Button
-                    :text="filterToggles.spawnInterval ? 'Spawn Interval -' : 'Spawn Interval +'"
-                    @click="filterToggles.spawnInterval = !filterToggles.spawnInterval"
-                />
-                <Button
-                    :text="filterToggles.shrinkTime ? 'Shrink Time -' : 'Shrink Time +'"
-                    @click="filterToggles.shrinkTime = !filterToggles.shrinkTime"
-                />
+        <!-- <div class="user-stats"> -->
+        <!--     <div class="stat-wrapper"> -->
+        <!--         <span class="label">High Score:</span> -->
+        <!--         <span class="stat">{{ authStore.userStats.highScore }}</span> -->
+        <!--     </div> -->
+        <!--     <!-1- <span> • </span> -1-> -->
+        <!--     <div class="stat-wrapper"> -->
+        <!--         <span class="label">Longest Time:</span> -->
+        <!--         <span class="stat">{{ formatTime(authStore.userStats.highTime) }}</span> -->
+        <!--     </div> -->
+        <!--     <!-1- <span> • </span> -1-> -->
+        <!--     <div class="stat-wrapper"> -->
+        <!--         <span class="label">Games Played:</span> -->
+        <!--         <span class="stat">{{ authStore.userStats.totalGames }}</span> -->
+        <!--     </div> -->
+        <!-- </div> -->
+        <div class="loader" v-if="isLoading">
+            <Loader text="Loading Games" />
+        </div>
+        <div v-else class="main-wrapper">
+            <div class="table-container" :class="`${showSettings ? 'show-settings' : undefined}`">
+                <div class="table-header">
+                    <div class="logo">
+                        <LogoSVG />
+                        <h1>Game History</h1>
+                    </div>
+                    <div class="toggle-buttons">
+                        <Button
+                            :text="`${showSettings ? 'Hide' : 'Show'} Settings`"
+                            @click="showSettings = !showSettings"
+                        />
+                        <Button text="Add Filters ▾" @click="toggleDropdown()" />
+                    </div>
+                    <div
+                        v-if="showFilters"
+                        ref="filterDropdownRef"
+                        class="filter-toggles"
+                        :class="`${showSettings ? 'showing-settings' : undefined}`"
+                    >
+                        <div class="form-group">
+                            <input id="circleSizeFilter" type="checkbox" v-model="filterToggles.circleSize" />
+                            <label for="circleSizeFilter">Circle Size</label>
+                        </div>
+                        <div class="form-group">
+                            <input id="spawnIntervalFilter" type="checkbox" v-model="filterToggles.spawnInterval" />
+                            <label for="spawnIntervalFilter">Spawn Interval</label>
+                        </div>
+                        <div class="form-group">
+                            <input
+                                id="shrinkTimeFilter"
+                                type="checkbox"
+                                v-model="filterToggles.shrinkTime"
+                                :disabled="loadingGames"
+                            />
+                            <label for="shrinkTimeFilter">Shrink Time</label>
+                        </div>
+                        <Button @click="addAllFilters()" text="+All" />
+                    </div>
+                </div>
+                <div class="filters">
+                    <form v-if="filtersAdded" @submit.prevent="filterGamesBySettings">
+                        <div class="form-groups">
+                            <div class="form-group" v-if="filterToggles.circleSize">
+                                <label for="circleSize">Circle Size</label>
+                                <input
+                                    id="circleSize"
+                                    v-model="settingsFilters.circleSize"
+                                    type="range"
+                                    min="25"
+                                    max="125"
+                                    :disabled="loadingGames || !filterToggles.circleSize"
+                                    @mousedown="rangeInputActive = true"
+                                    @mouseup="rangeInputActive = false"
+                                />
+                                <!-- <span v-if="rangeInputActive" class="range-value"> -->
+                                <!--     {{ settingsFilters.circleSize }}px -->
+                                <!-- </span> -->
+                            </div>
+                            <div class="form-group" v-if="filterToggles.spawnInterval">
+                                <label>Spawn Interval</label>
+                                <div class="number-input">
+                                    <span>
+                                        {{
+                                            Number.isInteger(settingsFilters.spawnInterval)
+                                                ? settingsFilters.spawnInterval.toFixed(1)
+                                                : settingsFilters.spawnInterval.toString()
+                                        }}s
+                                    </span>
+                                    <div class="step-buttons">
+                                        <button
+                                            @click="settingsFilters.spawnInterval += 0.25"
+                                            :disabled="
+                                                isLoading ||
+                                                !filterToggles.spawnInterval ||
+                                                settingsFilters.spawnInterval >= 2
+                                            "
+                                            type="button"
+                                        >
+                                            +
+                                        </button>
+                                        <button
+                                            @click="settingsFilters.spawnInterval -= 0.25"
+                                            :disabled="
+                                                loadingGames ||
+                                                !filterToggles.spawnInterval ||
+                                                settingsFilters.spawnInterval <= 0.25
+                                            "
+                                            type="button"
+                                        >
+                                            −
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group" v-if="filterToggles.shrinkTime">
+                                <label>Shrink Time</label>
+                                <div class="number-input">
+                                    <span>
+                                        {{
+                                            Number.isInteger(settingsFilters.shrinkTime)
+                                                ? settingsFilters.shrinkTime.toFixed(1)
+                                                : settingsFilters.shrinkTime.toString()
+                                        }}s
+                                    </span>
+                                    <div class="step-buttons">
+                                        <button
+                                            @click="settingsFilters.shrinkTime += 0.25"
+                                            :disabled="
+                                                loadingGames ||
+                                                !filterToggles.shrinkTime ||
+                                                settingsFilters.shrinkTime >= 2
+                                            "
+                                            type="button"
+                                        >
+                                            +
+                                        </button>
+                                        <button
+                                            @click="settingsFilters.shrinkTime -= 0.25"
+                                            :disabled="
+                                                loadingGames ||
+                                                !filterToggles.shrinkTime ||
+                                                settingsFilters.shrinkTime === 0.25
+                                            "
+                                            type="button"
+                                        >
+                                            −
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="filter-form-buttons">
+                            <Button
+                                v-if="filtersAdded"
+                                text="Reset"
+                                @click="resetFilters"
+                                :disabled="loadingGames || !filtersAdded"
+                            />
+                            <Button
+                                v-if="filtersAdded"
+                                type="submit"
+                                text="Save"
+                                :disabled="loadingGames || (!filtersAdded && !activeGames.filtered)"
+                            />
+                        </div>
+                    </form>
+                </div>
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>
+                                    <Button
+                                        :text="`${activeGames.sorted.by !== 'score' ? 'Score' : activeGames.sorted.order === 'ASC' ? '▴ Score' : '▾ Score'}`"
+                                        :disabled="loadingGames"
+                                        @click="handleSort('score')"
+                                    />
+                                </th>
+                                <th>
+                                    <Button
+                                        :text="`${activeGames.sorted.by !== 'time' ? 'Time' : activeGames.sorted.order === 'ASC' ? '▴ Time' : '▾ Time'}`"
+                                        :disabled="loadingGames"
+                                        @click="handleSort('time')"
+                                    />
+                                </th>
+                                <th v-if="showSettings">
+                                    <Button text="Circle Size" class="setting" />
+                                </th>
+                                <th v-if="showSettings">
+                                    <Button text="Spawn Interval" class="setting" />
+                                </th>
+                                <th v-if="showSettings">
+                                    <Button text="Shrink Time" class="setting" />
+                                </th>
+                                <th>
+                                    <Button
+                                        :text="`${activeGames.sorted.by !== 'createdAt' ? 'Date' : activeGames.sorted.order === 'ASC' ? '▴ Date' : '▾ Date'}`"
+                                        :disabled="loadingGames"
+                                        @click="handleSort('createdAt')"
+                                    />
+                                </th>
+                            </tr>
+                        </thead>
+                        <div v-if="loadingGames" class="loader">
+                            <Loader text="Loading" />
+                        </div>
+                        <div v-if="activeGames.games.length === 0 && !loadingGames" class="loader">
+                            <span>No Games Found.</span>
+                        </div>
+                        <tbody
+                            :style="{
+                                // hiding element so the height can still affect the table size
+                                visibility: `${loadingGames ? 'hidden' : 'visible'}`,
+                                height: `${activeGames.games.length > 0 ? activeGames.games.length * 26 : 260}px`,
+                            }"
+                        >
+                            <tr v-for="(game, i) in activeGames.games">
+                                <td :class="`${activeGames.sorted.by === 'score' ? 'sorted' : undefined}`">
+                                    {{ game.score }}
+                                </td>
+                                <td :class="`${activeGames.sorted.by === 'time' ? 'sorted' : undefined}`">
+                                    {{ formatTime(game.time) }}
+                                </td>
+                                <td v-if="showSettings">{{ game.settings.circleSize }}px</td>
+                                <td v-if="showSettings">
+                                    {{
+                                        game.settings.spawnInterval.toString().length === 4
+                                            ? game.settings.spawnInterval.toFixed(2)
+                                            : game.settings.spawnInterval.toFixed(1)
+                                    }}
+                                </td>
+                                <td v-if="showSettings">
+                                    {{
+                                        game.settings.shrinkTime.toString().length === 4
+                                            ? game.settings.shrinkTime.toFixed(2)
+                                            : game.settings.shrinkTime.toFixed(1)
+                                    }}
+                                </td>
+                                <td
+                                    class="date"
+                                    :class="`${activeGames.sorted.by === 'createdAt' ? 'sorted' : undefined}`"
+                                >
+                                    {{ formatDate(game.createdAt) }}
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="table-nav">
+                    <Button
+                        text="prev"
+                        @click="switchPage((offset -= 10), activePage - 1)"
+                        :disabled="loadingGames || offset === 0"
+                    />
+                    <span>
+                        {{ activePage }}
+                    </span>
+                    <Button
+                        text="next"
+                        @click="switchPage((offset += 10), activePage + 1)"
+                        :disabled="
+                            loadingGames ||
+                            authStore.userStats?.totalGames < 10 ||
+                            activeGames.games.length === 0 ||
+                            offset + 10 >= authStore.userStats?.totalGames
+                        "
+                    />
+                </div>
             </div>
-            <form v-if="showFilters" @submit.prevent="filterGamesBySettings">
-                <div class="form-group" v-if="filterToggles.circleSize">
-                    <label for="circleSize">Circle Size</label>
-                    <input
-                        id="circleSize"
-                        v-model="settingsFilters.circleSize"
-                        type="range"
-                        min="50"
-                        max="150"
-                        :disabled="loadingGames || !filterToggles.circleSize"
-                    />
-                </div>
-                <div class="form-group" v-if="filterToggles.spawnInterval">
-                    <label for="spawnInterval">Spawn Interval</label>
-                    <input
-                        id="spawnInterval"
-                        v-model.number="settingsFilters.spawnInterval"
-                        type="number"
-                        min="0.25"
-                        max="2"
-                        step="0.25"
-                        :disabled="loadingGames || !filterToggles.spawnInterval"
-                    />
-                </div>
-                <div class="form-group" v-if="filterToggles.shrinkTime">
-                    <label for="shrinkTime">Shrink Time</label>
-                    <input
-                        id="shrinkTime"
-                        v-model.number="settingsFilters.shrinkTime"
-                        type="number"
-                        min="0.25"
-                        max="2"
-                        step="0.25"
-                        :disabled="loadingGames || !filterToggles.shrinkTime"
-                    />
-                </div>
-                <Button text="Reset" @click="resetFilters" :disabled="!filtersAdded" />
-                <Button type="submit" text="Save" :disabled="!filtersAdded && !activeGames.filtered" />
-            </form>
-            <table>
-                <thead>
-                    <tr>
-                        <th>
-                            <Button
-                                @click="handleSort('createdAt')"
-                                :text="activeGames.sorted.order === 'ASC' ? '▲' : '▼'"
-                                :showText="activeGames.sorted.by === 'createdAt'"
-                                :disabled="loadingGames"
-                            />
-                            date
-                        </th>
-                        <th>
-                            <Button
-                                @click="handleSort('score')"
-                                :text="activeGames.sorted.order === 'ASC' ? '▲' : '▼'"
-                                :showText="activeGames.sorted.by === 'score'"
-                                :disabled="loadingGames"
-                            />
-                            score
-                        </th>
-                        <th>
-                            <Button
-                                @click="handleSort('time')"
-                                :text="activeGames.sorted.order === 'ASC' ? '▲' : '▼'"
-                                :showText="activeGames.sorted.by === 'time'"
-                                :disabled="loadingGames"
-                            />
-                            time
-                        </th>
-                        <th v-if="!showSettings">settings</th>
-                        <th v-if="showSettings">Circle Size</th>
-                        <th v-if="showSettings">Spawn Interval</th>
-                        <th v-if="showSettings">Shrink Time</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr v-for="(game, i) in activeGames.games">
-                        <td>{{ formatDate(game.createdAt) }}</td>
-                        <td>{{ game.score }}</td>
-                        <td>{{ formatTime(game.time) }}</td>
-                        <td v-if="!showSettings">
-                            <Button text="Show Settings" @click="showSettings = true" />
-                        </td>
-                        <td v-if="showSettings">{{ game.settings.circleSize }}</td>
-                        <td v-if="showSettings">{{ game.settings.spawnInterval }}</td>
-                        <td v-if="showSettings">{{ game.settings.shrinkTime }}</td>
-                    </tr>
-                </tbody>
-            </table>
-            <Button
-                text="prev"
-                @click="switchPage((offset -= 10), activePage - 1)"
-                :disabled="loadingGames || offset === 0"
-            />
-            {{ activePage }}
-            <Button
-                text="next"
-                @click="switchPage((offset += 10), activePage + 1)"
-                :disabled="
-                    loadingGames ||
-                    authStore.userStats?.totalGames < 10 ||
-                    offset + 10 >= authStore.userStats?.totalGames
-                "
-            />
         </div>
     </div>
 </template>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.profile-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1em;
+    flex-direction: column;
+    height: 100%;
+    padding-bottom: 2em;
+
+    @include bp-xl-desktop {
+        padding-bottom: 3.2em;
+    }
+
+    // .user-stats {
+    //     // position: relative;
+    //     @include flexCenterAll;
+    //     gap: $size-4;
+    //     padding: $size-2 $size-3 $size-2;
+    //     // background: $color-bg-secondary;
+    //     // border-radius: $border-radius-md;
+    //     // box-shadow: $box-shadow;
+    //     // border: solid 1px $color-gray3;
+    //     // width: 34.5em;
+
+    //     position: absolute;
+    //     // top: -2.75em;
+    //     top: 0;
+    //     left: $size-3;
+    //     align-items: flex-start;
+    //     flex-direction: column;
+    //     gap: 0;
+
+    //     // &::after {
+    //     //     content: '';
+    //     //     position: absolute;
+    //     //     right: $size-2;
+    //     //     bottom: 0.5em;
+    //     //     left: $size-2;
+    //     //     height: 1px;
+    //     //     background: $color-primary-light;
+    //     // }
+
+    //     span {
+    //         color: $color-text-secondary-dark;
+    //         color: $color-text-primary-light;
+    //         font-weight: 500;
+    //         font-size: 0.9em;
+    //     }
+
+    //     .stat-wrapper {
+    //         display: flex;
+    //         gap: $size-1;
+
+    //         span {
+    //             font-size: 0.95em !important;
+    //             font-family: $secondary-font-stack;
+    //             line-height: 1.6ch;
+
+    //             &.label {
+    //                 // color: $color-accent;
+    //                 color: $color-text-primary-light;
+    //                 line-height: 1.6ch;
+    //             }
+    //         }
+    //     }
+    // }
+
+    .loader {
+        margin-bottom: $size-8;
+    }
+
+    .main-wrapper {
+        @include flexCenterAll;
+        flex-direction: column;
+        width: 100%;
+        margin-bottom: $size-4;
+
+        .table-container {
+            position: relative;
+            @include flexCenterAll;
+            flex-direction: column;
+            background: $color-bg-secondary;
+            border-radius: $border-radius-md;
+            box-shadow: $box-shadow;
+            padding: $size-2 $size-4;
+            border: solid 1px $color-gray3;
+            max-width: 19em;
+
+            &::before {
+                content: '';
+                position: absolute;
+                z-index: 1;
+                top: 0;
+                right: 0;
+                bottom: 0;
+                left: 0;
+                border-radius: $border-radius-md;
+                border: solid 2px $color-primary-light;
+            }
+
+            &::after {
+                content: '';
+                position: absolute;
+                z-index: 0;
+                top: -5px;
+                right: -5px;
+                bottom: -5px;
+                left: -5px;
+                border-radius: $border-radius-xl;
+                background: $color-bg-secondary;
+            }
+
+            &.show-settings {
+                max-width: 34em;
+
+                .table-header {
+                    justify-content: space-between;
+                }
+
+                .filters {
+                    width: 46.5em;
+
+                    form .form-groups {
+                        gap: $size-3;
+                        width: fit-content;
+
+                        .form-group {
+                            width: fit-content;
+                            justify-content: center;
+                            max-width: 16em;
+                        }
+                    }
+                }
+            }
+
+            .table-header {
+                position: relative;
+                z-index: 2;
+                display: flex;
+                flex-wrap: wrap;
+                padding: $size-1 $size-1 $size-3;
+                width: 100%;
+                border-bottom: solid 1px $color-primary-light;
+                justify-content: center;
+
+                .logo {
+                    @include flexCenterAll;
+
+                    svg {
+                        height: 1.7em;
+                        width: 1.7em;
+                    }
+
+                    h1 {
+                        margin-left: -2px;
+                        font-size: 1.5em;
+                        color: $color-accent;
+                        margin: 0;
+                    }
+                }
+
+                .toggle-buttons {
+                    display: flex;
+                    margin-top: $size-1;
+                    padding-left: $size-1;
+
+                    :deep(button) {
+                        color: $color-accent;
+
+                        span {
+                            text-shadow: none;
+                        }
+                    }
+                }
+
+                .filter-toggles {
+                    position: absolute;
+                    display: flex;
+                    flex-direction: column;
+                    margin: $size-1 $size-2;
+                    padding: 0.4em;
+                    padding-right: $size-4;
+                    background: $color-bg-secondary;
+                    box-shadow: $box-shadow;
+                    border-radius: $border-radius-xs;
+                    width: fit-content;
+                    border: solid 1px $color-gray3;
+                    top: 3.5em;
+                    right: 1em;
+                    right: 0.5em;
+
+                    &.showing-settings {
+                        top: 2em;
+                        right: 0;
+                    }
+
+                    .form-group {
+                        display: flex;
+                        align-items: center;
+
+                        input {
+                            cursor: pointer;
+                        }
+
+                        label {
+                            font-size: 0.8em;
+                            font-family: $secondary-font-stack;
+                            color: $color-text-primary-dark;
+                        }
+                    }
+
+                    :deep(button) {
+                        align-self: flex-end;
+                        font-size: 0.75em;
+                        padding-right: 0;
+
+                        span {
+                            font-weight: 500;
+                            color: $color-accent;
+                            text-shadow: none;
+                        }
+                    }
+                }
+            }
+
+            .filters {
+                position: relative;
+                z-index: 1;
+                font-size: 0.7em;
+                display: flex;
+                align-items: center;
+                width: 23em;
+
+                form {
+                    display: flex;
+                    flex-wrap: wrap;
+                    justify-content: space-between;
+                    width: 100%;
+                    padding: $size-1 $size-4;
+
+                    .form-groups {
+                        @include flexCenterAll;
+                        flex-wrap: wrap;
+                        gap: $size-2;
+                        width: 100%;
+                        padding: $size-2;
+                        margin: 0 auto;
+
+                        .form-group {
+                            position: relative;
+                            display: flex;
+                            align-items: center;
+                            width: 200%;
+                            justify-content: space-between;
+                            gap: $size-2;
+
+                            label {
+                                font-size: 1.1em;
+                            }
+
+                            label,
+                            span {
+                                font-family: $secondary-font-stack;
+                                color: $color-text-secondary-dark;
+                                white-space: nowrap;
+                            }
+
+                            input[type='range'] {
+                                appearance: none;
+                                font-size: 1em;
+                                height: 0.5em;
+                                // width: 40%;
+                                width: 50%;
+                                margin: 0.5em 0;
+                                background: $color-gray3;
+                                border-radius: 10px;
+
+                                &::-webkit-slider-thumb {
+                                    appearance: none;
+                                    position: relative;
+                                    cursor: grab;
+                                    height: 1em;
+                                    width: 1em;
+                                    background: $color-accent;
+                                    border-radius: 50%;
+                                    z-index: 2;
+                                    transition: all 25ms ease;
+                                }
+
+                                &:-webkit-slider-thumb:active {
+                                    cursor: grabbing;
+                                }
+                            }
+
+                            // .range-value {
+                            //     position: absolute;
+                            //     right: -3.25em;
+                            //     font-size: 0.9em;
+                            // }
+
+                            .number-input {
+                                @include flexCenterAll;
+                                gap: 0.1em;
+
+                                span {
+                                    text-align: center;
+                                    font-family: $secondary-font-stack;
+                                    color: $color-text-secondary-dark;
+                                    border-bottom: solid 1px $color-gray4;
+                                }
+
+                                .step-buttons {
+                                    @include flexCenterAll;
+                                    flex-direction: column;
+                                    gap: 0.1em;
+                                    height: 100%;
+                                    padding-top: $size-1;
+
+                                    button {
+                                        flex: 1;
+                                        background: transparent;
+                                        border: 0;
+                                        font-size: 1.5em;
+                                        padding: 0 $size-1;
+                                        color: $color-gray4;
+                                        transition: all 0.1s ease;
+                                        line-height: 1ch;
+
+                                        &:hover {
+                                            transform: scale(1.1);
+                                            color: $color-accent;
+                                        }
+
+                                        &:active {
+                                            transform: scale(0.9);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    .filter-form-buttons {
+                        @include flexCenterAll;
+                        margin-left: auto;
+
+                        :deep(button) {
+                            font-size: 1.1em;
+
+                            span {
+                                font-weight: 500;
+                                color: $color-accent;
+                                text-shadow: none;
+                            }
+                        }
+                    }
+                }
+            }
+
+            .table-wrapper {
+                position: relative;
+                z-index: 1;
+                padding: $size-1 $size-2;
+
+                table {
+                    table-layout: fixed;
+                    position: relative;
+                    border-bottom: solid 1px $color-gray3;
+                    border-collapse: collapse;
+
+                    .loader {
+                        position: absolute;
+                        top: 0;
+                        left: 0;
+                        right: 0;
+                        bottom: 0;
+                        height: 100%;
+                        color: $color-text-secondary-dark;
+                        margin: 1em auto 0;
+
+                        span {
+                            font-size: 0.9em;
+                            font-family: $secondary-font-stack;
+                            text-shadow: 1px 1px 2px #00000033;
+                        }
+                    }
+
+                    :deep(button) {
+                        font-size: 1.2em;
+                        color: $color-accent;
+                        text-shadow: none;
+
+                        &.setting {
+                            font-size: 0.8em;
+                            color: $color-text-secondary-dark;
+                            cursor: auto;
+
+                            span {
+                                white-space: wrap;
+                            }
+
+                            &:hover {
+                                transform: scale(1); // reverting the button preset's hover transform properties
+                            }
+                        }
+                    }
+
+                    th,
+                    td {
+                        width: 8ch;
+                        text-align: center;
+                    }
+
+                    th {
+                        padding: $size-1;
+                        padding-bottom: $size-1;
+                    }
+
+                    td {
+                        font-size: 0.85em;
+                        font-family: $secondary-font-stack;
+                        color: $color-text-secondary-dark;
+                        font-weight: 500;
+                        width: 6ch;
+                        border: solid 1px $color-gray3;
+
+                        &.date {
+                            font-family: $primary-font-stack;
+                            width: 20ch;
+                            font-size: 0.75em;
+                            font-weight: 400;
+                            color: $color-gray6;
+                        }
+
+                        &.sorted {
+                            background: darken-color($color-gray1, 2%);
+                        }
+                    }
+                }
+            }
+
+            .table-nav {
+                position: relative;
+                z-index: 1;
+                @include flexCenterAll;
+                padding-top: $size-1;
+
+                :deep(button) {
+                    font-size: 1em;
+                    color: $color-accent;
+                    text-shadow: none;
+                }
+
+                span {
+                    font-family: $secondary-font-stack;
+                    color: $color-text-secondary-dark;
+                    border-bottom: solid 1px $color-gray3;
+                    width: 1ch;
+                    text-align: center;
+                }
+            }
+        }
+    }
+}
+</style>
