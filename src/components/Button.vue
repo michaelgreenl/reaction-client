@@ -35,10 +35,11 @@ button {
     &.primary,
     &.secondary {
         font-family: $secondary-font-stack;
-        transition: transform 0.1s ease;
+        transition: transform 0.1s ease-in;
         border-radius: $border-radius-xs;
 
         &:hover {
+            transform: scale(1.05) translateY(-1px);
             transform: scale(1.05);
         }
 
@@ -49,7 +50,6 @@ button {
 
     &.primary {
         text-shadow: 1px 1px 2px #00000033;
-
         background: transparent;
         color: $color-bg-secondary;
         font-style: oblique;
