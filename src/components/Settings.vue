@@ -5,6 +5,7 @@ import { useAuthStore } from '@/stores/authStore';
 import Loader from '@/components/Loader.vue';
 import Button from '@/components/Button.vue';
 import Circle from '@/components/Circle.vue';
+import RangeInput from '@/components/Inputs/Range.vue';
 import CloseIcon from '@/components/Icons/CloseSVG.vue';
 
 const props = defineProps({
@@ -88,16 +89,25 @@ onBeforeUnmount(() => {
                     <hr />
                     <div class="form-group">
                         <label for="circleSize">Circle Size</label>
-                        <input
+                        <RangeInput
                             id="circleSize"
                             v-model="localSettings.circleSize"
-                            type="range"
-                            min="25"
-                            max="125"
+                            :min="25"
+                            :max="125"
                             :disabled="isLoading"
                             @mousedown="rangeInputActive = true"
                             @mouseup="rangeInputActive = false"
                         />
+                        <!-- <input -->
+                        <!--     id="circleSize" -->
+                        <!--     v-model="localSettings.circleSize" -->
+                        <!--     type="range" -->
+                        <!--     min="25" -->
+                        <!--     max="125" -->
+                        <!--     :disabled="isLoading" -->
+                        <!--     @mousedown="rangeInputActive = true" -->
+                        <!--     @mouseup="rangeInputActive = false" -->
+                        <!-- /> -->
                     </div>
                     <div class="form-group">
                         <label for="spawnInterval">Spawn Interval</label>

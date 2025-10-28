@@ -4,6 +4,7 @@ import { useAuthStore } from '@/stores/authStore.js';
 import { useSettingsStore } from '@/stores/settingsStore.js';
 import Button from '@/components/Button.vue';
 import Loader from '@/components/Loader.vue';
+import RangeInput from '@/components/Inputs/Range.vue';
 import LogoSVG from '@/components/Icons/LogoSVG.vue';
 
 const authStore = useAuthStore();
@@ -229,16 +230,15 @@ function formatTime(time) {
                         <div class="form-groups">
                             <div class="form-group" v-if="filterToggles.circleSize">
                                 <label for="circleSize">Circle Size</label>
-                                <input
+                                <RangeInput
                                     id="circleSize"
                                     v-model="settingsFilters.circleSize"
-                                    type="range"
-                                    min="25"
-                                    max="125"
+                                    :min="25"
+                                    :max="125"
                                     :disabled="loadingGames || !filterToggles.circleSize"
-                                    @mousedown="rangeInputActive = true"
-                                    @mouseup="rangeInputActive = false"
                                 />
+                                <!-- @mousedown="rangeInputActive = true" -->
+                                <!-- @mouseup="rangeInputActive = false" -->
                                 <!-- <span v-if="rangeInputActive" class="range-value"> -->
                                 <!--     {{ settingsFilters.circleSize }}px -->
                                 <!-- </span> -->
