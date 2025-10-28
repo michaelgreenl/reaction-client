@@ -38,7 +38,6 @@ function spawnCircle() {
     const vw = canvas.value.offsetWidth - 10;
     const vh = canvas.value.offsetHeight - 10;
 
-    console.log(vw - circleSize);
     const maxX = Math.max(0, vw - circleSize);
     const maxY = Math.max(0, vh - circleSize);
 
