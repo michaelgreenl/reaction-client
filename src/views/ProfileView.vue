@@ -5,6 +5,7 @@ import { useSettingsStore } from '@/stores/settingsStore.js';
 import Button from '@/components/Button.vue';
 import Loader from '@/components/Loader.vue';
 import RangeInput from '@/components/Inputs/Range.vue';
+import NumberInput from '@/components/Inputs/Number.vue';
 import LogoSVG from '@/components/Icons/LogoSVG.vue';
 
 const authStore = useAuthStore();
@@ -211,11 +212,21 @@ function formatTime(time) {
                         :class="`${showSettings ? 'showing-settings' : undefined}`"
                     >
                         <div class="form-group">
-                            <input id="circleSizeFilter" type="checkbox" v-model="filterToggles.circleSize" />
+                            <input
+                                id="circleSizeFilter"
+                                type="checkbox"
+                                v-model="filterToggles.circleSize"
+                                :disabled="loadingGames"
+                            />
                             <label for="circleSizeFilter">Circle Size</label>
                         </div>
                         <div class="form-group">
-                            <input id="spawnIntervalFilter" type="checkbox" v-model="filterToggles.spawnInterval" />
+                            <input
+                                id="spawnIntervalFilter"
+                                type="checkbox"
+                                v-model="filterToggles.spawnInterval"
+                                :disabled="loadingGames"
+                            />
                             <label for="spawnIntervalFilter">Spawn Interval</label>
                         </div>
                         <div class="form-group">
@@ -250,75 +261,33 @@ function formatTime(time) {
                             </div>
                             <div class="form-group" v-if="filterToggles.spawnInterval">
                                 <label>Spawn Interval</label>
-                                <div class="number-input">
-                                    <span>
-                                        {{
-                                            Number.isInteger(settingsFilters.spawnInterval)
-                                                ? settingsFilters.spawnInterval.toFixed(1)
-                                                : settingsFilters.spawnInterval.toString()
-                                        }}s
-                                    </span>
-                                    <div class="step-buttons">
-                                        <button
-                                            @click="settingsFilters.spawnInterval += 0.25"
-                                            :disabled="
-                                                isLoading ||
-                                                !filterToggles.spawnInterval ||
-                                                settingsFilters.spawnInterval >= 2
-                                            "
-                                            type="button"
-                                        >
-                                            +
-                                        </button>
-                                        <button
-                                            @click="settingsFilters.spawnInterval -= 0.25"
-                                            :disabled="
-                                                loadingGames ||
-                                                !filterToggles.spawnInterval ||
-                                                settingsFilters.spawnInterval <= 0.25
-                                            "
-                                            type="button"
-                                        >
-                                            −
-                                        </button>
-                                    </div>
-                                </div>
+                                <NumberInput
+                                    v-model="settingsFilters.spawnInterval"
+                                    :stepUpDisabled="
+                                        isLoading || !filterToggles.spawnInterval || settingsFilters.spawnInterval >= 2
+                                    "
+                                    :stepDownDisabled="
+                                        isLoading ||
+                                        !filterToggles.spawnInterval ||
+                                        settingsFilters.spawnInterval === 0.25
+                                    "
+                                    @stepUp="settingsFilters.spawnInterval += 0.25"
+                                    @stepDown="settingsFilters.spawnInterval -= 0.25"
+                                />
                             </div>
                             <div class="form-group" v-if="filterToggles.shrinkTime">
                                 <label>Shrink Time</label>
-                                <div class="number-input">
-                                    <span>
-                                        {{
-                                            Number.isInteger(settingsFilters.shrinkTime)
-                                                ? settingsFilters.shrinkTime.toFixed(1)
-                                                : settingsFilters.shrinkTime.toString()
-                                        }}s
-                                    </span>
-                                    <div class="step-buttons">
-                                        <button
-                                            @click="settingsFilters.shrinkTime += 0.25"
-                                            :disabled="
-                                                loadingGames ||
-                                                !filterToggles.shrinkTime ||
-                                                settingsFilters.shrinkTime >= 2
-                                            "
-                                            type="button"
-                                        >
-                                            +
-                                        </button>
-                                        <button
-                                            @click="settingsFilters.shrinkTime -= 0.25"
-                                            :disabled="
-                                                loadingGames ||
-                                                !filterToggles.shrinkTime ||
-                                                settingsFilters.shrinkTime === 0.25
-                                            "
-                                            type="button"
-                                        >
-                                            −
-                                        </button>
-                                    </div>
-                                </div>
+                                <NumberInput
+                                    v-model="settingsFilters.shrinkTime"
+                                    :stepUpDisabled="
+                                        loadingGames || !filterToggles.shrinkTime || settingsFilters.shrinkTime >= 2
+                                    "
+                                    :stepDownDisabled="
+                                        loadingGames || !filterToggles.shrinkTime || settingsFilters.shrinkTime === 0.25
+                                    "
+                                    @stepUp="settingsFilters.shrinkTime += 0.25"
+                                    @stepDown="settingsFilters.shrinkTime -= 0.25"
+                                />
                             </div>
                         </div>
                         <div class="filter-form-buttons">
@@ -421,21 +390,21 @@ function formatTime(time) {
                 <div class="table-nav">
                     <Button
                         text="prev"
-                        @click="switchPage((offset -= 10), activePage - 1)"
                         :disabled="loadingGames || offset === 0"
+                        @click="switchPage((offset -= 10), activePage - 1)"
                     />
                     <span>
                         {{ activePage }}
                     </span>
                     <Button
                         text="next"
-                        @click="switchPage((offset += 10), activePage + 1)"
                         :disabled="
                             loadingGames ||
                             authStore.userStats?.totalGames < 10 ||
                             activeGames.games.length === 0 ||
                             offset + 10 >= authStore.userStats?.totalGames
                         "
+                        @click="switchPage((offset += 10), activePage + 1)"
                     />
                 </div>
             </div>
@@ -656,42 +625,9 @@ function formatTime(time) {
                                 white-space: nowrap;
                             }
 
-                            .number-input {
-                                @include flexCenterAll;
-                                gap: 0.1em;
-
+                            :deep(.number-input) {
                                 span {
-                                    text-align: center;
-                                    color: $color-text-secondary-dark;
-                                    border-bottom: solid 1px $color-gray4;
-                                }
-
-                                .step-buttons {
-                                    @include flexCenterAll;
-                                    flex-direction: column;
-                                    gap: 0.1em;
-                                    height: 100%;
-                                    padding-top: $size-1;
-
-                                    button {
-                                        flex: 1;
-                                        background: transparent;
-                                        border: 0;
-                                        font-size: 1.5em;
-                                        padding: 0 $size-1;
-                                        color: $color-gray4;
-                                        transition: all 0.1s ease;
-                                        line-height: 1ch;
-
-                                        &:hover {
-                                            transform: scale(1.1);
-                                            color: $color-accent;
-                                        }
-
-                                        &:active {
-                                            transform: scale(0.9);
-                                        }
-                                    }
+                                    font-size: 1em;
                                 }
                             }
                         }

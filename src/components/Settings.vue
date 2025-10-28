@@ -6,6 +6,7 @@ import Loader from '@/components/Loader.vue';
 import Button from '@/components/Button.vue';
 import Circle from '@/components/Circle.vue';
 import RangeInput from '@/components/Inputs/Range.vue';
+import NumberInput from '@/components/Inputs/Number.vue';
 import CloseIcon from '@/components/Icons/CloseSVG.vue';
 
 const props = defineProps({
@@ -98,72 +99,26 @@ onBeforeUnmount(() => {
                             @mousedown="rangeInputActive = true"
                             @mouseup="rangeInputActive = false"
                         />
-                        <!-- <input -->
-                        <!--     id="circleSize" -->
-                        <!--     v-model="localSettings.circleSize" -->
-                        <!--     type="range" -->
-                        <!--     min="25" -->
-                        <!--     max="125" -->
-                        <!--     :disabled="isLoading" -->
-                        <!--     @mousedown="rangeInputActive = true" -->
-                        <!--     @mouseup="rangeInputActive = false" -->
-                        <!-- /> -->
                     </div>
                     <div class="form-group">
                         <label for="spawnInterval">Spawn Interval</label>
-                        <div class="number-input">
-                            <span>
-                                {{
-                                    Number.isInteger(localSettings.spawnInterval)
-                                        ? localSettings.spawnInterval.toFixed(1)
-                                        : localSettings.spawnInterval.toString()
-                                }}s
-                            </span>
-                            <div class="step-buttons">
-                                <button
-                                    @click="localSettings.spawnInterval += 0.25"
-                                    :disabled="isLoading || localSettings.spawnInterval >= 2"
-                                    type="button"
-                                >
-                                    +
-                                </button>
-                                <button
-                                    @click="localSettings.spawnInterval -= 0.25"
-                                    :disabled="isLoading || localSettings.spawnInterval === 0.25"
-                                    type="button"
-                                >
-                                    −
-                                </button>
-                            </div>
-                        </div>
+                        <NumberInput
+                            v-model="localSettings.spawnInterval"
+                            :stepUpDisabled="isLoading || localSettings.spawnInterval >= 2"
+                            :stepDownDisabled="isLoading || localSettings.spawnInterval === 0.25"
+                            @stepUp="localSettings.spawnInterval += 0.25"
+                            @stepDown="localSettings.spawnInterval -= 0.25"
+                        />
                     </div>
                     <div class="form-group">
                         <label for="shrinkTime">Shrink Time</label>
-                        <div class="number-input">
-                            <span>
-                                {{
-                                    Number.isInteger(localSettings.shrinkTime)
-                                        ? localSettings.shrinkTime.toFixed(1)
-                                        : localSettings.shrinkTime.toString()
-                                }}s
-                            </span>
-                            <div class="step-buttons">
-                                <button
-                                    @click="localSettings.shrinkTime += 0.25"
-                                    :disabled="isLoading || localSettings.shrinkTime >= 2"
-                                    type="button"
-                                >
-                                    +
-                                </button>
-                                <button
-                                    @click="localSettings.shrinkTime -= 0.25"
-                                    :disabled="isLoading || localSettings.shrinkTime === 0.25"
-                                    type="button"
-                                >
-                                    −
-                                </button>
-                            </div>
-                        </div>
+                        <NumberInput
+                            v-model="localSettings.shrinkTime"
+                            :stepUpDisabled="isLoading || localSettings.shrinkTime >= 2"
+                            :stepDownDisabled="isLoading || localSettings.shrinkTime === 0.25"
+                            @stepUp="localSettings.shrinkTime += 0.25"
+                            @stepDown="localSettings.shrinkTime -= 0.25"
+                        />
                     </div>
                 </div>
             </form>
@@ -257,65 +212,12 @@ onBeforeUnmount(() => {
                 }
 
                 input[type='range'] {
-                    // appearance: none;
-                    // height: 0.5em;
                     width: 40% !important;
-                    // margin: 0.5em 0;
-                    // background: $color-gray3;
-                    // border-radius: 10px;
-
-                    // &::-webkit-slider-thumb {
-                    //     appearance: none;
-                    //     position: relative;
-                    //     cursor: grab;
-                    //     height: 1em;
-                    //     width: 1em;
-                    //     background: $color-accent;
-                    //     border-radius: 50%;
-                    //     z-index: 2;
-                    //     transition: all 25ms ease;
-                    // }
-
-                    // &:-webkit-slider-thumb:active {
-                    //     cursor: grabbing;
-                    // }
                 }
 
-                .number-input {
-                    @include flexCenterAll;
-                    gap: 0.1em;
-
+                :deep(.number-input) {
                     span {
-                        text-align: center;
                         font-size: 0.85em;
-                        color: $color-text-secondary-dark;
-                    }
-
-                    .step-buttons {
-                        @include flexCenterAll;
-                        flex-direction: column;
-                        gap: 0.1em;
-                        height: 100%;
-
-                        button {
-                            flex: 1;
-                            background: transparent;
-                            border: 0;
-                            font-size: 1.5em;
-                            padding: 0 $size-1;
-                            color: $color-gray4;
-                            transition: all 0.1s ease;
-                            line-height: 1ch;
-
-                            &:hover {
-                                transform: scale(1.1);
-                                color: $color-accent;
-                            }
-
-                            &:active {
-                                transform: scale(0.9);
-                            }
-                        }
                     }
                 }
             }
