@@ -9,10 +9,6 @@ const props = defineProps({
 });
 
 const emit = defineEmits(['toggleHideButton', 'update:modelValue', 'focus', 'blur']);
-
-function logValue() {
-    console.log(typeof props.modelValue);
-}
 </script>
 
 <template>
