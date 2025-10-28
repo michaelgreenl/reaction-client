@@ -20,7 +20,7 @@ const emit = defineEmits(['toggleHideButton', 'update:modelValue', 'focus', 'blu
         :disabled="disabled"
         @focus="emit('focus')"
         @blur="emit('blur')"
-        @input="$emit('update:modelValue', $event.target.value)"
+        @input="emit('update:modelValue', $event.target.value)"
     />
     <button
         v-if="passwordHideButton"
@@ -34,7 +34,8 @@ const emit = defineEmits(['toggleHideButton', 'update:modelValue', 'focus', 'blu
 </template>
 
 <style lang="scss" scoped>
-input {
+input[type='text'],
+input[type='password'] {
     border-radius: $border-radius-sm;
     padding: $size-2;
     outline: 0;
