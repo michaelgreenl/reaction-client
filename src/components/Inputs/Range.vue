@@ -26,4 +26,30 @@ const emit = defineEmits(['update:modelValue', 'mousedown', 'mouseup']);
     />
 </template>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+input[type='range'] {
+    appearance: none;
+    font-size: 1em;
+    height: 0.5em;
+    width: 50%;
+    margin: 0.5em 0;
+    background: $color-gray3;
+    border-radius: 10px;
+
+    &::-webkit-slider-thumb {
+        appearance: none;
+        position: relative;
+        cursor: grab;
+        height: 1em;
+        width: 1em;
+        background: $color-accent;
+        border-radius: 50%;
+        z-index: 2;
+        transition: all 25ms ease;
+    }
+
+    &:-webkit-slider-thumb:active {
+        cursor: grabbing;
+    }
+}
+</style>

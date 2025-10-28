@@ -257,28 +257,28 @@ onBeforeUnmount(() => {
                 }
 
                 input[type='range'] {
-                    appearance: none;
-                    height: 0.5em;
-                    width: 40%;
-                    margin: 0.5em 0;
-                    background: $color-gray3;
-                    border-radius: 10px;
+                    // appearance: none;
+                    // height: 0.5em;
+                    width: 40% !important;
+                    // margin: 0.5em 0;
+                    // background: $color-gray3;
+                    // border-radius: 10px;
 
-                    &::-webkit-slider-thumb {
-                        appearance: none;
-                        position: relative;
-                        cursor: grab;
-                        height: 1em;
-                        width: 1em;
-                        background: $color-accent;
-                        border-radius: 50%;
-                        z-index: 2;
-                        transition: all 25ms ease;
-                    }
+                    // &::-webkit-slider-thumb {
+                    //     appearance: none;
+                    //     position: relative;
+                    //     cursor: grab;
+                    //     height: 1em;
+                    //     width: 1em;
+                    //     background: $color-accent;
+                    //     border-radius: 50%;
+                    //     z-index: 2;
+                    //     transition: all 25ms ease;
+                    // }
 
-                    &:-webkit-slider-thumb:active {
-                        cursor: grabbing;
-                    }
+                    // &:-webkit-slider-thumb:active {
+                    //     cursor: grabbing;
+                    // }
                 }
 
                 .number-input {

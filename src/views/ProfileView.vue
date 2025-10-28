@@ -651,39 +651,6 @@ function formatTime(time) {
                                 white-space: nowrap;
                             }
 
-                            input[type='range'] {
-                                appearance: none;
-                                font-size: 1em;
-                                height: 0.5em;
-                                // width: 40%;
-                                width: 50%;
-                                margin: 0.5em 0;
-                                background: $color-gray3;
-                                border-radius: 10px;
-
-                                &::-webkit-slider-thumb {
-                                    appearance: none;
-                                    position: relative;
-                                    cursor: grab;
-                                    height: 1em;
-                                    width: 1em;
-                                    background: $color-accent;
-                                    border-radius: 50%;
-                                    z-index: 2;
-                                    transition: all 25ms ease;
-                                }
-
-                                &:-webkit-slider-thumb:active {
-                                    cursor: grabbing;
-                                }
-                            }
-
-                            // .range-value {
-                            //     position: absolute;
-                            //     right: -3.25em;
-                            //     font-size: 0.9em;
-                            // }
-
                             .number-input {
                                 @include flexCenterAll;
                                 gap: 0.1em;
