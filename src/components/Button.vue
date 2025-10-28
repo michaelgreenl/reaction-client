@@ -34,7 +34,7 @@ button {
 
     &.primary,
     &.secondary {
-        font-family: $secondary-font-stack;
+        font-family: $primary-font-stack;
         transition: transform 0.1s ease-in;
         border-radius: $border-radius-xs;
 

@@ -592,7 +592,6 @@ function formatTime(time) {
 
                         label {
                             font-size: 0.8em;
-                            font-family: $secondary-font-stack;
                             color: $color-text-primary-dark;
                         }
                     }
@@ -648,7 +647,6 @@ function formatTime(time) {
 
                             label,
                             span {
-                                font-family: $secondary-font-stack;
                                 color: $color-text-secondary-dark;
                                 white-space: nowrap;
                             }
@@ -692,7 +690,6 @@ function formatTime(time) {
 
                                 span {
                                     text-align: center;
-                                    font-family: $secondary-font-stack;
                                     color: $color-text-secondary-dark;
                                     border-bottom: solid 1px $color-gray4;
                                 }
@@ -768,7 +765,6 @@ function formatTime(time) {
 
                         span {
                             font-size: 0.9em;
-                            font-family: $secondary-font-stack;
                             text-shadow: 1px 1px 2px #00000033;
                         }
                     }
@@ -806,14 +802,13 @@ function formatTime(time) {
 
                     td {
                         font-size: 0.85em;
-                        font-family: $secondary-font-stack;
                         color: $color-text-secondary-dark;
                         font-weight: 500;
                         width: 6ch;
                         border: solid 1px $color-gray3;
 
                         &.date {
-                            font-family: $primary-font-stack;
+                            font-family: $secondary-font-stack;
                             width: 20ch;
                             font-size: 0.75em;
                             font-weight: 400;
@@ -840,7 +835,6 @@ function formatTime(time) {
                 }
 
                 span {
-                    font-family: $secondary-font-stack;
                     color: $color-text-secondary-dark;
                     border-bottom: solid 1px $color-gray3;
                     width: 1ch;

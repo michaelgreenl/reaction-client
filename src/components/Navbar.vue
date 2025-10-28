@@ -53,7 +53,6 @@ const route = useRoute();
         }
 
         h2 {
-            font-family: $secondary-font-stack;
             color: $color-gray1;
             font-style: italic;
             font-weight: 300;
@@ -73,7 +72,7 @@ const route = useRoute();
     &-link {
         position: relative;
         font-size: 0.9em;
-        font-family: $secondary-font-stack;
+        font-family: $primary-font-stack;
         color: $color-gray1;
         font-weight: 300;
         background: transparent;

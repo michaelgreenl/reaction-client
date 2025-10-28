@@ -112,7 +112,6 @@ const handleLogin = async () => {
 
             h2 {
                 font-size: 2.2em;
-                font-family: $secondary-font-stack;
                 color: $color-accent;
                 margin: 0;
             }
@@ -139,7 +138,6 @@ const handleLogin = async () => {
                 label {
                     font-size: 0.9em;
                     color: $color-text-secondary-dark;
-                    font-family: $secondary-font-stack;
                 }
 
                 input {

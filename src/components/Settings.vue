@@ -207,7 +207,6 @@ onBeforeUnmount(() => {
 
                 h2 {
                     font-size: 1.4em;
-                    font-family: $secondary-font-stack;
                     margin: 0;
                     color: $color-accent;
                 }
@@ -244,7 +243,6 @@ onBeforeUnmount(() => {
 
                 label {
                     font-size: 0.9em;
-                    font-family: $secondary-font-stack;
                     color: $color-text-secondary-dark;
                 }
 
@@ -280,7 +278,6 @@ onBeforeUnmount(() => {
                     span {
                         text-align: center;
                         font-size: 0.85em;
-                        font-family: $secondary-font-stack;
                         color: $color-text-secondary-dark;
                     }
 

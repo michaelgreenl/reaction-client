@@ -194,7 +194,6 @@ function getTimePassed(pastTime) {
                             <span class="label">Time:</span>
                             <span class="stat">{{ formatTime(game.time) }}</span>
                         </div>
-
                         <span class="separator"> - </span>
                         <span>{{ getTimePassed(game.createdAt) }} </span>
                     </li>
@@ -276,7 +275,6 @@ function getTimePassed(pastTime) {
                 gap: 2px;
 
                 h2 {
-                    font-family: $secondary-font-stack;
                     font-size: 1em;
                     color: $color-accent;
                     margin: 0;
@@ -331,18 +329,18 @@ function getTimePassed(pastTime) {
                         font-size: 1em;
 
                         &:last-child {
+                            font-family: $secondary-font-stack;
                             font-size: 0.65em;
                             color: $color-text-muted;
                         }
 
                         &.label {
-                            font-family: $secondary-font-stack;
                             color: $color-accent;
                         }
 
                         &.stat {
-                            font-family: $secondary-font-stack;
                             font-size: 0.9em;
+                            font-family: $primary-font-stack;
                             color: $color-text-secondary-dark;
                             font-weight: 500;
                             margin-left: 0.2em;
@@ -382,7 +380,6 @@ function getTimePassed(pastTime) {
                 box-shadow: $box-shadow;
 
                 h1 {
-                    font-family: $secondary-font-stack;
                     margin: 0;
                     color: $color-accent;
                 }
@@ -412,7 +409,6 @@ function getTimePassed(pastTime) {
                         gap: $size-1;
 
                         span {
-                            font-family: $secondary-font-stack;
                             font-size: 1em !important;
                             line-height: 1.6ch;
 
@@ -437,7 +433,6 @@ function getTimePassed(pastTime) {
     }
 
     .countdown {
-        font-family: $secondary-font-stack;
         color: $color-text-primary-light;
         font-weight: 600;
         font-size: 3.5em;

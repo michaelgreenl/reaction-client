@@ -116,6 +116,7 @@ function timeValueSize(timeMs) {
         left: 0;
         right: 0;
         margin: 0 auto;
+        width: fit-content;
         display: flex;
         align-items: center;
         justify-content: space-around;
@@ -139,11 +140,9 @@ function timeValueSize(timeMs) {
             span {
                 font-size: 1em !important;
                 color: $color-text-secondary-dark;
-                font-family: $secondary-font-stack;
                 line-height: 1.6ch;
 
                 &.label {
-                    font-family: $secondary-font-stack;
                     color: $color-accent;
                 }
             }

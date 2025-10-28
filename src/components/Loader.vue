@@ -35,7 +35,6 @@ onUnmounted(() => {
     @include flexCenterAll;
 
     span {
-        font-family: $secondary-font-stack;
         text-wrap: nowrap;
         text-shadow: 1px 1px 2px #00000033;
     }

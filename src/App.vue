@@ -60,7 +60,6 @@ main {
 
 h1,
 h2 {
-    font-family: $secondary-font-stack;
     font-style: oblique;
     font-weight: 600;
 }

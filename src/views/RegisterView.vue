@@ -169,7 +169,6 @@ const handleRegister = async () => {
             }
 
             h2 {
-                font-family: $secondary-font-stack;
                 font-size: 2.2em;
                 color: $color-accent;
                 margin: 0;
@@ -197,7 +196,6 @@ const handleRegister = async () => {
                 label {
                     font-size: 0.9em;
                     color: $color-text-secondary-dark;
-                    font-family: $secondary-font-stack;
                 }
 
                 input {

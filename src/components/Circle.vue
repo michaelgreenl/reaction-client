@@ -57,7 +57,7 @@ div {
     @include flexCenterAll;
 
     span {
-        font-family: $secondary-font-stack;
+        font-family: $primary-font-stack;
         color: $color-text-secondary-dark;
         font-weight: 500;
 
