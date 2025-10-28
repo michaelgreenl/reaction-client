@@ -1,8 +1,9 @@
 <script setup>
 import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
-import { useAuthStore } from '../stores/authStore';
-import Loader from '../components/Loader.vue';
+import { useAuthStore } from '@/stores/authStore';
+import Button from '@/components/Button.vue';
+import LogoSVG from '@/components/Icons/LogoSVG.vue';
 
 const authStore = useAuthStore();
 const router = useRouter();
@@ -55,55 +56,61 @@ const handleRegister = async () => {
 <template>
     <div class="auth-container">
         <form @submit.prevent="handleRegister" class="auth-form">
-            <h2>Register</h2>
-            <div class="form-group">
-                <label for="username">Username</label>
-                <input id="username" v-model="username" type="text" required :disabled="isLoading" />
+            <div class="auth-header">
+                <LogoSVG />
+                <h2>Register</h2>
             </div>
-            <div class="form-group">
-                <label for="password">Password</label>
-                <div class="password-input-wrapper">
-                    <input
-                        id="password"
-                        v-model="password"
-                        :type="showPassword ? 'text' : 'password'"
-                        required
-                        @focus="passwordHideButton = true"
-                        @blur="passwordHideButton = false"
-                        :disabled="isLoading"
-                    />
-                    <button
-                        v-if="passwordHideButton"
-                        type="button"
-                        @click="showPassword = !showPassword"
-                        class="toggle-password"
-                        @mousedown.prevent
-                    >
-                        {{ showPassword ? 'Hide' : 'Show' }}
-                    </button>
+            <hr class="header-border" />
+            <div class="form-groups">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input id="username" v-model="username" type="text" required :disabled="isLoading" />
                 </div>
-            </div>
-            <div class="form-group">
-                <label for="retype-password">Re-type Password</label>
-                <div class="password-input-wrapper">
-                    <input
-                        id="retype-password"
-                        v-model="retypePassword"
-                        :type="showPassword ? 'text' : 'password'"
-                        required
-                        @focus="rePasswordHideButton = true"
-                        @blur="rePasswordHideButton = false"
-                        :disabled="isLoading"
-                    />
-                    <button
-                        v-if="rePasswordHideButton"
-                        type="button"
-                        @click="showPassword = !showPassword"
-                        @mousedown.prevent
-                        class="toggle-password"
-                    >
-                        {{ showPassword ? 'Hide' : 'Show' }}
-                    </button>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <div class="password-input-wrapper">
+                        <input
+                            id="password"
+                            v-model="password"
+                            :type="showPassword ? 'text' : 'password'"
+                            required
+                            :disabled="isLoading"
+                            @focus="passwordHideButton = true"
+                            @blur="passwordHideButton = false"
+                        />
+                        <button
+                            v-if="passwordHideButton"
+                            type="button"
+                            class="toggle-password"
+                            @click="showPassword = !showPassword"
+                            @mousedown.prevent
+                        >
+                            {{ showPassword ? 'Hide' : 'Show' }}
+                        </button>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="retype-password">Re-type Password</label>
+                    <div class="password-input-wrapper">
+                        <input
+                            id="retype-password"
+                            v-model="retypePassword"
+                            :type="showPassword ? 'text' : 'password'"
+                            required
+                            :disabled="isLoading"
+                            @focus="rePasswordHideButton = true"
+                            @blur="rePasswordHideButton = false"
+                        />
+                        <button
+                            v-if="rePasswordHideButton"
+                            type="button"
+                            class="toggle-password"
+                            @click="showPassword = !showPassword"
+                            @mousedown.prevent
+                        >
+                            {{ showPassword ? 'Hide' : 'Show' }}
+                        </button>
+                    </div>
                 </div>
             </div>
             <ul class="password-requirements">
@@ -125,12 +132,9 @@ const handleRegister = async () => {
                     Contains a number
                 </li>
             </ul>
-            {{ isLoading.value }}
 
-            <button type="submit" :disabled="isLoading">
-                <Loader v-if="isLoading" />
-                <span v-else> Register </span>
-            </button>
+            <Button type="submit" text="Register" preset="secondary" :isLoading="isLoading" :disabled="isLoading" />
+            <hr class="bottom-border" />
             <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
             <p class="form-link">Already have an account? <router-link to="/login">Login</router-link></p>
         </form>
@@ -139,134 +143,159 @@ const handleRegister = async () => {
 
 <style lang="scss" scoped>
 .auth-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: $size-4;
-}
+    font-size: 0.8em;
+    height: 100%;
+    @include flexCenterAll;
+    padding: 0 $size-4 $size-12;
 
-.auth-form {
-    padding: $size-5;
-    border-radius: 16px;
-    width: 100%;
-    max-width: 400px;
-    display: flex;
-    flex-direction: column;
-    gap: $size-3;
-
-    h2 {
-        text-align: center;
-        color: $color-text-primary;
-        margin-bottom: $size-4;
-    }
-
-    .form-group {
+    .auth-form {
         display: flex;
         flex-direction: column;
         gap: $size-1;
+        padding: $size-4 $size-6 0;
+        width: 100%;
+        max-width: 400px;
+        background: $color-bg-secondary;
+        border-radius: $border-radius-md;
+        box-shadow: $box-shadow;
 
-        label {
-            color: $color-text-primary;
-            font-size: 0.9rem;
-        }
+        .auth-header {
+            align-self: flex-start;
+            @include flexCenterAll;
 
-        input {
-            padding: $size-2;
-            border: 1px solid $color-primary;
-            border-radius: 12px;
-            background-color: $color-bg-secondary;
-            color: $color-text-secondary;
-            width: 100%;
+            svg {
+                height: $size-9;
+                width: $size-9;
+            }
 
-            &:focus {
-                outline: none;
-                border-color: $color-accent;
+            h2 {
+                font-size: 2.2em;
+                color: $color-accent;
+                margin: 0;
             }
         }
-    }
 
-    .password-input-wrapper {
-        position: relative;
-        display: flex;
-        align-items: center;
-
-        input {
-            padding-right: 60px;
+        .header-border {
+            border: 0;
+            height: 2px;
+            background-color: $color-primary-light;
+            margin: 0 0 $size-2;
         }
 
-        .toggle-password {
-            position: absolute;
-            right: 10px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: none;
-            border: none;
-            color: $color-text-primary;
-            cursor: pointer;
-            font-size: 0.8rem;
+        .form-groups {
+            display: flex;
+            flex-direction: column;
+            gap: $size-3;
+            padding: $size-1 $size-2;
 
-            &:hover {
-                color: $color-text-secondary;
+            .form-group {
+                display: flex;
+                flex-direction: column;
+                gap: $size-1;
+
+                label {
+                    font-size: 0.9em;
+                    color: $color-text-secondary-dark;
+                }
+
+                input {
+                    border-radius: $border-radius-sm;
+                    padding: $size-2;
+                    outline: 0;
+                    border: 2px solid $color-primary-light;
+                    background-color: $color-bg-secondary;
+                    color: $color-text-secondary-dark;
+                    width: 100%;
+
+                    &:focus {
+                        border-color: $color-accent;
+                    }
+                }
             }
         }
-    }
 
-    .password-requirements {
-        list-style: none;
-        padding: 0;
-        margin-top: $size-2;
-        font-size: 0.9rem;
-        color: $color-text-primary;
-
-        li {
+        .password-input-wrapper {
+            position: relative;
             display: flex;
             align-items: center;
-            gap: $size-2;
-            margin-bottom: $size-1;
 
-            .icon {
-                font-size: 1.2rem;
-                line-height: 1;
+            input {
+                padding-right: 60px;
             }
 
-            &.valid {
-                color: $color-success;
-            }
+            .toggle-password {
+                font-size: 0.8em;
+                position: absolute;
+                right: 8px;
+                top: 50%;
+                transform: translateY(-50%);
+                background: none;
+                border: none;
+                color: $color-accent-light;
 
-            &.invalid {
-                color: $color-error;
+                &:hover {
+                    color: $color-accent;
+                }
             }
         }
-    }
 
-    button[type='submit'] {
-        width: 100%;
-        padding: $size-2;
-        margin-top: $size-3;
-        font-size: 1.1rem;
-        min-height: 48px;
+        .password-requirements {
+            list-style: none;
+            padding: 0 1em;
+            font-size: 0.9em;
+            margin: $size-2 0 0;
+            color: $color-text-secondary-dark;
 
-        &:disabled {
-            opacity: 0.7;
-            cursor: not-allowed;
+            li {
+                display: flex;
+                align-items: center;
+                gap: $size-2;
+                margin-bottom: $size-1;
+
+                .icon {
+                    line-height: 1;
+                }
+
+                &.valid {
+                    color: $color-success;
+                }
+
+                &.invalid {
+                    color: $color-error;
+                }
+            }
         }
-    }
 
-    .error-message {
-        color: $color-error;
-        text-align: center;
-        margin-top: $size-3;
-    }
+        button[type='submit'] {
+            align-self: flex-end;
+            margin-right: $size-4;
+        }
 
-    .form-link {
-        text-align: center;
-        margin-top: $size-3;
+        .bottom-border {
+            border: 0;
+            height: 1px;
+            width: 90%;
+            background-color: $color-gray4;
+            margin: $size-2 auto 0;
+        }
 
-        a {
-            color: $color-primary;
+        .error-message {
+            color: $color-error;
+            text-align: center;
+            margin-top: $size-1;
+        }
 
-            &:hover {
-                text-decoration: underline;
+        .form-link {
+            text-align: center;
+            margin-top: $size-2;
+            color: $color-text-secondary-dark;
+
+            a {
+                color: $color-primary;
+
+                &:hover {
+                    text-decoration: underline;
+                }
             }
         }
     }

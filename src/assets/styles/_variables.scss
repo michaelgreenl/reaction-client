@@ -1,4 +1,8 @@
-$primary-font-stack: 'Poppins', helvetica, arial, sans-serif;
+// $primary-font-stack: 'Poppins', helvetica, arial, sans-serif;
+// $secondary-font-stack: 'Autowide', helvetica, arial, sans-serif;
+
+$primary-font-stack: 'Autowide', helvetica, arial, sans-serif;
+$secondary-font-stack: 'Poppins', helvetica, arial, sans-serif;
 
 :root {
     --color-white: #fff;
@@ -24,10 +28,12 @@ $primary-font-stack: 'Poppins', helvetica, arial, sans-serif;
     --color-accent-dark: var(--color-gray5);
 
     --color-bg-primary: linear-gradient(110deg, #e73c7e, #23a6d5);
-    --color-bg-secondary: var(--color-gray3);
+    --color-bg-secondary: var(--color-gray1);
 
-    --color-text-primary: var(--color-gray3);
-    --color-text-secondary: var(--color-gray8);
+    --color-text-primary-light: var(--color-gray2);
+    --color-text-primary-dark: var(--color-gray7);
+    --color-text-secondary-light: var(--color-gray4);
+    --color-text-secondary-dark: var(--color-gray6);
     --color-text-muted: var(--color-gray5);
 }
 
@@ -55,8 +61,10 @@ $color-accent-light: var(--color-accent-light);
 $color-bg-primary: var(--color-bg-primary);
 $color-bg-secondary: var(--color-bg-secondary);
 
-$color-text-primary: var(--color-text-primary);
-$color-text-secondary: var(--color-text-secondary);
+$color-text-primary-light: var(--color-text-primary-light);
+$color-text-primary-dark: var(--color-text-primary-dark);
+$color-text-secondary-light: var(--color-text-secondary-light);
+$color-text-secondary-dark: var(--color-text-secondary-dark);
 $color-text-muted: var(--color-text-muted);
 
 // Sizing/Spacers
@@ -80,3 +88,11 @@ $size-17: 6.5em;
 $size-18: 7em;
 $size-19: 7.5em;
 $size-20: 8em;
+
+$border-radius-xs: 8px;
+$border-radius-sm: 10px;
+$border-radius-md: 12px;
+$border-radius-lg: 14px;
+$border-radius-xl: 16px;
+
+$box-shadow: 2px 2px 6px 2px #00000022;

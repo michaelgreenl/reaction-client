@@ -5,12 +5,15 @@ import { useSettingsStore } from '@/stores/settingsStore.js';
 import Settings from '@/components/Settings.vue';
 import Canvas from '@/components/Canvas.vue';
 import Button from '@/components/Button.vue';
+import ArrowSVG from '@/components/Icons/ArrowSVG.vue';
+import CloseSVG from '@/components/Icons/CloseSVG.vue';
 
 const authStore = useAuthStore();
 const settingsStore = useSettingsStore();
 
 const gameActive = ref(false);
 const showSettings = ref(false);
+const showRecentGames = ref(false);
 const score = ref(0);
 const gamePlayed = ref(false);
 
@@ -78,6 +81,19 @@ function handleScoreIncrement() {
     score.value += 1;
 }
 
+function toggleSettings() {
+    showRecentGames.value = false;
+    showSettings.value = true;
+}
+
+function toggleRecentGames() {
+    showRecentGames.value = !showRecentGames.value;
+
+    if (showRecentGames.value && showSettings.value) {
+        showSettings.value = false;
+    }
+}
+
 onBeforeUnmount(() => {
     stopTimer();
 });
@@ -124,20 +140,101 @@ function formatTime(time) {
         return `${mins}:${seconds}`;
     }
 }
+
+function getTimePassed(pastTime) {
+    const pastDate = new Date(pastTime);
+    const now = new Date();
+    const diff = now - pastDate;
+
+    if (diff < 0) {
+        return;
+    }
+
+    const seconds = Math.floor(diff / 1000);
+    const minutes = Math.floor(seconds / 60);
+    const hours = Math.floor(minutes / 60);
+    const days = Math.floor(hours / 24);
+
+    if (days > 0) return `${days}d ago`;
+    if (hours > 0) return `${hours}h ago`;
+    if (minutes > 0) return `${minutes}m ago`;
+    if (seconds === 0) return 'just now';
+    return `${seconds}s ago`;
+}
 </script>
 
 <template>
     <div class="game-container">
-        <div v-if="showCount">
-            {{ count }}
+        <div v-if="!gameActive" class="game-start">
+            <div class="recent-games" v-if="authStore.recentUserGames.length">
+                <div class="recent-games-header">
+                    <h2>Recent Scores</h2>
+                    <Button
+                        v-if="!showRecentGames || showSettings"
+                        preset="icon-only"
+                        :iconLeft="ArrowSVG"
+                        @click="toggleRecentGames()"
+                    />
+                    <Button
+                        v-if="showRecentGames && !showSettings"
+                        preset="icon-only"
+                        :iconLeft="CloseSVG"
+                        @click="toggleRecentGames()"
+                    />
+                </div>
+                <hr />
+                <ul class="recent-games-list" v-if="showRecentGames && !showSettings">
+                    <li v-for="game in authStore.recentUserGames" :key="game.createdAt">
+                        <div class="stat-wrapper">
+                            <span class="label">Score:</span>
+                            <span class="stat">{{ game.score }}</span>
+                        </div>
+                        <span class="separator"> | </span>
+                        <div class="stat-wrapper">
+                            <span class="label">Time:</span>
+                            <span class="stat">{{ formatTime(game.time) }}</span>
+                        </div>
+                        <span class="separator"> - </span>
+                        <span>{{ getTimePassed(game.createdAt) }} </span>
+                    </li>
+                </ul>
+            </div>
+            <div v-if="gamePlayed && !showSettings" class="end-screen-wrapper">
+                <div class="end-screen">
+                    <h1>Game Over!</h1>
+                    <hr />
+                    <div class="stats">
+                        <div class="stat-wrapper">
+                            <span class="label">Score:</span>
+                            <span class="value">{{ score }}</span>
+                        </div>
+                        <span> • </span>
+                        <div class="stat-wrapper">
+                            <span class="label">Time:</span>
+                            <span class="value">{{ formatTime(elapsedMs) }}</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="buttons">
+                    <Button @click="showSettings = !showSettings" text="Settings" />
+                    <Button @click="startGame" text="Play Again" />
+                </div>
+            </div>
+            <div v-else>
+                <Settings class="settings" :showSettings="showSettings" @closeSettings="showSettings = false">
+                    <template #startButton>
+                        <Button @click="startGame" text="Start" />
+                    </template>
+                </Settings>
+                <div v-if="!showSettings" class="buttons">
+                    <Button @click="showSettings = !showSettings" text="Settings" />
+                    <Button @click="startGame" text="Start" />
+                </div>
+            </div>
         </div>
-        <ul v-if="!gameActive">
-            <li v-for="game in authStore.recentUserGames" :key="game.createdAt">
-                {{ formatDate(game.createdAt) }} | {{ game.score }} |
-            </li>
-        </ul>
-        <Button v-if="!gameActive" @click="startGame" text="Start" />
-        <Button v-if="!gameActive" @click="showSettings = !showSettings" text="Settings" />
+        <div class="countdown" v-if="showCount">
+            <span>{{ count }}</span>
+        </div>
         <Canvas
             v-if="gameActive && count === 0"
             :gameActive="gameActive"
@@ -146,18 +243,202 @@ function formatTime(time) {
             @endGame="handleEndGame"
             @incrementScore="handleScoreIncrement"
         />
-        <div v-if="gamePlayed && !gameActive" class="game-over">
-            <h1>Game Over</h1>
-            <div>Score: {{ score }}</div>
-            <div>Time: {{ formatTime(elapsedMs) }}</div>
-        </div>
-        <Settings v-if="showSettings" />
     </div>
 </template>
 
 <style lang="scss" scoped>
 .game-container {
+    position: relative;
+    z-index: 1;
+    @include flexCenterAll;
     height: 100%;
     width: 100%;
+
+    .game-start {
+        .recent-games {
+            font-size: 1.1em;
+            position: absolute;
+            z-index: 1;
+            top: $size-1;
+            left: $size-3;
+            display: flex;
+            flex-direction: column;
+            padding: $size-2 $size-1 $size-1 $size-3;
+            background: $color-bg-secondary;
+            border-radius: $border-radius-xs;
+            box-shadow: $box-shadow;
+            border: solid 1px $color-gray3;
+
+            &-header {
+                display: flex;
+                justify-content: space-between;
+                gap: 2px;
+
+                h2 {
+                    font-size: 1em;
+                    color: $color-accent;
+                    margin: 0;
+                }
+
+                button {
+                    padding: 0.6em;
+                    margin-top: 1px;
+                    transform: scale(0.75) translate(-5px, -4px);
+
+                    &:hover {
+                        background: #ec6e9e22;
+                    }
+
+                    :deep(.icon) {
+                        height: 1em;
+                        width: 1em;
+                        stroke: $color-accent;
+                    }
+                }
+            }
+
+            hr {
+                border: 0;
+                height: 2px;
+                background-color: $color-primary-light;
+                margin: 0 0 $size-1;
+                width: 95%;
+            }
+
+            &-list {
+                font-size: 0.85em;
+                display: flex;
+                flex-direction: column;
+                list-style: none;
+                padding: 0 $size-4 $size-1 $size-1;
+                margin: 0;
+                width: 18em;
+
+                li {
+                    display: flex;
+                    justify-content: space-evenly;
+                    align-items: center;
+                    border-bottom: solid 1px $color-gray2;
+                    padding: 0.3em 0.15em;
+
+                    &:last-child {
+                        border: 0;
+                    }
+
+                    span {
+                        font-size: 1em;
+
+                        &:last-child {
+                            font-family: $secondary-font-stack;
+                            font-size: 0.65em;
+                            color: $color-text-muted;
+                        }
+
+                        &.label {
+                            color: $color-accent;
+                        }
+
+                        &.stat {
+                            font-size: 0.9em;
+                            font-family: $primary-font-stack;
+                            color: $color-text-secondary-dark;
+                            font-weight: 500;
+                            margin-left: 0.2em;
+                        }
+
+                        &.separator {
+                            color: $color-text-muted;
+                            font-size: 0.7em;
+                            margin: 0 $size-2;
+                        }
+                    }
+                }
+            }
+        }
+
+        .buttons {
+            display: flex;
+            gap: $size-2;
+            margin-top: $size-8;
+
+            :deep(button) {
+                font-size: 1.4em;
+            }
+        }
+
+        .end-screen-wrapper {
+            @include flexCenterAll;
+            flex-direction: column;
+
+            .end-screen {
+                @include flexCenterAll;
+                flex-direction: column;
+                background: $color-bg-secondary;
+                padding: $size-3 $size-5 $size-3;
+                border-radius: $border-radius-md;
+                border: solid 1px $color-gray3;
+                box-shadow: $box-shadow;
+
+                h1 {
+                    margin: 0;
+                    color: $color-accent;
+                }
+
+                hr {
+                    width: 100%;
+                    border: 0;
+                    height: 2px;
+                    background-color: $color-primary-light;
+                    margin: $size-2 0 $size-2;
+                }
+
+                .stats {
+                    font-size: 1.1em;
+                    display: flex;
+                    align-items: center;
+                    gap: $size-2;
+
+                    span {
+                        color: $color-text-secondary-dark;
+                        font-weight: 500;
+                        font-size: 0.7em;
+                    }
+
+                    .stat-wrapper {
+                        display: flex;
+                        gap: $size-1;
+
+                        span {
+                            font-size: 1em !important;
+                            line-height: 1.6ch;
+
+                            &.label {
+                                color: $color-accent;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    @keyframes shrink {
+        from {
+            font-size: 3.5em;
+        }
+
+        to {
+            font-size: 1.5em;
+        }
+    }
+
+    .countdown {
+        color: $color-text-primary-light;
+        font-weight: 600;
+        font-size: 3.5em;
+        text-shadow: 1px 1px 2px #00000033;
+        animation: shrink 1s ease-in-out;
+        animation-iteration-count: 3;
+    }
 }
 </style>

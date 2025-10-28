@@ -22,9 +22,11 @@ const router = createRouter({
 
 router.beforeEach(async (to, from, next) => {
     const authStore = useAuthStore();
+    const authorized = localStorage.getItem('AUTHORIZED');
 
-    if (authStore.user === null) {
+    if (authorized) {
         await authStore.initializeAuth();
+        authStore.initLoading = false;
     }
 
     if (!authStore.isAuthenticated && to.meta.requiresAuth) {

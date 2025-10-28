@@ -4,6 +4,9 @@ import { useSettingsStore } from '@/stores/settingsStore';
 
 const props = defineProps({
     gameActive: { type: Boolean },
+    animation: { type: Boolean, default: true },
+    localSize: { type: Number },
+    inputActive: { type: Boolean },
 });
 
 const emit = defineEmits(['click', 'endGame']);
@@ -14,7 +17,9 @@ const animating = ref(false);
 const paused = ref(false);
 
 onMounted(() => {
-    animating.value = true;
+    if (props.animation) {
+        animating.value = true;
+    }
 });
 
 function circleClick() {
@@ -24,32 +29,53 @@ function circleClick() {
 </script>
 
 <template>
-    <div :style="{ height: `${settingsStore.circleSize}px`, width: `${settingsStore.circleSize}px` }">
+    <div
+        :style="{
+            height: `${localSize ? localSize : settingsStore.circleSize}px`,
+            width: `${localSize ? localSize : settingsStore.circleSize}px`,
+        }"
+    >
         <button
             :class="{ animate: animating, 'fade-out': paused || !gameActive }"
             :style="{
                 animationDuration: `${settingsStore.shrinkTime}s`,
-                height: `${settingsStore.circleSize}px`,
-                width: `${settingsStore.circleSize}px`,
+                height: `${localSize ? localSize : settingsStore.circleSize}px`,
+                width: `${localSize ? localSize : settingsStore.circleSize}px`,
             }"
-            @click="circleClick()"
+            @mousedown="animation ? circleClick() : null"
             @animationend="$emit('endGame')"
-        ></button>
+        >
+            <span v-if="inputActive && localSize >= 50">{{ localSize }}px</span>
+        </button>
+        <span v-if="inputActive && localSize < 50" class="outer-value">{{ localSize }}px</span>
     </div>
 </template>
 
 <style lang="scss" scoped>
 div {
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    position: relative;
+    @include flexCenterAll;
+
+    span {
+        font-family: $primary-font-stack;
+        color: $color-text-secondary-dark;
+        font-weight: 500;
+
+        &.outer-value {
+            position: absolute;
+            right: -$size-11;
+            color: $color-text-primary-light;
+            text-shadow: 1px 1px 2px #00000033;
+        }
+    }
 
     button {
-        background-color: $color-white;
+        background-color: $color-bg-secondary;
         border-radius: 100%;
         border: 0;
         opacity: 1;
         transition: opacity 0.3s ease;
+        box-shadow: 1px 2px 3px #00000011;
 
         @keyframes shrink {
             0% {
