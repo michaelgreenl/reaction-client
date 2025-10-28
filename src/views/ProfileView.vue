@@ -35,7 +35,12 @@ const filtersAdded = computed(() => {
 const dropdownListener = (e) => {
     if (!showFilters.value) {
         showFilters.value = true;
-    } else if (e.target !== filterDropdownRef.value && !e.composedPath().includes(filterDropdownRef.value)) {
+    } else if (e) {
+        if (e.target !== filterDropdownRef.value && !e.composedPath().includes(filterDropdownRef.value)) {
+            showFilters.value = false;
+            window.removeEventListener('click', dropdownListener);
+        }
+    } else {
         showFilters.value = false;
         window.removeEventListener('click', dropdownListener);
     }
@@ -45,7 +50,7 @@ function toggleDropdown() {
     if (!showFilters.value) {
         window.addEventListener('click', dropdownListener);
     } else {
-        window.removeEventListener('click', dropdownListener);
+        dropdownListener();
     }
 }
 
