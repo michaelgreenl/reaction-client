@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { ref } from 'vue';
+import { ref, reactive } from 'vue';
 import apiFetch from '@/api.js';
 import { useAuthStore } from '@/stores/authStore.js';
 
@@ -7,6 +7,11 @@ export const useSettingsStore = defineStore('settings', () => {
     const circleSize = ref(100);
     const spawnInterval = ref(1);
     const shrinkTime = ref(1);
+    const settingsKeyVal = reactive({
+        circleSize: 'Circle Size',
+        spawnInterval: 'Spawn Interval',
+        shrinkTime: 'Shrink Time',
+    });
     const authStore = useAuthStore();
 
     async function setSettings(settings) {
@@ -45,5 +50,5 @@ export const useSettingsStore = defineStore('settings', () => {
         }
     }
 
-    return { circleSize, spawnInterval, shrinkTime, setSettings, getSettings };
+    return { circleSize, spawnInterval, shrinkTime, setSettings, getSettings, settingsKeyVal };
 });

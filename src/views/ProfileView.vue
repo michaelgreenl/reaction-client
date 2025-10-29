@@ -2,6 +2,7 @@
 import { computed, ref, reactive, onMounted } from 'vue';
 import { useAuthStore } from '@/stores/authStore.js';
 import { useSettingsStore } from '@/stores/settingsStore.js';
+import { formatDate, formatTime } from '@/util/time.js';
 import Button from '@/components/Button.vue';
 import Loader from '@/components/Loader.vue';
 import RangeInput from '@/components/Inputs/Range.vue';
@@ -32,28 +33,6 @@ const rangeInputActive = ref(false);
 const filtersAdded = computed(() => {
     return filterToggles.circleSize || filterToggles.spawnInterval || filterToggles.shrinkTime;
 });
-
-const dropdownListener = (e) => {
-    if (!showFilters.value) {
-        showFilters.value = true;
-    } else if (e) {
-        if (e.target !== filterDropdownRef.value && !e.composedPath().includes(filterDropdownRef.value)) {
-            showFilters.value = false;
-            window.removeEventListener('click', dropdownListener);
-        }
-    } else {
-        showFilters.value = false;
-        window.removeEventListener('click', dropdownListener);
-    }
-};
-
-function toggleDropdown() {
-    if (!showFilters.value) {
-        window.addEventListener('click', dropdownListener);
-    } else {
-        dropdownListener();
-    }
-}
 
 onMounted(async () => {
     await getUnfilteredGames().then(() => {
@@ -142,46 +121,25 @@ function addAllFilters() {
     showFilters.value = false;
 }
 
-function formatDate(isoString) {
-    const date = new Date(isoString);
-    if (isNaN(date)) throw new Error('Invalid ISO date string');
-
-    const parts = new Intl.DateTimeFormat('en-US', {
-        hour: 'numeric',
-        minute: '2-digit',
-        hour12: true,
-        month: 'long',
-        day: 'numeric',
-        year: 'numeric',
-    }).formatToParts(date);
-
-    const get = (type) => parts.find((p) => p.type === type)?.value;
-
-    const hour = get('hour');
-    const minute = get('minute');
-    const ampm = get('dayPeriod')?.toLowerCase();
-    const month = get('month')?.slice(0, 3);
-    const day = get('day');
-    const year = get('year');
-
-    const now = new Date();
-    const sameDay =
-        now.getFullYear() === date.getFullYear() &&
-        now.getMonth() === date.getMonth() &&
-        now.getDate() === date.getDate();
-
-    return sameDay ? `${hour}:${minute}${ampm}` : `${month} ${day}, ${year}`;
-}
-
-function formatTime(time) {
-    let seconds = (time / 1000).toFixed(2);
-
-    if (seconds < 59.99) {
-        return `${seconds}s`;
+const dropdownListener = (e) => {
+    if (!showFilters.value) {
+        showFilters.value = true;
+    } else if (e) {
+        if (e.target !== filterDropdownRef.value && !e.composedPath().includes(filterDropdownRef.value)) {
+            showFilters.value = false;
+            window.removeEventListener('click', dropdownListener);
+        }
     } else {
-        const mins = Math.floor(seconds / 60);
-        seconds = seconds % 60;
-        return `${mins}:${seconds}`;
+        showFilters.value = false;
+        window.removeEventListener('click', dropdownListener);
+    }
+};
+
+function toggleDropdown() {
+    if (!showFilters.value) {
+        window.addEventListener('click', dropdownListener);
+    } else {
+        dropdownListener();
     }
 }
 </script>
@@ -211,32 +169,16 @@ function formatTime(time) {
                         class="filter-toggles"
                         :class="`${showSettings ? 'showing-settings' : undefined}`"
                     >
-                        <div class="form-group">
+                        <div v-for="key in Object.keys(settingsStore.settingsKeyVal)" :key="key" class="form-group">
                             <input
-                                id="circleSizeFilter"
+                                :id="`${key}Filter`"
                                 type="checkbox"
-                                v-model="filterToggles.circleSize"
+                                v-model="filterToggles[`${key}`]"
                                 :disabled="loadingGames"
                             />
-                            <label for="circleSizeFilter">Circle Size</label>
-                        </div>
-                        <div class="form-group">
-                            <input
-                                id="spawnIntervalFilter"
-                                type="checkbox"
-                                v-model="filterToggles.spawnInterval"
-                                :disabled="loadingGames"
-                            />
-                            <label for="spawnIntervalFilter">Spawn Interval</label>
-                        </div>
-                        <div class="form-group">
-                            <input
-                                id="shrinkTimeFilter"
-                                type="checkbox"
-                                v-model="filterToggles.shrinkTime"
-                                :disabled="loadingGames"
-                            />
-                            <label for="shrinkTimeFilter">Shrink Time</label>
+                            <label :for="`${key}Filter`">
+                                {{ settingsStore.settingsKeyVal[`${key}`] }}
+                            </label>
                         </div>
                         <Button @click="addAllFilters()" text="+All" />
                     </div>
