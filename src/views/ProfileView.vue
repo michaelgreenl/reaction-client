@@ -158,10 +158,11 @@ function toggleDropdown() {
                     </div>
                     <div class="toggle-buttons">
                         <Button
+                            preset="primary-alt"
                             :text="`${showSettings ? 'Hide' : 'Show'} Settings`"
                             @click="showSettings = !showSettings"
                         />
-                        <Button text="Add Filters ▾" @click="toggleDropdown()" />
+                        <Button preset="primary-alt" text="Add Filters ▾" @click="toggleDropdown()" />
                     </div>
                     <div
                         v-if="showFilters"
@@ -180,7 +181,7 @@ function toggleDropdown() {
                                 {{ settingsStore.settingsKeyVal[`${key}`] }}
                             </label>
                         </div>
-                        <Button @click="addAllFilters()" text="+All" />
+                        <Button preset="primary-alt" text="+All" @click="addAllFilters()" />
                     </div>
                 </div>
                 <div class="filters">
@@ -235,12 +236,15 @@ function toggleDropdown() {
                         <div class="filter-form-buttons">
                             <Button
                                 v-if="filtersAdded"
+                                preset="primary-alt"
+                                type="button"
                                 text="Reset"
-                                @click="resetFilters"
                                 :disabled="loadingGames || !filtersAdded"
+                                @click="resetFilters"
                             />
                             <Button
                                 v-if="filtersAdded"
+                                preset="primary-alt"
                                 type="submit"
                                 text="Save"
                                 :disabled="loadingGames || (!filtersAdded && !activeGames.filtered)"
@@ -254,6 +258,7 @@ function toggleDropdown() {
                             <tr>
                                 <th>
                                     <Button
+                                        preset="primary-alt"
                                         :text="`${activeGames.sorted.by !== 'score' ? 'Score' : activeGames.sorted.order === 'ASC' ? '▴ Score' : '▾ Score'}`"
                                         :disabled="loadingGames"
                                         @click="handleSort('score')"
@@ -261,6 +266,7 @@ function toggleDropdown() {
                                 </th>
                                 <th>
                                     <Button
+                                        preset="primary-alt"
                                         :text="`${activeGames.sorted.by !== 'time' ? 'Time' : activeGames.sorted.order === 'ASC' ? '▴ Time' : '▾ Time'}`"
                                         :disabled="loadingGames"
                                         @click="handleSort('time')"
@@ -277,6 +283,7 @@ function toggleDropdown() {
                                 </th>
                                 <th>
                                     <Button
+                                        preset="primary-alt"
                                         :text="`${activeGames.sorted.by !== 'createdAt' ? 'Date' : activeGames.sorted.order === 'ASC' ? '▴ Date' : '▾ Date'}`"
                                         :disabled="loadingGames"
                                         @click="handleSort('createdAt')"
@@ -331,6 +338,7 @@ function toggleDropdown() {
                 </div>
                 <div class="table-nav">
                     <Button
+                        preset="primary-alt"
                         text="prev"
                         :disabled="loadingGames || offset === 0"
                         @click="switchPage((offset -= 10), activePage - 1)"
@@ -339,6 +347,7 @@ function toggleDropdown() {
                         {{ activePage }}
                     </span>
                     <Button
+                        preset="primary-alt"
                         text="next"
                         :disabled="
                             loadingGames ||
@@ -467,14 +476,6 @@ function toggleDropdown() {
                     display: flex;
                     margin-top: $size-1;
                     padding-left: $size-1;
-
-                    :deep(button) {
-                        color: $color-accent;
-
-                        span {
-                            text-shadow: none;
-                        }
-                    }
                 }
 
                 .filter-toggles {
@@ -516,12 +517,6 @@ function toggleDropdown() {
                         align-self: flex-end;
                         font-size: 0.75em;
                         padding-right: 0;
-
-                        span {
-                            font-weight: 500;
-                            color: $color-accent;
-                            text-shadow: none;
-                        }
                     }
                 }
             }
@@ -581,12 +576,6 @@ function toggleDropdown() {
 
                         :deep(button) {
                             font-size: 1.1em;
-
-                            span {
-                                font-weight: 500;
-                                color: $color-accent;
-                                text-shadow: none;
-                            }
                         }
                     }
                 }
@@ -621,8 +610,6 @@ function toggleDropdown() {
 
                     :deep(button) {
                         font-size: 1.2em;
-                        color: $color-accent;
-                        text-shadow: none;
 
                         &.setting {
                             font-size: 0.8em;
@@ -680,8 +667,6 @@ function toggleDropdown() {
 
                 :deep(button) {
                     font-size: 1em;
-                    color: $color-accent;
-                    text-shadow: none;
                 }
 
                 span {
