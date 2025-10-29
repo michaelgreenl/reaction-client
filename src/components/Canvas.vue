@@ -2,6 +2,7 @@
 import { ref, onMounted, onBeforeUnmount } from 'vue';
 import { useSettingsStore } from '@/stores/settingsStore';
 import Circle from '@/components/Circle.vue';
+import GameStats from '@/components/GameStats.vue';
 
 const props = defineProps({
     gameActive: { type: Boolean, default: false },
@@ -66,34 +67,12 @@ function handleGameEnd() {
         emit('endGame');
     }, 400);
 }
-
-function timeValueSize(timeMs) {
-    const time = timeMs / 1000;
-
-    if (time >= 100) {
-        return '2.8ch';
-    } else if (time >= 20) {
-        return '2.4ch';
-    } else if (time >= 10) {
-        return '2.2ch';
-    }
-
-    return '2ch';
-}
 </script>
 
 <template>
     <div ref="canvas" class="game-container">
         <div class="hud">
-            <div class="stat-wrapper">
-                <span class="label">Score:</span>
-                <span class="stat">{{ score }}</span>
-            </div>
-            <span> | </span>
-            <div class="stat-wrapper">
-                <span class="label">Time:</span>
-                <span class="stat" :style="{ width: timeValueSize(time) }">{{ (time / 1000).toFixed(2) }}</span>
-            </div>
+            <GameStats :score="score" :time="time" :adjustTimeSize="true" />
         </div>
         <div class="canvas">
             <div v-for="c in circles" :key="c.id" class="circle-wrapper" :style="{ left: c.x + 'px', top: c.y + 'px' }">
@@ -125,35 +104,6 @@ function timeValueSize(timeMs) {
         gap: $size-2;
         border: solid 1px $color-gray3;
         box-shadow: $box-shadow;
-
-        span {
-            color: $color-text-secondary-dark;
-            font-weight: 500;
-            font-size: 0.5em;
-        }
-
-        .stat-wrapper {
-            display: flex;
-            gap: $size-1;
-
-            span {
-                font-size: 1em !important;
-                color: $color-text-secondary-dark;
-                line-height: 1.6ch;
-
-                &.label {
-                    color: $color-accent;
-                }
-            }
-
-            &:last-child {
-                span {
-                    &.stat {
-                        width: 2ch;
-                    }
-                }
-            }
-        }
     }
 
     .canvas {

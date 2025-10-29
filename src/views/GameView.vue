@@ -6,6 +6,7 @@ import { formatTime, getTimePassed } from '@/util/time.js';
 import Settings from '@/components/Settings.vue';
 import Canvas from '@/components/Canvas.vue';
 import Button from '@/components/Button.vue';
+import GameStats from '@/components/GameStats.vue';
 import ArrowSVG from '@/components/Icons/ArrowSVG.vue';
 import CloseSVG from '@/components/Icons/CloseSVG.vue';
 
@@ -122,15 +123,7 @@ onBeforeUnmount(() => {
                 <hr />
                 <ul class="recent-games-list" v-if="showRecentGames && !showSettings">
                     <li v-for="game in authStore.recentUserGames" :key="game.createdAt">
-                        <div class="stat-wrapper">
-                            <span class="label">Score:</span>
-                            <span class="stat">{{ game.score }}</span>
-                        </div>
-                        <span class="separator"> | </span>
-                        <div class="stat-wrapper">
-                            <span class="label">Time:</span>
-                            <span class="stat">{{ formatTime(game.time) }}</span>
-                        </div>
+                        <GameStats :score="game.score" :time="game.time" />
                         <span class="separator"> - </span>
                         <span>{{ getTimePassed(game.createdAt) }} </span>
                     </li>
@@ -141,15 +134,7 @@ onBeforeUnmount(() => {
                     <h1>Game Over!</h1>
                     <hr />
                     <div class="stats">
-                        <div class="stat-wrapper">
-                            <span class="label">Score:</span>
-                            <span class="value">{{ score }}</span>
-                        </div>
-                        <span> • </span>
-                        <div class="stat-wrapper">
-                            <span class="label">Time:</span>
-                            <span class="value">{{ formatTime(elapsedMs) }}</span>
-                        </div>
+                        <GameStats :score="score" :time="elapsedMs" />
                     </div>
                 </div>
                 <div class="buttons">
@@ -265,26 +250,17 @@ onBeforeUnmount(() => {
                     span {
                         font-size: 1em;
 
-                        &:last-child {
+                        &:last-child,
+                        &.separator {
                             font-family: $secondary-font-stack;
-                            font-size: 0.65em;
                             color: $color-text-muted;
                         }
 
-                        &.label {
-                            color: $color-accent;
-                        }
-
-                        &.stat {
-                            font-size: 0.9em;
-                            font-family: $primary-font-stack;
-                            color: $color-text-secondary-dark;
-                            font-weight: 500;
-                            margin-left: 0.2em;
+                        &:last-child {
+                            font-size: 0.65em;
                         }
 
                         &.separator {
-                            color: $color-text-muted;
                             font-size: 0.7em;
                             margin: 0 $size-2;
                         }
@@ -334,26 +310,6 @@ onBeforeUnmount(() => {
                     display: flex;
                     align-items: center;
                     gap: $size-2;
-
-                    span {
-                        color: $color-text-secondary-dark;
-                        font-weight: 500;
-                        font-size: 0.7em;
-                    }
-
-                    .stat-wrapper {
-                        display: flex;
-                        gap: $size-1;
-
-                        span {
-                            font-size: 1em !important;
-                            line-height: 1.6ch;
-
-                            &.label {
-                                color: $color-accent;
-                            }
-                        }
-                    }
                 }
             }
         }
