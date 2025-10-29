@@ -157,6 +157,8 @@ onBeforeUnmount(() => {
         gap: $size-8;
 
         .form-container {
+            position: relative;
+            z-index: 2;
             margin-bottom: $size-4;
             background: $color-bg-secondary;
             padding: $size-3 $size-5;
@@ -165,7 +167,33 @@ onBeforeUnmount(() => {
             border: solid 1px $color-gray3;
             width: 20em;
 
+            &::before {
+                content: '';
+                position: absolute;
+                z-index: 1;
+                top: 0;
+                right: 0;
+                bottom: 0;
+                left: 0;
+                border-radius: $border-radius-md;
+                border: solid 2px $color-primary-light;
+            }
+
+            &::after {
+                content: '';
+                position: absolute;
+                z-index: 0;
+                top: -5px;
+                right: -5px;
+                bottom: -5px;
+                left: -5px;
+                border-radius: $border-radius-xl;
+                background: $color-bg-secondary;
+            }
+
             .form-header {
+                position: relative;
+                z-index: 2;
                 display: flex;
                 align-items: center;
                 justify-content: space-between;
@@ -194,13 +222,17 @@ onBeforeUnmount(() => {
             }
 
             hr {
+                position: relative;
+                z-index: 2;
                 border: 0;
-                height: 2px;
+                height: 1px;
                 background-color: $color-primary-light;
                 margin: $size-2 0;
             }
 
             .form-group {
+                position: relative;
+                z-index: 2;
                 display: flex;
                 justify-content: space-between;
                 align-items: center;

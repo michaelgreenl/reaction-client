@@ -284,6 +284,7 @@ onBeforeUnmount(() => {
             flex-direction: column;
 
             .end-screen {
+                position: relative;
                 @include flexCenterAll;
                 flex-direction: column;
                 background: $color-bg-secondary;
@@ -292,20 +293,50 @@ onBeforeUnmount(() => {
                 border: solid 1px $color-gray3;
                 box-shadow: $box-shadow;
 
+                &::before {
+                    content: '';
+                    position: absolute;
+                    z-index: 1;
+                    top: 0;
+                    right: 0;
+                    bottom: 0;
+                    left: 0;
+                    border-radius: $border-radius-md;
+                    border: solid 2px $color-primary-light;
+                }
+
+                &::after {
+                    content: '';
+                    position: absolute;
+                    z-index: 0;
+                    top: -5px;
+                    right: -5px;
+                    bottom: -5px;
+                    left: -5px;
+                    border-radius: $border-radius-xl;
+                    background: $color-bg-secondary;
+                }
+
                 h1 {
+                    position: relative;
+                    z-index: 2;
                     margin: 0;
                     color: $color-accent;
                 }
 
                 hr {
+                    position: relative;
+                    z-index: 2;
                     width: 100%;
                     border: 0;
-                    height: 2px;
+                    height: 1px;
                     background-color: $color-primary-light;
-                    margin: $size-2 0 $size-2;
+                    margin: $size-1 0 $size-2;
                 }
 
                 .stats {
+                    position: relative;
+                    z-index: 2;
                     font-size: 1.1em;
                     display: flex;
                     align-items: center;
