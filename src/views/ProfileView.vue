@@ -391,6 +391,11 @@ function toggleDropdown() {
             padding: $size-2 $size-4;
             border: solid 1px $color-gray3;
             max-width: 19em;
+            overflow: hidden;
+
+            @include bp-custom-min(450) {
+                max-width: 22em;
+            }
 
             &::before {
                 content: '';
@@ -416,25 +421,32 @@ function toggleDropdown() {
                 background: $color-bg-secondary;
             }
 
-            &.show-settings {
-                max-width: 34em;
+            @include bp-sm-phone {
+                &.show-settings {
+                    max-width: 34em;
 
-                .table-header {
-                    justify-content: space-between;
-                }
+                    .table-header {
+                        justify-content: space-between;
+                    }
 
-                .filters {
-                    width: 46.5em;
+                    .filters {
+                        width: 46.5em;
 
-                    form .form-groups {
-                        gap: $size-3;
-                        width: fit-content;
-
-                        .form-group {
+                        form .form-groups {
+                            gap: $size-3;
                             width: fit-content;
-                            justify-content: center;
-                            max-width: 16em;
+
+                            .form-group {
+                                width: fit-content;
+                                justify-content: center;
+                                max-width: 16em;
+                            }
                         }
+                    }
+
+                    .table-wrapper {
+                        overflow-x: auto;
+                        max-width: 34em;
                     }
                 }
             }
@@ -578,6 +590,12 @@ function toggleDropdown() {
                 position: relative;
                 z-index: 1;
                 padding: $size-1 $size-2;
+                max-width: 17em;
+                overflow-x: scroll;
+
+                @include bp-custom-min(450) {
+                    max-width: 20em;
+                }
 
                 table {
                     table-layout: fixed;
