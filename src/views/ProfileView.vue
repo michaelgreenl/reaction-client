@@ -25,7 +25,7 @@ const activeGames = reactive({
 
 const filterDropdownRef = ref(null);
 const showFilters = ref(false);
-const filterToggles = reactive({ circleSize: true, spawnInterval: false, shrinkTime: false });
+const filterToggles = reactive({ circleSize: false, spawnInterval: false, shrinkTime: false });
 
 const settingsFilters = reactive({ ...settingsStore });
 const showSettings = ref(true);
