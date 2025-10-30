@@ -43,7 +43,7 @@ function getCircleSizePercent() {
     <span
         v-if="showValue && inputActive"
         class="range-value"
-        :style="{ right: getCircleSizePercent(modelValue), top: '-10px' }"
+        :style="{ right: getCircleSizePercent(modelValue), top: '-0.9em' }"
     >
         {{ modelValue }}px
     </span>
