@@ -1,4 +1,6 @@
 <script setup>
+import { ref } from 'vue';
+
 const props = defineProps({
     id: { type: String, required: true },
     modelValue: { required: true },
@@ -6,13 +8,27 @@ const props = defineProps({
     max: { required: true },
     required: { type: Boolean, default: false },
     disabled: { type: Boolean, default: false },
+    showValue: { type: Boolean, default: false },
+    inputActive: { type: Boolean, default: false },
 });
 
 const emit = defineEmits(['update:modelValue', 'mousedown', 'mouseup']);
+
+const rangeInput = ref(null);
+
+function getCircleSizePercent() {
+    const percent = (props.modelValue - 25) / 100;
+
+    const outerLeft = rangeInput?.value.offsetWidth - rangeInput?.value.offsetWidth * 0.167;
+    const outerRight = rangeInput?.value.offsetWidth - rangeInput?.value.offsetWidth * 0.056;
+
+    return `${outerLeft - percent * outerRight}px`;
+}
 </script>
 
 <template>
     <input
+        ref="rangeInput"
         type="range"
         :value="modelValue"
         :min="min"
@@ -24,10 +40,18 @@ const emit = defineEmits(['update:modelValue', 'mousedown', 'mouseup']);
         @mouseup="emit('mouseup')"
         @input="emit('update:modelValue', $event.target.value)"
     />
+    <span
+        v-if="showValue && inputActive"
+        class="range-value"
+        :style="{ right: getCircleSizePercent(modelValue), top: '-10px' }"
+    >
+        {{ modelValue }}px
+    </span>
 </template>
 
 <style lang="scss" scoped>
 input[type='range'] {
+    position: relative;
     appearance: none;
     font-size: 1em;
     height: 0.5em;
@@ -45,11 +69,28 @@ input[type='range'] {
         background: $color-accent;
         border-radius: 50%;
         z-index: 2;
-        transition: all 25ms ease;
+        transition: all 75ms ease;
+
+        &:active {
+            cursor: grabbing;
+            height: 0.5em;
+            width: 0.5em;
+        }
     }
 
-    &:-webkit-slider-thumb:active {
-        cursor: grabbing;
+    &:active {
+        &::-webkit-slider-thumb {
+            transition: all 75ms ease;
+            cursor: grabbing;
+            height: 0.5em;
+            width: 0.5em;
+        }
     }
+}
+
+.range-value {
+    position: absolute;
+    right: 0;
+    color: $color-text-secondary-dark;
 }
 </style>

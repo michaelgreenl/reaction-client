@@ -25,7 +25,8 @@ const activeGames = reactive({
 
 const filterDropdownRef = ref(null);
 const showFilters = ref(false);
-const filterToggles = reactive({ circleSize: false, spawnInterval: false, shrinkTime: false });
+const filterToggles = reactive({ circleSize: true, spawnInterval: false, shrinkTime: false });
+
 const settingsFilters = reactive({ ...settingsStore });
 const showSettings = ref(true);
 const rangeInputActive = ref(false);
@@ -195,13 +196,13 @@ function toggleDropdown() {
                                     :min="25"
                                     :max="125"
                                     :disabled="loadingGames || !filterToggles.circleSize"
+                                    :showValue="true"
+                                    :inputActive="rangeInputActive"
+                                    @mousedown="rangeInputActive = true"
+                                    @mouseup="rangeInputActive = false"
                                 />
-                                <!-- @mousedown="rangeInputActive = true" -->
-                                <!-- @mouseup="rangeInputActive = false" -->
-                                <!-- <span v-if="rangeInputActive" class="range-value"> -->
-                                <!--     {{ settingsFilters.circleSize }}px -->
-                                <!-- </span> -->
                             </div>
+                            <!-- TODO: Add seporater here with v-if="filterToggles.spawnInterval" (make sure to style differently if showSettings === true) -->
                             <div class="form-group" v-if="filterToggles.spawnInterval">
                                 <label>Spawn Interval</label>
                                 <NumberInput
@@ -218,6 +219,7 @@ function toggleDropdown() {
                                     @stepDown="settingsFilters.spawnInterval -= 0.25"
                                 />
                             </div>
+                            <!-- TODO: Add seporater here with v-if="filterToggles.shrinkTime" (make sure to style differently if showSettings === true) -->
                             <div class="form-group" v-if="filterToggles.shrinkTime">
                                 <label>Shrink Time</label>
                                 <NumberInput
@@ -372,15 +374,6 @@ function toggleDropdown() {
     gap: 1em;
     flex-direction: column;
     height: 100%;
-    padding-bottom: 2em;
-
-    @include bp-xl-desktop {
-        padding-bottom: 3.2em;
-    }
-
-    .loader {
-        margin-bottom: $size-8;
-    }
 
     .main-wrapper {
         @include flexCenterAll;
