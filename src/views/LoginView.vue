@@ -80,7 +80,6 @@ const handleLogin = async () => {
 <style lang="scss" scoped>
 .auth-container {
     font-size: 0.8em;
-    height: 100%;
     @include flexCenterAll;
     padding: 0 $size-4 $size-12;
 
@@ -89,8 +88,7 @@ const handleLogin = async () => {
         flex-direction: column;
         gap: $size-1;
         padding: $size-4 $size-6 0;
-        width: 100%;
-        max-width: 400px;
+        min-width: 30em;
         background: $color-bg-secondary;
         border-radius: $border-radius-md;
         box-shadow: $box-shadow;

@@ -140,8 +140,7 @@ const handleRegister = async () => {
         flex-direction: column;
         gap: $size-1;
         padding: $size-4 $size-6 0;
-        width: 100%;
-        max-width: 400px;
+        min-width: 30em;
         background: $color-bg-secondary;
         border-radius: $border-radius-md;
         box-shadow: $box-shadow;
