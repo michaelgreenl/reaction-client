@@ -8,7 +8,7 @@ const authStore = useAuthStore();
 
 <template>
     <div class="app-container">
-        <Navbar />
+        <Navbar :class="`${authStore.gameActive ? 'game-active' : undefined}`" />
 
         <div v-if="authStore.initLoading" class="loader">
             <Loader />

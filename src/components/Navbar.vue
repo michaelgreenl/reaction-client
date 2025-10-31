@@ -43,6 +43,14 @@ const route = useRoute();
     padding-left: $size-3;
     padding-right: $size-4;
 
+    &.game-active {
+        display: none;
+
+        @include bp-custom-min(400) {
+            display: flex;
+        }
+    }
+
     &-logo {
         @include flexCenterAll;
         transition: transform 0.2s ease;

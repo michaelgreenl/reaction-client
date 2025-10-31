@@ -11,6 +11,7 @@ export const useAuthStore = defineStore('auth', () => {
     const recentUserGames = ref([]);
     const isAuthenticated = computed(() => !!user.value);
     const initLoading = ref(true);
+    const gameActive = ref(false);
 
     const settingsStore = useSettingsStore();
 
@@ -201,6 +202,7 @@ export const useAuthStore = defineStore('auth', () => {
         isAuthenticated,
         initializeAuth,
         initLoading,
+        gameActive,
         register,
         recentUserGames,
         login,
