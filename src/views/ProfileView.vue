@@ -7,6 +7,7 @@ import Button from '@/components/Button.vue';
 import Loader from '@/components/Loader.vue';
 import RangeInput from '@/components/Inputs/Range.vue';
 import NumberInput from '@/components/Inputs/Number.vue';
+import CheckboxInput from '@/components/Inputs/Checkbox.vue';
 import LogoSVG from '@/components/Icons/LogoSVG.vue';
 
 const authStore = useAuthStore();
@@ -172,7 +173,7 @@ function toggleDropdown() {
                         :class="`${showSettings ? 'showing-settings' : undefined}`"
                     >
                         <div v-for="key in Object.keys(settingsStore.settingsKeyVal)" :key="key" class="form-group">
-                            <input
+                            <CheckboxInput
                                 :id="`${key}Filter`"
                                 type="checkbox"
                                 v-model="filterToggles[`${key}`]"
@@ -470,9 +471,10 @@ function toggleDropdown() {
                     position: absolute;
                     display: flex;
                     flex-direction: column;
+                    gap: $size-1;
                     margin: $size-1 $size-2;
-                    padding: 0.4em;
-                    padding-right: $size-4;
+                    padding: 0.5em;
+                    padding-right: $size-3;
                     background: $color-bg-secondary;
                     box-shadow: $box-shadow;
                     border-radius: $border-radius-xs;
@@ -493,6 +495,7 @@ function toggleDropdown() {
                         z-index: 2;
                         display: flex;
                         align-items: center;
+                        gap: $size-1;
 
                         input {
                             cursor: pointer;
