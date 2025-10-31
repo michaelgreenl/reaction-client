@@ -1,4 +1,6 @@
 <script setup>
+import { formatTime } from '@/util/time.js';
+
 const props = defineProps({
     score: { required: true },
     time: { required: true },
@@ -8,15 +10,15 @@ const props = defineProps({
 function timeValueSize(timeMs) {
     const seconds = timeMs / 1000;
 
-    if (seconds >= 100) {
-        return '2.8ch';
-    } else if (seconds >= 20) {
-        return '2.4ch';
-    } else if (seconds >= 10) {
+    if (seconds >= 60) {
         return '2.2ch';
+    } else if (seconds >= 20) {
+        return '2.6ch';
+    } else if (seconds >= 10) {
+        return '2.4ch';
     }
 
-    return '2ch';
+    return '2.2ch';
 }
 </script>
 
@@ -25,20 +27,18 @@ function timeValueSize(timeMs) {
         <span class="label">Score:</span>
         <span class="stat">{{ score }}</span>
     </div>
-    <span> • </span>
+    <span> | </span>
     <div class="stat-wrapper">
         <span class="label">Time:</span>
-        <span class="stat" :style="{ width: adjustTimeSize ? timeValueSize(time) : '' }">{{
-            (time / 1000).toFixed(2)
-        }}</span>
+        <span class="stat" :style="{ width: adjustTimeSize ? timeValueSize(time) : '' }">{{ formatTime(time) }}</span>
     </div>
 </template>
 
 <style lang="scss" scoped>
 span {
-    color: $color-text-secondary-dark;
+    font-size: 0.5em;
     font-weight: 500;
-    font-size: 0.7em;
+    color: $color-gray3;
 }
 
 .stat-wrapper {

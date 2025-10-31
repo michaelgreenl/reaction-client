@@ -36,8 +36,13 @@ export function formatTime(timeMs) {
         return `${seconds}s`;
     } else {
         const mins = Math.floor(seconds / 60);
-        seconds = seconds % 60;
-        return `${mins}:${seconds}`;
+        seconds = Math.floor(seconds % 60);
+
+        if (seconds >= 10) {
+            return `${mins}:${seconds}`;
+        } else {
+            return `${mins}:0${seconds}`;
+        }
     }
 }
 
