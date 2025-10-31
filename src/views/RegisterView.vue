@@ -56,7 +56,7 @@ const handleRegister = async () => {
 
 <template>
     <div class="auth-container">
-        <form @submit.prevent="handleRegister" class="auth-form">
+        <form @submit.prevent="handleRegister" class="auth-form psuedo-border">
             <div class="auth-header">
                 <LogoSVG />
                 <h2>Register</h2>
@@ -136,6 +136,7 @@ const handleRegister = async () => {
     padding: 0 $size-4 $size-12;
 
     .auth-form {
+        position: relative;
         display: flex;
         flex-direction: column;
         gap: $size-1;
@@ -146,6 +147,8 @@ const handleRegister = async () => {
         box-shadow: $box-shadow;
 
         .auth-header {
+            position: relative;
+            z-index: 2;
             align-self: flex-start;
             @include flexCenterAll;
 
@@ -162,6 +165,8 @@ const handleRegister = async () => {
         }
 
         .header-border {
+            position: relative;
+            z-index: 2;
             border: 0;
             height: 2px;
             background-color: $color-primary-light;
@@ -169,6 +174,8 @@ const handleRegister = async () => {
         }
 
         .form-groups {
+            position: relative;
+            z-index: 2;
             display: flex;
             flex-direction: column;
             gap: $size-3;
@@ -188,6 +195,7 @@ const handleRegister = async () => {
 
         .password-input-wrapper {
             position: relative;
+            z-index: 2;
             display: flex;
             align-items: center;
 
@@ -197,6 +205,8 @@ const handleRegister = async () => {
         }
 
         .password-requirements {
+            position: relative;
+            z-index: 2;
             list-style: none;
             padding: 0 1em;
             font-size: 0.9em;
@@ -224,11 +234,15 @@ const handleRegister = async () => {
         }
 
         button[type='submit'] {
+            position: relative;
+            z-index: 2;
             align-self: flex-end;
             margin-right: $size-4;
         }
 
         .bottom-border {
+            position: relative;
+            z-index: 2;
             border: 0;
             height: 1px;
             width: 90%;
@@ -237,12 +251,16 @@ const handleRegister = async () => {
         }
 
         .error-message {
+            position: relative;
+            z-index: 2;
             color: $color-error;
             text-align: center;
             margin-top: $size-1;
         }
 
         .form-link {
+            position: relative;
+            z-index: 2;
             font-family: $secondary-font-stack;
             text-align: center;
             margin-top: $size-2;

@@ -41,7 +41,7 @@ const handleLogin = async () => {
 
 <template>
     <div class="auth-container">
-        <form @submit.prevent="handleLogin" class="auth-form">
+        <form @submit.prevent="handleLogin" class="auth-form psuedo-border">
             <div class="auth-header">
                 <LogoSVG />
                 <h2>Login</h2>
@@ -84,6 +84,7 @@ const handleLogin = async () => {
     padding: 0 $size-4 $size-12;
 
     .auth-form {
+        position: relative;
         display: flex;
         flex-direction: column;
         gap: $size-1;
@@ -94,6 +95,8 @@ const handleLogin = async () => {
         box-shadow: $box-shadow;
 
         .auth-header {
+            position: relative;
+            z-index: 2;
             align-self: flex-start;
             @include flexCenterAll;
 
@@ -110,6 +113,8 @@ const handleLogin = async () => {
         }
 
         .header-border {
+            position: relative;
+            z-index: 2;
             border: 0;
             height: 2px;
             background-color: $color-primary-light;
@@ -117,6 +122,8 @@ const handleLogin = async () => {
         }
 
         .form-groups {
+            position: relative;
+            z-index: 2;
             display: flex;
             flex-direction: column;
             gap: $size-3;
@@ -136,6 +143,8 @@ const handleLogin = async () => {
 
         .password-input-wrapper {
             position: relative;
+            z-index: 2;
+            position: relative;
             display: flex;
             align-items: center;
 
@@ -145,11 +154,15 @@ const handleLogin = async () => {
         }
 
         button[type='submit'] {
+            position: relative;
+            z-index: 2;
             align-self: flex-end;
             margin-right: $size-4;
         }
 
         .bottom-border {
+            position: relative;
+            z-index: 2;
             border: 0;
             height: 1px;
             width: 90%;
@@ -158,12 +171,16 @@ const handleLogin = async () => {
         }
 
         .error-message {
+            position: relative;
+            z-index: 2;
             color: $color-error;
             text-align: center;
             margin-top: $size-1;
         }
 
         .form-link {
+            position: relative;
+            z-index: 2;
             font-family: $secondary-font-stack;
             text-align: center;
             margin-top: $size-2;
