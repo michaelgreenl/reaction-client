@@ -3,7 +3,7 @@
 
 // Mobile-first responsive breakpoints
 $breakpoints: (
-    xsm: 332px,
+    xs: 332px,
     sm: 682px,
     md: 848px,
     lg: 992px,
@@ -11,8 +11,8 @@ $breakpoints: (
     xxl: 1600px,
 ) !default;
 
-@mixin bp-xsm-phone {
-    @media (min-width: map.get($breakpoints, 'xsm')) {
+@mixin bp-xs-phone {
+    @media (min-width: map.get($breakpoints, 'xs')) {
         @content;
     }
 }

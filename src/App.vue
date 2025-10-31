@@ -43,7 +43,7 @@ body,
     flex-direction: column;
     font-size: 0.9em !important;
 
-    @include bp-xsm-phone {
+    @include bp-xs-phone {
         font-size: 1em !important;
     }
 
