@@ -119,7 +119,7 @@ function addAllFilters() {
         filterToggles[`${filter}`] = true;
     });
 
-    showFilters.value = false;
+    toggleDropdown();
 }
 
 const dropdownListener = (e) => {
@@ -202,7 +202,7 @@ function toggleDropdown() {
                                     @mouseup="rangeInputActive = false"
                                 />
                             </div>
-                            <!-- TODO: Add seporater here with v-if="filterToggles.spawnInterval" (make sure to style differently if showSettings === true) -->
+                            <span v-if="filterToggles.spawnInterval && showSettings" class="seperator"> | </span>
                             <div class="form-group" v-if="filterToggles.spawnInterval">
                                 <label>Spawn Interval</label>
                                 <NumberInput
@@ -219,7 +219,7 @@ function toggleDropdown() {
                                     @stepDown="settingsFilters.spawnInterval -= 0.25"
                                 />
                             </div>
-                            <!-- TODO: Add seporater here with v-if="filterToggles.shrinkTime" (make sure to style differently if showSettings === true) -->
+                            <span v-if="filterToggles.shrinkTime && showSettings" class="seperator"> | </span>
                             <div class="form-group" v-if="filterToggles.shrinkTime">
                                 <label>Shrink Time</label>
                                 <NumberInput
@@ -332,7 +332,9 @@ function toggleDropdown() {
                                     class="date"
                                     :class="`${activeGames.sorted.by === 'createdAt' ? 'sorted' : undefined}`"
                                 >
-                                    {{ formatDate(game.createdAt) }}
+                                    <span>
+                                        {{ formatDate(game.createdAt) }}
+                                    </span>
                                 </td>
                             </tr>
                         </tbody>
@@ -373,13 +375,13 @@ function toggleDropdown() {
     justify-content: center;
     gap: 1em;
     flex-direction: column;
-    height: 100%;
 
     .main-wrapper {
         @include flexCenterAll;
         flex-direction: column;
         width: 100%;
-        margin-bottom: $size-4;
+        margin-bottom: $size-8;
+        padding-top: $size-2;
 
         .table-container {
             position: relative;
@@ -391,7 +393,6 @@ function toggleDropdown() {
             padding: $size-2 $size-4;
             border: solid 1px $color-gray3;
             max-width: 19em;
-            overflow: hidden;
 
             @include bp-custom-min(450) {
                 max-width: 22em;
@@ -430,23 +431,31 @@ function toggleDropdown() {
                     }
 
                     .filters {
-                        width: 46.5em;
+                        width: 49em;
+                        // width: 47em;
 
                         form .form-groups {
-                            gap: $size-3;
+                            gap: $size-1;
                             width: fit-content;
+                            // justify-content: space-between;
 
                             .form-group {
                                 width: fit-content;
                                 justify-content: center;
                                 max-width: 16em;
                             }
-                        }
-                    }
 
-                    .table-wrapper {
-                        overflow-x: auto;
-                        max-width: 34em;
+                            .seperator {
+                                display: block;
+                                font-size: 0.5em;
+                                color: $color-gray3;
+                                margin-right: $size-4;
+                            }
+                        }
+
+                        .filter-form-buttons {
+                            padding-right: $size-5;
+                        }
                     }
                 }
             }
@@ -496,15 +505,42 @@ function toggleDropdown() {
                     width: fit-content;
                     border: solid 1px $color-gray3;
                     top: 3.5em;
-                    right: 1em;
-                    right: 0.5em;
+                    right: 2em;
 
-                    &.showing-settings {
-                        top: 2em;
+                    @include bp-sm-phone {
+                        &.showing-settings {
+                            top: 2em;
+                            right: 0;
+                        }
+                    }
+
+                    &::before {
+                        content: '';
+                        position: absolute;
+                        z-index: 1;
+                        top: 0;
                         right: 0;
+                        bottom: 0;
+                        left: 0;
+                        border-radius: $border-radius-md;
+                        border: solid 2px $color-primary-light;
+                    }
+
+                    &::after {
+                        content: '';
+                        position: absolute;
+                        z-index: 0;
+                        top: -5px;
+                        right: -5px;
+                        bottom: -5px;
+                        left: -5px;
+                        border-radius: $border-radius-xl;
+                        background: $color-bg-secondary;
                     }
 
                     .form-group {
+                        position: relative;
+                        z-index: 2;
                         display: flex;
                         align-items: center;
 
@@ -519,6 +555,8 @@ function toggleDropdown() {
                     }
 
                     :deep(button) {
+                        position: relative;
+                        z-index: 2;
                         align-self: flex-end;
                         font-size: 0.75em;
                         padding-right: 0;
@@ -532,7 +570,7 @@ function toggleDropdown() {
                 font-size: 0.7em;
                 display: flex;
                 align-items: center;
-                width: 23em;
+                width: 25em;
 
                 form {
                     display: flex;
@@ -544,10 +582,14 @@ function toggleDropdown() {
                     .form-groups {
                         @include flexCenterAll;
                         flex-wrap: wrap;
-                        gap: $size-2;
+                        gap: $size-1;
                         width: 100%;
                         padding: $size-2;
                         margin: 0 auto;
+
+                        .seperator {
+                            display: none;
+                        }
 
                         .form-group {
                             position: relative;
@@ -597,21 +639,25 @@ function toggleDropdown() {
                     max-width: 20em;
                 }
 
+                @include bp-sm-phone {
+                    overflow-x: hidden;
+                    max-width: 34em;
+                }
+
                 table {
-                    table-layout: fixed;
-                    position: relative;
+                    // table-layout: fixed;
                     border-bottom: solid 1px $color-gray3;
                     border-collapse: collapse;
 
                     .loader {
+                        min-height: auto;
                         position: absolute;
                         top: 0;
                         left: 0;
                         right: 0;
                         bottom: 0;
-                        height: 100%;
                         color: $color-text-secondary-dark;
-                        margin: 1em auto 0;
+                        margin: $size-4 auto 0;
 
                         span {
                             font-size: 0.9em;
@@ -639,7 +685,6 @@ function toggleDropdown() {
 
                     th,
                     td {
-                        width: 8ch;
                         text-align: center;
                     }
 
@@ -652,15 +697,20 @@ function toggleDropdown() {
                         font-size: 0.85em;
                         color: $color-text-secondary-dark;
                         font-weight: 500;
-                        width: 6ch;
                         border: solid 1px $color-gray3;
 
                         &.date {
                             font-family: $secondary-font-stack;
-                            width: 20ch;
                             font-size: 0.75em;
                             font-weight: 400;
                             color: $color-gray6;
+                            padding: 0 $size-2;
+
+                            span {
+                                display: flex;
+                                justify-content: center;
+                                width: 8em;
+                            }
                         }
 
                         &.sorted {
