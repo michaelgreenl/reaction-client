@@ -82,6 +82,7 @@ const handleLogin = async () => {
     font-size: 0.8em;
     @include flexCenterAll;
     padding: 0 $size-4 $size-12;
+    width: 100%;
 
     .auth-form {
         position: relative;
@@ -89,10 +90,11 @@ const handleLogin = async () => {
         flex-direction: column;
         gap: $size-1;
         padding: $size-4 $size-6 0;
-        min-width: 30em;
         background: $color-bg-secondary;
         border-radius: $border-radius-md;
         box-shadow: $box-shadow;
+        width: 90%;
+        max-width: 30em;
 
         .auth-header {
             position: relative;
@@ -181,6 +183,7 @@ const handleLogin = async () => {
         .form-link {
             position: relative;
             z-index: 2;
+            font-size: 0.9em;
             font-family: $secondary-font-stack;
             text-align: center;
             margin-top: $size-2;

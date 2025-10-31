@@ -132,6 +132,7 @@ const handleRegister = async () => {
 .auth-container {
     font-size: 0.8em;
     height: 100%;
+    width: 100%;
     @include flexCenterAll;
     padding: 0 $size-4 $size-12;
 
@@ -141,10 +142,11 @@ const handleRegister = async () => {
         flex-direction: column;
         gap: $size-1;
         padding: $size-4 $size-6 0;
-        min-width: 30em;
         background: $color-bg-secondary;
         border-radius: $border-radius-md;
         box-shadow: $box-shadow;
+        width: 90%;
+        max-width: 30em;
 
         .auth-header {
             position: relative;
@@ -261,6 +263,7 @@ const handleRegister = async () => {
         .form-link {
             position: relative;
             z-index: 2;
+            font-size: 0.9em;
             font-family: $secondary-font-stack;
             text-align: center;
             margin-top: $size-2;
