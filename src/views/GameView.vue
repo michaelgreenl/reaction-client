@@ -173,7 +173,7 @@ onBeforeUnmount(() => {
     position: relative;
     z-index: 1;
     @include flexCenterAll;
-    height: 100%;
+    height: $height-minus-nav;
     width: 100%;
 
     .game-start {

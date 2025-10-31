@@ -30,7 +30,7 @@ html,
 body,
 #app,
 .app-container {
-    height: 100%;
+    min-height: 100vh;
     padding: 0;
     margin: 0;
     font-family: $primary-font-stack;
@@ -41,26 +41,26 @@ body,
     position: relative;
     display: flex;
     flex-direction: column;
-    font-size: 0.9em;
+    font-size: 0.9em !important;
 
     @include bp-xsm-phone {
-        font-size: 1em;
+        font-size: 1em !important;
     }
 
     @include bp-xxl-desktop {
-        font-size: 1.2em;
+        font-size: 1.3em !important;
     }
 }
 
 .loader {
     @include flexCenterAll;
-    height: 90%;
+    min-height: 90vh;
     color: $color-bg-secondary;
 }
 
 main {
-    // viewport height minus height of navbar
-    height: calc(100vh - 3.2em);
+    min-height: $height-minus-nav;
+    @include flexCenterAll;
 }
 
 h1,
@@ -70,7 +70,7 @@ h2 {
 }
 
 button {
-    cursor: pointer;
+    cursor: pointer !important;
 }
 
 button:focus-visible {
