@@ -61,6 +61,7 @@ async function startGame() {
     showSettings.value = false;
     gamePlayed.value = true;
     gameActive.value = true;
+    authStore.gameActive = true;
     showCount.value = true;
     await countdown(3);
     startTimer();
@@ -68,6 +69,8 @@ async function startGame() {
 
 function handleEndGame() {
     stopTimer();
+    authStore.gameActive = false;
+    gameActive.value = false;
     authStore.setGame(
         { score: score.value, time: elapsedMs.value },
         {
@@ -76,7 +79,6 @@ function handleEndGame() {
             shrinkTime: settingsStore.shrinkTime,
         },
     );
-    gameActive.value = false;
 }
 
 function handleScoreIncrement() {
@@ -104,7 +106,11 @@ onBeforeUnmount(() => {
 <template>
     <div class="game-container">
         <div v-if="!gameActive" class="game-start">
-            <div class="recent-games" v-if="authStore.recentUserGames.length">
+            <div
+                v-if="authStore.recentUserGames.length"
+                class="recent-games"
+                :class="`${showSettings ? 'showing-settings' : undefined}`"
+            >
                 <div class="recent-games-header">
                     <h2>Recent Scores</h2>
                     <Button
@@ -180,7 +186,7 @@ onBeforeUnmount(() => {
         .recent-games {
             font-size: 1.1em;
             position: absolute;
-            z-index: 1;
+            z-index: 3;
             top: $size-1;
             left: $size-3;
             display: flex;
@@ -193,6 +199,15 @@ onBeforeUnmount(() => {
 
             @include bp-xxl-desktop {
                 padding: $size-2 $size-3 $size-1;
+            }
+
+            &.showing-settings {
+                // TODO: In the futrue this class needs to trigger a leave animation
+                display: none;
+
+                @include bp-sm-phone {
+                    display: flex;
+                }
             }
 
             &-header {

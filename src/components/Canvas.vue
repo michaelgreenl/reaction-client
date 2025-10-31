@@ -90,7 +90,7 @@ function handleGameEnd() {
 
     .hud {
         position: absolute;
-        top: -2.6em;
+        top: $size-1;
         left: 0;
         right: 0;
         margin: 0 auto;
@@ -104,6 +104,18 @@ function handleGameEnd() {
         gap: $size-2;
         border: solid 1px $color-gray3;
         box-shadow: $box-shadow;
+
+        @include bp-custom-min(400) {
+            margin-left: auto;
+            margin-right: 0.4em;
+            top: -2.8em;
+        }
+
+        @include bp-sm-phone {
+            font-size: 1em;
+            top: -2.8em;
+            margin: 0 auto;
+        }
     }
 
     .canvas {

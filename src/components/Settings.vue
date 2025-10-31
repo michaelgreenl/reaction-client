@@ -154,7 +154,13 @@ onBeforeUnmount(() => {
     .form-circle {
         display: flex;
         align-items: center;
+        flex-direction: column-reverse;
         gap: $size-8;
+        font-size: 0.95em;
+
+        @include bp-sm-phone {
+            flex-direction: row;
+        }
 
         .form-container {
             position: relative;

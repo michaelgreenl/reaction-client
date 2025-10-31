@@ -11,9 +11,9 @@ function timeValueSize(timeMs) {
     const seconds = timeMs / 1000;
 
     if (seconds >= 60) {
-        return '2.2ch';
+        return '1.8ch';
     } else if (seconds >= 20) {
-        return '2.6ch';
+        return '2.8ch';
     } else if (seconds >= 10) {
         return '2.4ch';
     }
@@ -30,7 +30,14 @@ function timeValueSize(timeMs) {
     <span> | </span>
     <div class="stat-wrapper">
         <span class="label">Time:</span>
-        <span class="stat" :style="{ width: adjustTimeSize ? timeValueSize(time) : '' }">{{ formatTime(time) }}</span>
+        <span
+            class="stat"
+            :style="{
+                width: adjustTimeSize ? timeValueSize(time) : '',
+                paddingRight: adjustTimeSize && timeValueSize(time) !== '1.8ch' ? '1.1em' : '',
+            }"
+            >{{ formatTime(time) }}</span
+        >
     </div>
 </template>
 
