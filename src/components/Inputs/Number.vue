@@ -25,15 +25,16 @@ const emit = defineEmits(['stepUp', 'stepDown']);
     gap: 0.1em;
 
     span {
-        text-align: center;
+        width: $size-10;
+        text-align: right;
         color: $color-text-secondary-dark;
     }
 
     .step-buttons {
         @include flexCenterAll;
         flex-direction: column;
-        gap: 0.1em;
         height: 100%;
+        padding-top: 0.1em;
 
         button {
             flex: 1;
@@ -43,7 +44,7 @@ const emit = defineEmits(['stepUp', 'stepDown']);
             padding: 0 $size-1;
             color: $color-gray4;
             transition: all 0.1s ease;
-            line-height: 1ch;
+            line-height: 0.7em;
 
             &:hover {
                 transform: scale(1.1);
