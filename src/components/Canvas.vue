@@ -35,9 +35,9 @@ function getRandomInt(min, max) {
 function spawnCircle() {
     const circleSize = settingsStore.circleSize;
 
-    // minus 10 just to be safe
-    const vw = canvas.value.offsetWidth - 10;
-    const vh = canvas.value.offsetHeight - 10;
+    // minus 30 to be safe
+    const vw = canvas.value.offsetWidth - 30;
+    const vh = canvas.value.offsetHeight - 30;
 
     const maxX = Math.max(0, vw - circleSize);
     const maxY = Math.max(0, vh - circleSize);
