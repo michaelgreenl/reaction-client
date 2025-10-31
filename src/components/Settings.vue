@@ -77,7 +77,7 @@ onBeforeUnmount(() => {
     <div class="settings-container">
         <div class="form-circle">
             <form v-if="showSettings" @submit.prevent="saveSettings">
-                <div class="form-container">
+                <div class="form-container psuedo-border">
                     <div class="form-header">
                         <h2>Settings</h2>
                         <Button
@@ -166,30 +166,6 @@ onBeforeUnmount(() => {
             box-shadow: $box-shadow;
             border: solid 1px $color-gray3;
             width: 20em;
-
-            &::before {
-                content: '';
-                position: absolute;
-                z-index: 1;
-                top: 0;
-                right: 0;
-                bottom: 0;
-                left: 0;
-                border-radius: $border-radius-md;
-                border: solid 2px $color-primary-light;
-            }
-
-            &::after {
-                content: '';
-                position: absolute;
-                z-index: 0;
-                top: -5px;
-                right: -5px;
-                bottom: -5px;
-                left: -5px;
-                border-radius: $border-radius-xl;
-                background: $color-bg-secondary;
-            }
 
             .form-header {
                 position: relative;

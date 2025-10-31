@@ -151,7 +151,7 @@ function toggleDropdown() {
             <Loader text="Loading Games" />
         </div>
         <div v-else class="main-wrapper">
-            <div class="table-container" :class="`${showSettings ? 'show-settings' : undefined}`">
+            <div class="table-container psuedo-border" :class="`${showSettings ? 'show-settings' : undefined}`">
                 <div class="table-header">
                     <div class="logo">
                         <LogoSVG />
@@ -168,7 +168,7 @@ function toggleDropdown() {
                     <div
                         v-if="showFilters"
                         ref="filterDropdownRef"
-                        class="filter-toggles"
+                        class="filter-toggles psuedo-border"
                         :class="`${showSettings ? 'showing-settings' : undefined}`"
                     >
                         <div v-for="key in Object.keys(settingsStore.settingsKeyVal)" :key="key" class="form-group">
@@ -398,30 +398,6 @@ function toggleDropdown() {
                 max-width: 22em;
             }
 
-            &::before {
-                content: '';
-                position: absolute;
-                z-index: 1;
-                top: 0;
-                right: 0;
-                bottom: 0;
-                left: 0;
-                border-radius: $border-radius-md;
-                border: solid 2px $color-primary-light;
-            }
-
-            &::after {
-                content: '';
-                position: absolute;
-                z-index: 0;
-                top: -5px;
-                right: -5px;
-                bottom: -5px;
-                left: -5px;
-                border-radius: $border-radius-xl;
-                background: $color-bg-secondary;
-            }
-
             @include bp-sm-phone {
                 &.show-settings {
                     max-width: 34em;
@@ -432,12 +408,10 @@ function toggleDropdown() {
 
                     .filters {
                         width: 49em;
-                        // width: 47em;
 
                         form .form-groups {
                             gap: $size-1;
                             width: fit-content;
-                            // justify-content: space-between;
 
                             .form-group {
                                 width: fit-content;
@@ -512,30 +486,6 @@ function toggleDropdown() {
                             top: 2em;
                             right: 0;
                         }
-                    }
-
-                    &::before {
-                        content: '';
-                        position: absolute;
-                        z-index: 1;
-                        top: 0;
-                        right: 0;
-                        bottom: 0;
-                        left: 0;
-                        border-radius: $border-radius-md;
-                        border: solid 2px $color-primary-light;
-                    }
-
-                    &::after {
-                        content: '';
-                        position: absolute;
-                        z-index: 0;
-                        top: -5px;
-                        right: -5px;
-                        bottom: -5px;
-                        left: -5px;
-                        border-radius: $border-radius-xl;
-                        background: $color-bg-secondary;
                     }
 
                     .form-group {
@@ -645,7 +595,6 @@ function toggleDropdown() {
                 }
 
                 table {
-                    // table-layout: fixed;
                     border-bottom: solid 1px $color-gray3;
                     border-collapse: collapse;
 

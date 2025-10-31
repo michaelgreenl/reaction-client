@@ -130,7 +130,7 @@ onBeforeUnmount(() => {
                 </ul>
             </div>
             <div v-if="gamePlayed && !showSettings" class="end-screen-wrapper">
-                <div class="end-screen">
+                <div class="end-screen psuedo-border">
                     <h1>Game Over!</h1>
                     <hr />
                     <div class="stats">
@@ -292,30 +292,6 @@ onBeforeUnmount(() => {
                 border-radius: $border-radius-md;
                 border: solid 1px $color-gray3;
                 box-shadow: $box-shadow;
-
-                &::before {
-                    content: '';
-                    position: absolute;
-                    z-index: 1;
-                    top: 0;
-                    right: 0;
-                    bottom: 0;
-                    left: 0;
-                    border-radius: $border-radius-md;
-                    border: solid 2px $color-primary-light;
-                }
-
-                &::after {
-                    content: '';
-                    position: absolute;
-                    z-index: 0;
-                    top: -5px;
-                    right: -5px;
-                    bottom: -5px;
-                    left: -5px;
-                    border-radius: $border-radius-xl;
-                    background: $color-bg-secondary;
-                }
 
                 h1 {
                     position: relative;
