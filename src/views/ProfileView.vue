@@ -2,8 +2,12 @@
 import { computed, ref, reactive, onMounted } from 'vue';
 import { useAuthStore } from '@/stores/authStore.js';
 import { useSettingsStore } from '@/stores/settingsStore.js';
+import { formatDate, formatTime } from '@/util/time.js';
 import Button from '@/components/Button.vue';
 import Loader from '@/components/Loader.vue';
+import RangeInput from '@/components/Inputs/Range.vue';
+import NumberInput from '@/components/Inputs/Number.vue';
+import CheckboxInput from '@/components/Inputs/Checkbox.vue';
 import LogoSVG from '@/components/Icons/LogoSVG.vue';
 
 const authStore = useAuthStore();
@@ -23,6 +27,7 @@ const activeGames = reactive({
 const filterDropdownRef = ref(null);
 const showFilters = ref(false);
 const filterToggles = reactive({ circleSize: false, spawnInterval: false, shrinkTime: false });
+
 const settingsFilters = reactive({ ...settingsStore });
 const showSettings = ref(true);
 const rangeInputActive = ref(false);
@@ -30,23 +35,6 @@ const rangeInputActive = ref(false);
 const filtersAdded = computed(() => {
     return filterToggles.circleSize || filterToggles.spawnInterval || filterToggles.shrinkTime;
 });
-
-const dropdownListener = (e) => {
-    if (!showFilters.value) {
-        showFilters.value = true;
-    } else if (e.target !== filterDropdownRef.value && !e.composedPath().includes(filterDropdownRef.value)) {
-        showFilters.value = false;
-        window.removeEventListener('click', dropdownListener);
-    }
-};
-
-function toggleDropdown() {
-    if (!showFilters.value) {
-        window.addEventListener('click', dropdownListener);
-    } else {
-        window.removeEventListener('click', dropdownListener);
-    }
-}
 
 onMounted(async () => {
     await getUnfilteredGames().then(() => {
@@ -132,49 +120,28 @@ function addAllFilters() {
         filterToggles[`${filter}`] = true;
     });
 
-    showFilters.value = false;
+    toggleDropdown();
 }
 
-function formatDate(isoString) {
-    const date = new Date(isoString);
-    if (isNaN(date)) throw new Error('Invalid ISO date string');
-
-    const parts = new Intl.DateTimeFormat('en-US', {
-        hour: 'numeric',
-        minute: '2-digit',
-        hour12: true,
-        month: 'long',
-        day: 'numeric',
-        year: 'numeric',
-    }).formatToParts(date);
-
-    const get = (type) => parts.find((p) => p.type === type)?.value;
-
-    const hour = get('hour');
-    const minute = get('minute');
-    const ampm = get('dayPeriod')?.toLowerCase();
-    const month = get('month')?.slice(0, 3);
-    const day = get('day');
-    const year = get('year');
-
-    const now = new Date();
-    const sameDay =
-        now.getFullYear() === date.getFullYear() &&
-        now.getMonth() === date.getMonth() &&
-        now.getDate() === date.getDate();
-
-    return sameDay ? `${hour}:${minute}${ampm}` : `${month} ${day}, ${year}`;
-}
-
-function formatTime(time) {
-    let seconds = (time / 1000).toFixed(2);
-
-    if (seconds < 59.99) {
-        return `${seconds}s`;
+const dropdownListener = (e) => {
+    if (!showFilters.value) {
+        showFilters.value = true;
+    } else if (e) {
+        if (e.target !== filterDropdownRef.value && !e.composedPath().includes(filterDropdownRef.value)) {
+            showFilters.value = false;
+            window.removeEventListener('click', dropdownListener);
+        }
     } else {
-        const mins = Math.floor(seconds / 60);
-        seconds = seconds % 60;
-        return `${mins}:${seconds}`;
+        showFilters.value = false;
+        window.removeEventListener('click', dropdownListener);
+    }
+};
+
+function toggleDropdown() {
+    if (!showFilters.value) {
+        window.addEventListener('click', dropdownListener);
+    } else {
+        dropdownListener();
     }
 }
 </script>
@@ -185,7 +152,7 @@ function formatTime(time) {
             <Loader text="Loading Games" />
         </div>
         <div v-else class="main-wrapper">
-            <div class="table-container" :class="`${showSettings ? 'show-settings' : undefined}`">
+            <div class="table-container psuedo-border" :class="`${showSettings ? 'show-settings' : undefined}`">
                 <div class="table-header">
                     <div class="logo">
                         <LogoSVG />
@@ -193,35 +160,30 @@ function formatTime(time) {
                     </div>
                     <div class="toggle-buttons">
                         <Button
+                            preset="primary-alt"
                             :text="`${showSettings ? 'Hide' : 'Show'} Settings`"
                             @click="showSettings = !showSettings"
                         />
-                        <Button text="Add Filters ▾" @click="toggleDropdown()" />
+                        <Button preset="primary-alt" text="Add Filters ▾" @click="toggleDropdown()" />
                     </div>
                     <div
                         v-if="showFilters"
                         ref="filterDropdownRef"
-                        class="filter-toggles"
+                        class="filter-toggles psuedo-border"
                         :class="`${showSettings ? 'showing-settings' : undefined}`"
                     >
-                        <div class="form-group">
-                            <input id="circleSizeFilter" type="checkbox" v-model="filterToggles.circleSize" />
-                            <label for="circleSizeFilter">Circle Size</label>
-                        </div>
-                        <div class="form-group">
-                            <input id="spawnIntervalFilter" type="checkbox" v-model="filterToggles.spawnInterval" />
-                            <label for="spawnIntervalFilter">Spawn Interval</label>
-                        </div>
-                        <div class="form-group">
-                            <input
-                                id="shrinkTimeFilter"
+                        <div v-for="key in Object.keys(settingsStore.settingsKeyVal)" :key="key" class="form-group">
+                            <CheckboxInput
+                                :id="`${key}Filter`"
                                 type="checkbox"
-                                v-model="filterToggles.shrinkTime"
+                                v-model="filterToggles[`${key}`]"
                                 :disabled="loadingGames"
                             />
-                            <label for="shrinkTimeFilter">Shrink Time</label>
+                            <label :for="`${key}Filter`">
+                                {{ settingsStore.settingsKeyVal[`${key}`] }}
+                            </label>
                         </div>
-                        <Button @click="addAllFilters()" text="+All" />
+                        <Button preset="primary-alt" text="+All" @click="addAllFilters()" />
                     </div>
                 </div>
                 <div class="filters">
@@ -229,102 +191,63 @@ function formatTime(time) {
                         <div class="form-groups">
                             <div class="form-group" v-if="filterToggles.circleSize">
                                 <label for="circleSize">Circle Size</label>
-                                <input
+                                <RangeInput
                                     id="circleSize"
                                     v-model="settingsFilters.circleSize"
-                                    type="range"
-                                    min="25"
-                                    max="125"
+                                    :min="25"
+                                    :max="125"
                                     :disabled="loadingGames || !filterToggles.circleSize"
+                                    :showValue="true"
+                                    :inputActive="rangeInputActive"
                                     @mousedown="rangeInputActive = true"
                                     @mouseup="rangeInputActive = false"
                                 />
-                                <!-- <span v-if="rangeInputActive" class="range-value"> -->
-                                <!--     {{ settingsFilters.circleSize }}px -->
-                                <!-- </span> -->
                             </div>
+                            <span v-if="filterToggles.spawnInterval && showSettings" class="seperator"> | </span>
                             <div class="form-group" v-if="filterToggles.spawnInterval">
                                 <label>Spawn Interval</label>
-                                <div class="number-input">
-                                    <span>
-                                        {{
-                                            Number.isInteger(settingsFilters.spawnInterval)
-                                                ? settingsFilters.spawnInterval.toFixed(1)
-                                                : settingsFilters.spawnInterval.toString()
-                                        }}s
-                                    </span>
-                                    <div class="step-buttons">
-                                        <button
-                                            @click="settingsFilters.spawnInterval += 0.25"
-                                            :disabled="
-                                                isLoading ||
-                                                !filterToggles.spawnInterval ||
-                                                settingsFilters.spawnInterval >= 2
-                                            "
-                                            type="button"
-                                        >
-                                            +
-                                        </button>
-                                        <button
-                                            @click="settingsFilters.spawnInterval -= 0.25"
-                                            :disabled="
-                                                loadingGames ||
-                                                !filterToggles.spawnInterval ||
-                                                settingsFilters.spawnInterval <= 0.25
-                                            "
-                                            type="button"
-                                        >
-                                            −
-                                        </button>
-                                    </div>
-                                </div>
+                                <NumberInput
+                                    v-model="settingsFilters.spawnInterval"
+                                    :stepUpDisabled="
+                                        isLoading || !filterToggles.spawnInterval || settingsFilters.spawnInterval >= 2
+                                    "
+                                    :stepDownDisabled="
+                                        isLoading ||
+                                        !filterToggles.spawnInterval ||
+                                        settingsFilters.spawnInterval === 0.25
+                                    "
+                                    @stepUp="settingsFilters.spawnInterval += 0.25"
+                                    @stepDown="settingsFilters.spawnInterval -= 0.25"
+                                />
                             </div>
+                            <span v-if="filterToggles.shrinkTime && showSettings" class="seperator"> | </span>
                             <div class="form-group" v-if="filterToggles.shrinkTime">
                                 <label>Shrink Time</label>
-                                <div class="number-input">
-                                    <span>
-                                        {{
-                                            Number.isInteger(settingsFilters.shrinkTime)
-                                                ? settingsFilters.shrinkTime.toFixed(1)
-                                                : settingsFilters.shrinkTime.toString()
-                                        }}s
-                                    </span>
-                                    <div class="step-buttons">
-                                        <button
-                                            @click="settingsFilters.shrinkTime += 0.25"
-                                            :disabled="
-                                                loadingGames ||
-                                                !filterToggles.shrinkTime ||
-                                                settingsFilters.shrinkTime >= 2
-                                            "
-                                            type="button"
-                                        >
-                                            +
-                                        </button>
-                                        <button
-                                            @click="settingsFilters.shrinkTime -= 0.25"
-                                            :disabled="
-                                                loadingGames ||
-                                                !filterToggles.shrinkTime ||
-                                                settingsFilters.shrinkTime === 0.25
-                                            "
-                                            type="button"
-                                        >
-                                            −
-                                        </button>
-                                    </div>
-                                </div>
+                                <NumberInput
+                                    v-model="settingsFilters.shrinkTime"
+                                    :stepUpDisabled="
+                                        loadingGames || !filterToggles.shrinkTime || settingsFilters.shrinkTime >= 2
+                                    "
+                                    :stepDownDisabled="
+                                        loadingGames || !filterToggles.shrinkTime || settingsFilters.shrinkTime === 0.25
+                                    "
+                                    @stepUp="settingsFilters.shrinkTime += 0.25"
+                                    @stepDown="settingsFilters.shrinkTime -= 0.25"
+                                />
                             </div>
                         </div>
                         <div class="filter-form-buttons">
                             <Button
                                 v-if="filtersAdded"
+                                preset="primary-alt"
+                                type="button"
                                 text="Reset"
-                                @click="resetFilters"
                                 :disabled="loadingGames || !filtersAdded"
+                                @click="resetFilters"
                             />
                             <Button
                                 v-if="filtersAdded"
+                                preset="primary-alt"
                                 type="submit"
                                 text="Save"
                                 :disabled="loadingGames || (!filtersAdded && !activeGames.filtered)"
@@ -338,6 +261,7 @@ function formatTime(time) {
                             <tr>
                                 <th>
                                     <Button
+                                        preset="primary-alt"
                                         :text="`${activeGames.sorted.by !== 'score' ? 'Score' : activeGames.sorted.order === 'ASC' ? '▴ Score' : '▾ Score'}`"
                                         :disabled="loadingGames"
                                         @click="handleSort('score')"
@@ -345,6 +269,7 @@ function formatTime(time) {
                                 </th>
                                 <th>
                                     <Button
+                                        preset="primary-alt"
                                         :text="`${activeGames.sorted.by !== 'time' ? 'Time' : activeGames.sorted.order === 'ASC' ? '▴ Time' : '▾ Time'}`"
                                         :disabled="loadingGames"
                                         @click="handleSort('time')"
@@ -361,6 +286,7 @@ function formatTime(time) {
                                 </th>
                                 <th>
                                     <Button
+                                        preset="primary-alt"
                                         :text="`${activeGames.sorted.by !== 'createdAt' ? 'Date' : activeGames.sorted.order === 'ASC' ? '▴ Date' : '▾ Date'}`"
                                         :disabled="loadingGames"
                                         @click="handleSort('createdAt')"
@@ -407,7 +333,9 @@ function formatTime(time) {
                                     class="date"
                                     :class="`${activeGames.sorted.by === 'createdAt' ? 'sorted' : undefined}`"
                                 >
-                                    {{ formatDate(game.createdAt) }}
+                                    <span>
+                                        {{ formatDate(game.createdAt) }}
+                                    </span>
                                 </td>
                             </tr>
                         </tbody>
@@ -415,22 +343,24 @@ function formatTime(time) {
                 </div>
                 <div class="table-nav">
                     <Button
+                        preset="primary-alt"
                         text="prev"
-                        @click="switchPage((offset -= 10), activePage - 1)"
                         :disabled="loadingGames || offset === 0"
+                        @click="switchPage((offset -= 10), activePage - 1)"
                     />
                     <span>
                         {{ activePage }}
                     </span>
                     <Button
+                        preset="primary-alt"
                         text="next"
-                        @click="switchPage((offset += 10), activePage + 1)"
                         :disabled="
                             loadingGames ||
                             authStore.userStats?.totalGames < 10 ||
                             activeGames.games.length === 0 ||
                             offset + 10 >= authStore.userStats?.totalGames
                         "
+                        @click="switchPage((offset += 10), activePage + 1)"
                     />
                 </div>
             </div>
@@ -446,22 +376,13 @@ function formatTime(time) {
     justify-content: center;
     gap: 1em;
     flex-direction: column;
-    height: 100%;
-    padding-bottom: 2em;
-
-    @include bp-xl-desktop {
-        padding-bottom: 3.2em;
-    }
-
-    .loader {
-        margin-bottom: $size-8;
-    }
 
     .main-wrapper {
         @include flexCenterAll;
         flex-direction: column;
         width: 100%;
-        margin-bottom: $size-4;
+        margin-bottom: $size-8;
+        padding-top: $size-2;
 
         .table-container {
             position: relative;
@@ -474,48 +395,41 @@ function formatTime(time) {
             border: solid 1px $color-gray3;
             max-width: 19em;
 
-            &::before {
-                content: '';
-                position: absolute;
-                z-index: 1;
-                top: 0;
-                right: 0;
-                bottom: 0;
-                left: 0;
-                border-radius: $border-radius-md;
-                border: solid 2px $color-primary-light;
+            @include bp-custom-min(450) {
+                max-width: 22em;
             }
 
-            &::after {
-                content: '';
-                position: absolute;
-                z-index: 0;
-                top: -5px;
-                right: -5px;
-                bottom: -5px;
-                left: -5px;
-                border-radius: $border-radius-xl;
-                background: $color-bg-secondary;
-            }
+            @include bp-sm-phone {
+                &.show-settings {
+                    max-width: 34em;
 
-            &.show-settings {
-                max-width: 34em;
+                    .table-header {
+                        justify-content: space-between;
+                    }
 
-                .table-header {
-                    justify-content: space-between;
-                }
+                    .filters {
+                        width: 49em;
 
-                .filters {
-                    width: 46.5em;
-
-                    form .form-groups {
-                        gap: $size-3;
-                        width: fit-content;
-
-                        .form-group {
+                        form .form-groups {
+                            gap: $size-1;
                             width: fit-content;
-                            justify-content: center;
-                            max-width: 16em;
+
+                            .form-group {
+                                width: fit-content;
+                                justify-content: center;
+                                max-width: 16em;
+                            }
+
+                            .seperator {
+                                display: block;
+                                font-size: 0.5em;
+                                color: $color-gray3;
+                                margin-right: $size-4;
+                            }
+                        }
+
+                        .filter-form-buttons {
+                            padding-right: $size-5;
                         }
                     }
                 }
@@ -551,40 +465,37 @@ function formatTime(time) {
                     display: flex;
                     margin-top: $size-1;
                     padding-left: $size-1;
-
-                    :deep(button) {
-                        color: $color-accent;
-
-                        span {
-                            text-shadow: none;
-                        }
-                    }
                 }
 
                 .filter-toggles {
                     position: absolute;
                     display: flex;
                     flex-direction: column;
+                    gap: $size-1;
                     margin: $size-1 $size-2;
-                    padding: 0.4em;
-                    padding-right: $size-4;
+                    padding: 0.5em;
+                    padding-right: $size-3;
                     background: $color-bg-secondary;
                     box-shadow: $box-shadow;
                     border-radius: $border-radius-xs;
                     width: fit-content;
                     border: solid 1px $color-gray3;
                     top: 3.5em;
-                    right: 1em;
-                    right: 0.5em;
+                    right: 2em;
 
-                    &.showing-settings {
-                        top: 2em;
-                        right: 0;
+                    @include bp-sm-phone {
+                        &.showing-settings {
+                            top: 2em;
+                            right: 0;
+                        }
                     }
 
                     .form-group {
+                        position: relative;
+                        z-index: 2;
                         display: flex;
                         align-items: center;
+                        gap: $size-1;
 
                         input {
                             cursor: pointer;
@@ -597,15 +508,11 @@ function formatTime(time) {
                     }
 
                     :deep(button) {
+                        position: relative;
+                        z-index: 2;
                         align-self: flex-end;
                         font-size: 0.75em;
                         padding-right: 0;
-
-                        span {
-                            font-weight: 500;
-                            color: $color-accent;
-                            text-shadow: none;
-                        }
                     }
                 }
             }
@@ -616,7 +523,7 @@ function formatTime(time) {
                 font-size: 0.7em;
                 display: flex;
                 align-items: center;
-                width: 23em;
+                width: 25em;
 
                 form {
                     display: flex;
@@ -628,10 +535,14 @@ function formatTime(time) {
                     .form-groups {
                         @include flexCenterAll;
                         flex-wrap: wrap;
-                        gap: $size-2;
+                        gap: $size-1;
                         width: 100%;
                         padding: $size-2;
                         margin: 0 auto;
+
+                        .seperator {
+                            display: none;
+                        }
 
                         .form-group {
                             position: relative;
@@ -651,75 +562,9 @@ function formatTime(time) {
                                 white-space: nowrap;
                             }
 
-                            input[type='range'] {
-                                appearance: none;
-                                font-size: 1em;
-                                height: 0.5em;
-                                // width: 40%;
-                                width: 50%;
-                                margin: 0.5em 0;
-                                background: $color-gray3;
-                                border-radius: 10px;
-
-                                &::-webkit-slider-thumb {
-                                    appearance: none;
-                                    position: relative;
-                                    cursor: grab;
-                                    height: 1em;
-                                    width: 1em;
-                                    background: $color-accent;
-                                    border-radius: 50%;
-                                    z-index: 2;
-                                    transition: all 25ms ease;
-                                }
-
-                                &:-webkit-slider-thumb:active {
-                                    cursor: grabbing;
-                                }
-                            }
-
-                            // .range-value {
-                            //     position: absolute;
-                            //     right: -3.25em;
-                            //     font-size: 0.9em;
-                            // }
-
-                            .number-input {
-                                @include flexCenterAll;
-                                gap: 0.1em;
-
+                            :deep(.number-input) {
                                 span {
-                                    text-align: center;
-                                    color: $color-text-secondary-dark;
-                                    border-bottom: solid 1px $color-gray4;
-                                }
-
-                                .step-buttons {
-                                    @include flexCenterAll;
-                                    flex-direction: column;
-                                    gap: 0.1em;
-                                    height: 100%;
-                                    padding-top: $size-1;
-
-                                    button {
-                                        flex: 1;
-                                        background: transparent;
-                                        border: 0;
-                                        font-size: 1.5em;
-                                        padding: 0 $size-1;
-                                        color: $color-gray4;
-                                        transition: all 0.1s ease;
-                                        line-height: 1ch;
-
-                                        &:hover {
-                                            transform: scale(1.1);
-                                            color: $color-accent;
-                                        }
-
-                                        &:active {
-                                            transform: scale(0.9);
-                                        }
-                                    }
+                                    font-size: 1em;
                                 }
                             }
                         }
@@ -731,12 +576,6 @@ function formatTime(time) {
 
                         :deep(button) {
                             font-size: 1.1em;
-
-                            span {
-                                font-weight: 500;
-                                color: $color-accent;
-                                text-shadow: none;
-                            }
                         }
                     }
                 }
@@ -746,22 +585,31 @@ function formatTime(time) {
                 position: relative;
                 z-index: 1;
                 padding: $size-1 $size-2;
+                max-width: 17em;
+                overflow-x: scroll;
+
+                @include bp-custom-min(450) {
+                    max-width: 20em;
+                }
+
+                @include bp-sm-phone {
+                    overflow-x: hidden;
+                    max-width: 34em;
+                }
 
                 table {
-                    table-layout: fixed;
-                    position: relative;
                     border-bottom: solid 1px $color-gray3;
                     border-collapse: collapse;
 
                     .loader {
+                        min-height: auto;
                         position: absolute;
                         top: 0;
                         left: 0;
                         right: 0;
                         bottom: 0;
-                        height: 100%;
                         color: $color-text-secondary-dark;
-                        margin: 1em auto 0;
+                        margin: $size-4 auto 0;
 
                         span {
                             font-size: 0.9em;
@@ -771,8 +619,6 @@ function formatTime(time) {
 
                     :deep(button) {
                         font-size: 1.2em;
-                        color: $color-accent;
-                        text-shadow: none;
 
                         &.setting {
                             font-size: 0.8em;
@@ -791,7 +637,6 @@ function formatTime(time) {
 
                     th,
                     td {
-                        width: 8ch;
                         text-align: center;
                     }
 
@@ -804,15 +649,20 @@ function formatTime(time) {
                         font-size: 0.85em;
                         color: $color-text-secondary-dark;
                         font-weight: 500;
-                        width: 6ch;
                         border: solid 1px $color-gray3;
 
                         &.date {
                             font-family: $secondary-font-stack;
-                            width: 20ch;
                             font-size: 0.75em;
                             font-weight: 400;
                             color: $color-gray6;
+                            padding: 0 $size-2;
+
+                            span {
+                                display: flex;
+                                justify-content: center;
+                                width: 8em;
+                            }
                         }
 
                         &.sorted {
@@ -830,8 +680,6 @@ function formatTime(time) {
 
                 :deep(button) {
                     font-size: 1em;
-                    color: $color-accent;
-                    text-shadow: none;
                 }
 
                 span {

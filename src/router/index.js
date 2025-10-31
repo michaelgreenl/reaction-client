@@ -36,6 +36,8 @@ router.beforeEach(async (to, from, next) => {
     } else {
         next();
     }
+
+    authStore.initLoading = false;
 });
 
 router.afterEach((to) => {

@@ -1,6 +1,5 @@
 <script setup>
 import Loader from '@/components/Loader.vue';
-defineEmits(['click']);
 
 const props = defineProps({
     text: { type: String },
@@ -10,6 +9,8 @@ const props = defineProps({
     iconRight: { type: Object },
     isLoading: { type: Boolean, default: false },
 });
+
+const emit = defineEmits(['click']);
 </script>
 
 <template>
@@ -33,6 +34,7 @@ button {
     }
 
     &.primary,
+    &.primary-alt,
     &.secondary {
         font-family: $primary-font-stack;
         transition: transform 0.1s ease-in;
@@ -47,15 +49,23 @@ button {
         }
     }
 
-    &.primary {
-        text-shadow: 1px 1px 2px #00000033;
+    &.primary,
+    &.primary-alt {
         background: transparent;
-        color: $color-bg-secondary;
         font-style: oblique;
 
         &:disabled {
             opacity: 0.5;
         }
+    }
+
+    &.primary {
+        text-shadow: 1px 1px 2px #00000033;
+        color: $color-bg-secondary;
+    }
+
+    &.primary-alt {
+        color: $color-accent;
     }
 
     &.secondary {

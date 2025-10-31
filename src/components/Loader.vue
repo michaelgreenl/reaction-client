@@ -22,7 +22,7 @@ onUnmounted(() => {
 
 <template>
     <div class="loading-wrapper">
-        <div class="loading-text" :style="{ width: `${text.length}ch` }">
+        <div class="loading-text" :style="{ width: `${text.length - 4}ch` }">
             <span>
                 {{ loadingText }}
             </span>

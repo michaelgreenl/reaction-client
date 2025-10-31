@@ -8,7 +8,7 @@ const authStore = useAuthStore();
 
 <template>
     <div class="app-container">
-        <Navbar />
+        <Navbar :class="`${authStore.gameActive ? 'game-active' : undefined}`" />
 
         <div v-if="authStore.initLoading" class="loader">
             <Loader />
@@ -30,7 +30,7 @@ html,
 body,
 #app,
 .app-container {
-    height: 100%;
+    min-height: 100vh;
     padding: 0;
     margin: 0;
     font-family: $primary-font-stack;
@@ -41,21 +41,52 @@ body,
     position: relative;
     display: flex;
     flex-direction: column;
+    font-size: 0.9em !important;
+
+    @include bp-xs-phone {
+        font-size: 1em !important;
+    }
 
     @include bp-xxl-desktop {
-        font-size: 1.2em;
+        font-size: 1.3em !important;
     }
 }
 
 .loader {
     @include flexCenterAll;
-    height: 90%;
+    min-height: 90vh;
     color: $color-bg-secondary;
 }
 
+.psuedo-border {
+    &::before {
+        content: '';
+        position: absolute;
+        z-index: 1;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        border-radius: $border-radius-md;
+        border: solid 2px $color-primary-light;
+    }
+
+    &::after {
+        content: '';
+        position: absolute;
+        z-index: 0;
+        top: -5px;
+        right: -5px;
+        bottom: -5px;
+        left: -5px;
+        border-radius: $border-radius-xl;
+        background: $color-bg-secondary;
+    }
+}
+
 main {
-    // viewport height minus height of navbar
-    height: calc(100vh - 3.2em);
+    min-height: $height-minus-nav;
+    @include flexCenterAll;
 }
 
 h1,
@@ -65,7 +96,7 @@ h2 {
 }
 
 button {
-    cursor: pointer;
+    cursor: pointer !important;
 }
 
 button:focus-visible {

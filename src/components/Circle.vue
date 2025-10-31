@@ -5,7 +5,7 @@ import { useSettingsStore } from '@/stores/settingsStore';
 const props = defineProps({
     gameActive: { type: Boolean },
     animation: { type: Boolean, default: true },
-    localSize: { type: Number },
+    localSize: { required: false },
     inputActive: { type: Boolean },
 });
 

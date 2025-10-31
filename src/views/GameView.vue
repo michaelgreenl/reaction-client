@@ -2,9 +2,11 @@
 import { ref, onBeforeUnmount } from 'vue';
 import { useAuthStore } from '@/stores/authStore.js';
 import { useSettingsStore } from '@/stores/settingsStore.js';
+import { formatTime, getTimePassed } from '@/util/time.js';
 import Settings from '@/components/Settings.vue';
 import Canvas from '@/components/Canvas.vue';
 import Button from '@/components/Button.vue';
+import GameStats from '@/components/GameStats.vue';
 import ArrowSVG from '@/components/Icons/ArrowSVG.vue';
 import CloseSVG from '@/components/Icons/CloseSVG.vue';
 
@@ -59,6 +61,7 @@ async function startGame() {
     showSettings.value = false;
     gamePlayed.value = true;
     gameActive.value = true;
+    authStore.gameActive = true;
     showCount.value = true;
     await countdown(3);
     startTimer();
@@ -66,6 +69,8 @@ async function startGame() {
 
 function handleEndGame() {
     stopTimer();
+    authStore.gameActive = false;
+    gameActive.value = false;
     authStore.setGame(
         { score: score.value, time: elapsedMs.value },
         {
@@ -74,7 +79,6 @@ function handleEndGame() {
             shrinkTime: settingsStore.shrinkTime,
         },
     );
-    gameActive.value = false;
 }
 
 function handleScoreIncrement() {
@@ -97,76 +101,16 @@ function toggleRecentGames() {
 onBeforeUnmount(() => {
     stopTimer();
 });
-
-function formatDate(isoString) {
-    const date = new Date(isoString);
-    if (isNaN(date)) throw new Error('Invalid ISO date string');
-
-    const parts = new Intl.DateTimeFormat('en-US', {
-        hour: 'numeric',
-        minute: '2-digit',
-        hour12: true,
-        month: 'numeric',
-        day: 'numeric',
-        year: '2-digit',
-    }).formatToParts(date);
-
-    const get = (type) => parts.find((p) => p.type === type)?.value;
-
-    const hour = get('hour');
-    const minute = get('minute');
-    const ampm = get('dayPeriod')?.toLowerCase();
-    const month = get('month');
-    const day = get('day');
-    const year = get('year');
-
-    const now = new Date();
-    const sameDay =
-        now.getFullYear() === date.getFullYear() &&
-        now.getMonth() === date.getMonth() &&
-        now.getDate() === date.getDate();
-
-    return sameDay ? `${hour}:${minute}${ampm}` : `${hour}:${minute}${ampm} ${month}-${day}-${year}`;
-}
-
-function formatTime(time) {
-    let seconds = (time / 1000).toFixed(2);
-
-    if (seconds < 59.99) {
-        return `${seconds}s`;
-    } else {
-        const mins = Math.floor(seconds / 60);
-        seconds = seconds % 60;
-        return `${mins}:${seconds}`;
-    }
-}
-
-function getTimePassed(pastTime) {
-    const pastDate = new Date(pastTime);
-    const now = new Date();
-    const diff = now - pastDate;
-
-    if (diff < 0) {
-        return;
-    }
-
-    const seconds = Math.floor(diff / 1000);
-    const minutes = Math.floor(seconds / 60);
-    const hours = Math.floor(minutes / 60);
-    const days = Math.floor(hours / 24);
-
-    if (days > 0) return `${days}d ago`;
-    if (hours > 0) return `${hours}h ago`;
-    if (minutes > 0) return `${minutes}m ago`;
-    if (seconds === 0) return 'just now';
-    return `${seconds}s ago`;
-}
 </script>
 
 <template>
     <div class="game-container">
         <div v-if="!gameActive" class="game-start">
-            <div class="recent-games" v-if="authStore.recentUserGames.length">
+            <div
+                v-if="authStore.recentUserGames.length"
+                class="recent-games"
+                :class="`${showSettings ? 'showing-settings' : undefined}`"
+            >
                 <div class="recent-games-header">
                     <h2>Recent Scores</h2>
                     <Button
@@ -185,34 +129,18 @@ function getTimePassed(pastTime) {
                 <hr />
                 <ul class="recent-games-list" v-if="showRecentGames && !showSettings">
                     <li v-for="game in authStore.recentUserGames" :key="game.createdAt">
-                        <div class="stat-wrapper">
-                            <span class="label">Score:</span>
-                            <span class="stat">{{ game.score }}</span>
-                        </div>
-                        <span class="separator"> | </span>
-                        <div class="stat-wrapper">
-                            <span class="label">Time:</span>
-                            <span class="stat">{{ formatTime(game.time) }}</span>
-                        </div>
+                        <GameStats :score="game.score" :time="game.time" />
                         <span class="separator"> - </span>
                         <span>{{ getTimePassed(game.createdAt) }} </span>
                     </li>
                 </ul>
             </div>
             <div v-if="gamePlayed && !showSettings" class="end-screen-wrapper">
-                <div class="end-screen">
+                <div class="end-screen psuedo-border">
                     <h1>Game Over!</h1>
                     <hr />
                     <div class="stats">
-                        <div class="stat-wrapper">
-                            <span class="label">Score:</span>
-                            <span class="value">{{ score }}</span>
-                        </div>
-                        <span> • </span>
-                        <div class="stat-wrapper">
-                            <span class="label">Time:</span>
-                            <span class="value">{{ formatTime(elapsedMs) }}</span>
-                        </div>
+                        <GameStats :score="score" :time="elapsedMs" />
                     </div>
                 </div>
                 <div class="buttons">
@@ -251,14 +179,14 @@ function getTimePassed(pastTime) {
     position: relative;
     z-index: 1;
     @include flexCenterAll;
-    height: 100%;
+    height: $height-minus-nav;
     width: 100%;
 
     .game-start {
         .recent-games {
             font-size: 1.1em;
             position: absolute;
-            z-index: 1;
+            z-index: 3;
             top: $size-1;
             left: $size-3;
             display: flex;
@@ -269,6 +197,19 @@ function getTimePassed(pastTime) {
             box-shadow: $box-shadow;
             border: solid 1px $color-gray3;
 
+            @include bp-xxl-desktop {
+                padding: $size-2 $size-3 $size-1;
+            }
+
+            &.showing-settings {
+                // TODO: In the futrue this class needs to trigger a leave animation
+                display: none;
+
+                @include bp-sm-phone {
+                    display: flex;
+                }
+            }
+
             &-header {
                 display: flex;
                 justify-content: space-between;
@@ -278,12 +219,21 @@ function getTimePassed(pastTime) {
                     font-size: 1em;
                     color: $color-accent;
                     margin: 0;
+                    line-height: 1.6ch;
+
+                    @include bp-xs-phone {
+                        line-height: normal;
+                    }
                 }
 
                 button {
                     padding: 0.6em;
                     margin-top: 1px;
                     transform: scale(0.75) translate(-5px, -4px);
+
+                    @include bp-xxl-desktop {
+                        transform: none;
+                    }
 
                     &:hover {
                         background: #ec6e9e22;
@@ -303,6 +253,11 @@ function getTimePassed(pastTime) {
                 background-color: $color-primary-light;
                 margin: 0 0 $size-1;
                 width: 95%;
+
+                @include bp-xxl-desktop {
+                    margin: $size-1 0 $size-1;
+                    width: 100%;
+                }
             }
 
             &-list {
@@ -328,26 +283,17 @@ function getTimePassed(pastTime) {
                     span {
                         font-size: 1em;
 
-                        &:last-child {
+                        &:last-child,
+                        &.separator {
                             font-family: $secondary-font-stack;
-                            font-size: 0.65em;
                             color: $color-text-muted;
                         }
 
-                        &.label {
-                            color: $color-accent;
-                        }
-
-                        &.stat {
-                            font-size: 0.9em;
-                            font-family: $primary-font-stack;
-                            color: $color-text-secondary-dark;
-                            font-weight: 500;
-                            margin-left: 0.2em;
+                        &:last-child {
+                            font-size: 0.65em;
                         }
 
                         &.separator {
-                            color: $color-text-muted;
                             font-size: 0.7em;
                             margin: 0 $size-2;
                         }
@@ -371,6 +317,7 @@ function getTimePassed(pastTime) {
             flex-direction: column;
 
             .end-screen {
+                position: relative;
                 @include flexCenterAll;
                 flex-direction: column;
                 background: $color-bg-secondary;
@@ -380,43 +327,29 @@ function getTimePassed(pastTime) {
                 box-shadow: $box-shadow;
 
                 h1 {
+                    position: relative;
+                    z-index: 2;
                     margin: 0;
                     color: $color-accent;
                 }
 
                 hr {
+                    position: relative;
+                    z-index: 2;
                     width: 100%;
                     border: 0;
-                    height: 2px;
+                    height: 1px;
                     background-color: $color-primary-light;
-                    margin: $size-2 0 $size-2;
+                    margin: $size-1 0 $size-2;
                 }
 
                 .stats {
+                    position: relative;
+                    z-index: 2;
                     font-size: 1.1em;
                     display: flex;
                     align-items: center;
                     gap: $size-2;
-
-                    span {
-                        color: $color-text-secondary-dark;
-                        font-weight: 500;
-                        font-size: 0.7em;
-                    }
-
-                    .stat-wrapper {
-                        display: flex;
-                        gap: $size-1;
-
-                        span {
-                            font-size: 1em !important;
-                            line-height: 1.6ch;
-
-                            &.label {
-                                color: $color-accent;
-                            }
-                        }
-                    }
                 }
             }
         }

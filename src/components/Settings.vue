@@ -5,6 +5,8 @@ import { useAuthStore } from '@/stores/authStore';
 import Loader from '@/components/Loader.vue';
 import Button from '@/components/Button.vue';
 import Circle from '@/components/Circle.vue';
+import RangeInput from '@/components/Inputs/Range.vue';
+import NumberInput from '@/components/Inputs/Number.vue';
 import CloseIcon from '@/components/Icons/CloseSVG.vue';
 
 const props = defineProps({
@@ -75,7 +77,7 @@ onBeforeUnmount(() => {
     <div class="settings-container">
         <div class="form-circle">
             <form v-if="showSettings" @submit.prevent="saveSettings">
-                <div class="form-container">
+                <div class="form-container psuedo-border">
                     <div class="form-header">
                         <h2>Settings</h2>
                         <Button
@@ -88,12 +90,11 @@ onBeforeUnmount(() => {
                     <hr />
                     <div class="form-group">
                         <label for="circleSize">Circle Size</label>
-                        <input
+                        <RangeInput
                             id="circleSize"
                             v-model="localSettings.circleSize"
-                            type="range"
-                            min="25"
-                            max="125"
+                            :min="25"
+                            :max="125"
                             :disabled="isLoading"
                             @mousedown="rangeInputActive = true"
                             @mouseup="rangeInputActive = false"
@@ -101,59 +102,23 @@ onBeforeUnmount(() => {
                     </div>
                     <div class="form-group">
                         <label for="spawnInterval">Spawn Interval</label>
-                        <div class="number-input">
-                            <span>
-                                {{
-                                    Number.isInteger(localSettings.spawnInterval)
-                                        ? localSettings.spawnInterval.toFixed(1)
-                                        : localSettings.spawnInterval.toString()
-                                }}s
-                            </span>
-                            <div class="step-buttons">
-                                <button
-                                    @click="localSettings.spawnInterval += 0.25"
-                                    :disabled="isLoading || localSettings.spawnInterval >= 2"
-                                    type="button"
-                                >
-                                    +
-                                </button>
-                                <button
-                                    @click="localSettings.spawnInterval -= 0.25"
-                                    :disabled="isLoading || localSettings.spawnInterval === 0.25"
-                                    type="button"
-                                >
-                                    −
-                                </button>
-                            </div>
-                        </div>
+                        <NumberInput
+                            v-model="localSettings.spawnInterval"
+                            :stepUpDisabled="isLoading || localSettings.spawnInterval >= 2"
+                            :stepDownDisabled="isLoading || localSettings.spawnInterval === 0.25"
+                            @stepUp="localSettings.spawnInterval += 0.25"
+                            @stepDown="localSettings.spawnInterval -= 0.25"
+                        />
                     </div>
                     <div class="form-group">
                         <label for="shrinkTime">Shrink Time</label>
-                        <div class="number-input">
-                            <span>
-                                {{
-                                    Number.isInteger(localSettings.shrinkTime)
-                                        ? localSettings.shrinkTime.toFixed(1)
-                                        : localSettings.shrinkTime.toString()
-                                }}s
-                            </span>
-                            <div class="step-buttons">
-                                <button
-                                    @click="localSettings.shrinkTime += 0.25"
-                                    :disabled="isLoading || localSettings.shrinkTime >= 2"
-                                    type="button"
-                                >
-                                    +
-                                </button>
-                                <button
-                                    @click="localSettings.shrinkTime -= 0.25"
-                                    :disabled="isLoading || localSettings.shrinkTime === 0.25"
-                                    type="button"
-                                >
-                                    −
-                                </button>
-                            </div>
-                        </div>
+                        <NumberInput
+                            v-model="localSettings.shrinkTime"
+                            :stepUpDisabled="isLoading || localSettings.shrinkTime >= 2"
+                            :stepDownDisabled="isLoading || localSettings.shrinkTime === 0.25"
+                            @stepUp="localSettings.shrinkTime += 0.25"
+                            @stepDown="localSettings.shrinkTime -= 0.25"
+                        />
                     </div>
                 </div>
             </form>
@@ -189,9 +154,17 @@ onBeforeUnmount(() => {
     .form-circle {
         display: flex;
         align-items: center;
+        flex-direction: column-reverse;
         gap: $size-8;
+        font-size: 0.95em;
+
+        @include bp-sm-phone {
+            flex-direction: row;
+        }
 
         .form-container {
+            position: relative;
+            z-index: 2;
             margin-bottom: $size-4;
             background: $color-bg-secondary;
             padding: $size-3 $size-5;
@@ -201,6 +174,8 @@ onBeforeUnmount(() => {
             width: 20em;
 
             .form-header {
+                position: relative;
+                z-index: 2;
                 display: flex;
                 align-items: center;
                 justify-content: space-between;
@@ -224,18 +199,26 @@ onBeforeUnmount(() => {
                         path {
                             stroke-width: 14 !important;
                         }
+
+                        @include bp-xxl-desktop {
+                            font-size: 1.2em;
+                        }
                     }
                 }
             }
 
             hr {
+                position: relative;
+                z-index: 2;
                 border: 0;
-                height: 2px;
+                height: 1px;
                 background-color: $color-primary-light;
                 margin: $size-2 0;
             }
 
             .form-group {
+                position: relative;
+                z-index: 2;
                 display: flex;
                 justify-content: space-between;
                 align-items: center;
@@ -247,65 +230,12 @@ onBeforeUnmount(() => {
                 }
 
                 input[type='range'] {
-                    appearance: none;
-                    height: 0.5em;
-                    width: 40%;
-                    margin: 0.5em 0;
-                    background: $color-gray3;
-                    border-radius: 10px;
-
-                    &::-webkit-slider-thumb {
-                        appearance: none;
-                        position: relative;
-                        cursor: grab;
-                        height: 1em;
-                        width: 1em;
-                        background: $color-accent;
-                        border-radius: 50%;
-                        z-index: 2;
-                        transition: all 25ms ease;
-                    }
-
-                    &:-webkit-slider-thumb:active {
-                        cursor: grabbing;
-                    }
+                    width: 40% !important;
                 }
 
-                .number-input {
-                    @include flexCenterAll;
-                    gap: 0.1em;
-
+                :deep(.number-input) {
                     span {
-                        text-align: center;
                         font-size: 0.85em;
-                        color: $color-text-secondary-dark;
-                    }
-
-                    .step-buttons {
-                        @include flexCenterAll;
-                        flex-direction: column;
-                        gap: 0.1em;
-                        height: 100%;
-
-                        button {
-                            flex: 1;
-                            background: transparent;
-                            border: 0;
-                            font-size: 1.5em;
-                            padding: 0 $size-1;
-                            color: $color-gray4;
-                            transition: all 0.1s ease;
-                            line-height: 1ch;
-
-                            &:hover {
-                                transform: scale(1.1);
-                                color: $color-accent;
-                            }
-
-                            &:active {
-                                transform: scale(0.9);
-                            }
-                        }
                     }
                 }
             }

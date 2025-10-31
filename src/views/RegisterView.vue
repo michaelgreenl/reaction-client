@@ -3,6 +3,7 @@ import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/authStore';
 import Button from '@/components/Button.vue';
+import TextInput from '@/components/Inputs/Text.vue';
 import LogoSVG from '@/components/Icons/LogoSVG.vue';
 
 const authStore = useAuthStore();
@@ -55,7 +56,7 @@ const handleRegister = async () => {
 
 <template>
     <div class="auth-container">
-        <form @submit.prevent="handleRegister" class="auth-form">
+        <form @submit.prevent="handleRegister" class="auth-form psuedo-border">
             <div class="auth-header">
                 <LogoSVG />
                 <h2>Register</h2>
@@ -64,52 +65,38 @@ const handleRegister = async () => {
             <div class="form-groups">
                 <div class="form-group">
                     <label for="username">Username</label>
-                    <input id="username" v-model="username" type="text" required :disabled="isLoading" />
+                    <TextInput id="username" v-model="username" required :disabled="isLoading" />
                 </div>
                 <div class="form-group">
                     <label for="password">Password</label>
                     <div class="password-input-wrapper">
-                        <input
+                        <TextInput
                             id="password"
                             v-model="password"
-                            :type="showPassword ? 'text' : 'password'"
                             required
                             :disabled="isLoading"
+                            :showPassword="showPassword"
+                            :passwordHideButton="passwordHideButton"
+                            @toggleHideButton="showPassword = !showPassword"
                             @focus="passwordHideButton = true"
                             @blur="passwordHideButton = false"
                         />
-                        <button
-                            v-if="passwordHideButton"
-                            type="button"
-                            class="toggle-password"
-                            @click="showPassword = !showPassword"
-                            @mousedown.prevent
-                        >
-                            {{ showPassword ? 'Hide' : 'Show' }}
-                        </button>
                     </div>
                 </div>
                 <div class="form-group">
                     <label for="retype-password">Re-type Password</label>
                     <div class="password-input-wrapper">
-                        <input
+                        <TextInput
                             id="retype-password"
                             v-model="retypePassword"
-                            :type="showPassword ? 'text' : 'password'"
                             required
                             :disabled="isLoading"
+                            :showPassword="showPassword"
+                            :passwordHideButton="rePasswordHideButton"
+                            @toggleHideButton="showPassword = !showPassword"
                             @focus="rePasswordHideButton = true"
                             @blur="rePasswordHideButton = false"
                         />
-                        <button
-                            v-if="rePasswordHideButton"
-                            type="button"
-                            class="toggle-password"
-                            @click="showPassword = !showPassword"
-                            @mousedown.prevent
-                        >
-                            {{ showPassword ? 'Hide' : 'Show' }}
-                        </button>
                     </div>
                 </div>
             </div>
@@ -145,21 +132,25 @@ const handleRegister = async () => {
 .auth-container {
     font-size: 0.8em;
     height: 100%;
+    width: 100%;
     @include flexCenterAll;
     padding: 0 $size-4 $size-12;
 
     .auth-form {
+        position: relative;
         display: flex;
         flex-direction: column;
         gap: $size-1;
         padding: $size-4 $size-6 0;
-        width: 100%;
-        max-width: 400px;
         background: $color-bg-secondary;
         border-radius: $border-radius-md;
         box-shadow: $box-shadow;
+        width: 90%;
+        max-width: 30em;
 
         .auth-header {
+            position: relative;
+            z-index: 2;
             align-self: flex-start;
             @include flexCenterAll;
 
@@ -176,6 +167,8 @@ const handleRegister = async () => {
         }
 
         .header-border {
+            position: relative;
+            z-index: 2;
             border: 0;
             height: 2px;
             background-color: $color-primary-light;
@@ -183,6 +176,8 @@ const handleRegister = async () => {
         }
 
         .form-groups {
+            position: relative;
+            z-index: 2;
             display: flex;
             flex-direction: column;
             gap: $size-3;
@@ -197,49 +192,23 @@ const handleRegister = async () => {
                     font-size: 0.9em;
                     color: $color-text-secondary-dark;
                 }
-
-                input {
-                    border-radius: $border-radius-sm;
-                    padding: $size-2;
-                    outline: 0;
-                    border: 2px solid $color-primary-light;
-                    background-color: $color-bg-secondary;
-                    color: $color-text-secondary-dark;
-                    width: 100%;
-
-                    &:focus {
-                        border-color: $color-accent;
-                    }
-                }
             }
         }
 
         .password-input-wrapper {
             position: relative;
+            z-index: 2;
             display: flex;
             align-items: center;
 
-            input {
+            :deep(input) {
                 padding-right: 60px;
-            }
-
-            .toggle-password {
-                font-size: 0.8em;
-                position: absolute;
-                right: 8px;
-                top: 50%;
-                transform: translateY(-50%);
-                background: none;
-                border: none;
-                color: $color-accent-light;
-
-                &:hover {
-                    color: $color-accent;
-                }
             }
         }
 
         .password-requirements {
+            position: relative;
+            z-index: 2;
             list-style: none;
             padding: 0 1em;
             font-size: 0.9em;
@@ -267,11 +236,15 @@ const handleRegister = async () => {
         }
 
         button[type='submit'] {
+            position: relative;
+            z-index: 2;
             align-self: flex-end;
             margin-right: $size-4;
         }
 
         .bottom-border {
+            position: relative;
+            z-index: 2;
             border: 0;
             height: 1px;
             width: 90%;
@@ -280,12 +253,18 @@ const handleRegister = async () => {
         }
 
         .error-message {
+            position: relative;
+            z-index: 2;
             color: $color-error;
             text-align: center;
             margin-top: $size-1;
         }
 
         .form-link {
+            position: relative;
+            z-index: 2;
+            font-size: 0.9em;
+            font-family: $secondary-font-stack;
             text-align: center;
             margin-top: $size-2;
             color: $color-text-secondary-dark;
