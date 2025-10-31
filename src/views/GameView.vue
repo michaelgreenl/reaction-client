@@ -204,6 +204,11 @@ onBeforeUnmount(() => {
                     font-size: 1em;
                     color: $color-accent;
                     margin: 0;
+                    line-height: 1.6ch;
+
+                    @include bp-xs-phone {
+                        line-height: normal;
+                    }
                 }
 
                 button {
