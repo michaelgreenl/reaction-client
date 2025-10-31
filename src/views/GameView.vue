@@ -191,6 +191,10 @@ onBeforeUnmount(() => {
             box-shadow: $box-shadow;
             border: solid 1px $color-gray3;
 
+            @include bp-xxl-desktop {
+                padding: $size-2 $size-3 $size-1;
+            }
+
             &-header {
                 display: flex;
                 justify-content: space-between;
@@ -206,6 +210,10 @@ onBeforeUnmount(() => {
                     padding: 0.6em;
                     margin-top: 1px;
                     transform: scale(0.75) translate(-5px, -4px);
+
+                    @include bp-xxl-desktop {
+                        transform: none;
+                    }
 
                     &:hover {
                         background: #ec6e9e22;
@@ -225,6 +233,11 @@ onBeforeUnmount(() => {
                 background-color: $color-primary-light;
                 margin: 0 0 $size-1;
                 width: 95%;
+
+                @include bp-xxl-desktop {
+                    margin: $size-1 0 $size-1;
+                    width: 100%;
+                }
             }
 
             &-list {

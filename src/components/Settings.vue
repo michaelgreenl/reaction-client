@@ -193,6 +193,10 @@ onBeforeUnmount(() => {
                         path {
                             stroke-width: 14 !important;
                         }
+
+                        @include bp-xxl-desktop {
+                            font-size: 1.2em;
+                        }
                     }
                 }
             }
