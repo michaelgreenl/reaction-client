@@ -79,7 +79,7 @@ body,
         right: -5px;
         bottom: -5px;
         left: -5px;
-        border-radius: $border-radius-xl;
+        border-radius: $border-radius-lg;
         background: $color-bg-secondary;
     }
 }
