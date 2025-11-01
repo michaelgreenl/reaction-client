@@ -579,7 +579,15 @@ function toggleDropdown() {
                     width: fit-content;
                     border: solid 1px $color-gray3;
                     top: 3.5em;
-                    right: 2em;
+                    right: 0;
+
+                    @include bp-xs-phone {
+                        right: $size-2;
+                    }
+
+                    @include bp-custom-min(450) {
+                        right: 2em;
+                    }
 
                     @include bp-sm-phone {
                         &.showing-settings {
