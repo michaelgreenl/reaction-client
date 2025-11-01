@@ -38,6 +38,7 @@ const filtersAdded = computed(() => {
 
 onMounted(async () => {
     await getUnfilteredGames().then(() => {
+        console.log();
         isLoading.value = false;
         loadingGames.value = false;
     });
@@ -148,6 +149,25 @@ function toggleDropdown() {
 
 <template>
     <div class="profile-container">
+        <div class="user-stats psuedo-border" :class="`${showSettings ? 'show-settings' : undefined}`">
+            <div class="stat-wrapper">
+                <span class="label">High Score:</span>
+                <hr />
+                <span class="stat">{{ authStore.userStats.highScore }}</span>
+            </div>
+            <span class="seperator"> | </span>
+            <div class="stat-wrapper">
+                <span class="label">Longest Time:</span>
+                <hr />
+                <span class="stat">{{ formatTime(authStore.userStats.highTime) }}</span>
+            </div>
+            <span class="seperator"> | </span>
+            <div class="stat-wrapper">
+                <span class="label">Games Played:</span>
+                <hr />
+                <span class="stat">{{ authStore.userStats.totalGames }}</span>
+            </div>
+        </div>
         <div class="loader" v-if="isLoading">
             <Loader text="Loading Games" />
         </div>
@@ -376,6 +396,84 @@ function toggleDropdown() {
     justify-content: center;
     gap: 1em;
     flex-direction: column;
+    padding-top: $size-2;
+
+    .user-stats {
+        position: relative;
+        @include flexCenterAll;
+        gap: $size-1;
+        flex-direction: column;
+        padding: $size-2 $size-3 $size-2;
+        background: $color-bg-secondary;
+        border-radius: $border-radius-md;
+        box-shadow: $box-shadow;
+        border: solid 1px $color-gray3;
+        width: 19em;
+
+        @include bp-custom-min(450) {
+            width: 22em;
+        }
+
+        @include bp-sm-phone {
+            &.show-settings {
+                width: 34em;
+                flex-direction: row;
+                gap: $size-4;
+
+                .seperator {
+                    display: block;
+                }
+
+                .stat-wrapper {
+                    width: fit-content;
+
+                    hr {
+                        display: none;
+                    }
+                }
+            }
+        }
+
+        span {
+            position: relative;
+            z-index: 2;
+            font-size: 0.5em;
+            font-weight: 500;
+            color: $color-gray3;
+        }
+
+        .seperator {
+            display: none;
+        }
+
+        .stat-wrapper {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            justify-content: space-between;
+            gap: $size-1;
+            width: 100%;
+
+            span {
+                font-size: 0.95em !important;
+                color: $color-text-secondary-dark;
+                line-height: 1.6ch;
+
+                &.label {
+                    color: $color-accent;
+                    line-height: 1.6ch;
+                }
+            }
+
+            hr {
+                border: 0;
+                border-bottom: dotted 2px $color-gray4;
+                flex: 1;
+                align-self: flex-end;
+                margin: 0 0 $size-1;
+            }
+        }
+    }
 
     .main-wrapper {
         @include flexCenterAll;
