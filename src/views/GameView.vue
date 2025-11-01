@@ -81,10 +81,6 @@ function handleEndGame() {
     );
 }
 
-function handleScoreIncrement() {
-    score.value += 1;
-}
-
 function toggleSettings() {
     showRecentGames.value = false;
     showSettings.value = true;
@@ -169,7 +165,7 @@ onBeforeUnmount(() => {
             :score="score"
             :time="elapsedMs"
             @endGame="handleEndGame"
-            @incrementScore="handleScoreIncrement"
+            @incrementScore="score += 1"
         />
     </div>
 </template>
@@ -267,11 +263,11 @@ onBeforeUnmount(() => {
                 list-style: none;
                 padding: 0 $size-4 $size-1 $size-1;
                 margin: 0;
-                width: 18em;
+                width: 20em;
 
                 li {
                     display: flex;
-                    justify-content: space-evenly;
+                    justify-content: space-between;
                     align-items: center;
                     border-bottom: solid 1px $color-gray2;
                     padding: 0.3em 0.15em;
