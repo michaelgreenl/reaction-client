@@ -43,12 +43,16 @@ function timeValueSize(timeMs) {
 
 <style lang="scss" scoped>
 span {
+    position: relative;
+    z-index: 2;
     font-size: 0.5em;
     font-weight: 500;
     color: $color-gray3;
 }
 
 .stat-wrapper {
+    position: relative;
+    z-index: 2;
     display: flex;
     gap: $size-1;
 
