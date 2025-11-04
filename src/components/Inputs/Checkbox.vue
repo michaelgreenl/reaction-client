@@ -17,7 +17,7 @@ const emit = defineEmits(['update:modelValue']);
         type="checkbox"
         :required="required"
         :disabled="disabled"
-        @input="emit('update:modelValue', $event.target.value)"
+        @input="emit('update:modelValue', $event.target.checked)"
     />
 </template>
 
