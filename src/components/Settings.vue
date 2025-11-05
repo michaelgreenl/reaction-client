@@ -1,5 +1,6 @@
 <script setup>
-import { onMounted, onBeforeUnmount, computed, reactive, ref } from 'vue';
+import { watch, onMounted, onBeforeUnmount, computed, reactive, ref } from 'vue';
+import { motion, AnimatePresence } from 'motion-v';
 import { useSettingsStore } from '@/stores/settingsStore';
 import { useAuthStore } from '@/stores/authStore';
 import Loader from '@/components/Loader.vue';
@@ -26,12 +27,6 @@ const localSettings = reactive({
     shrinkTime: settingsStore.shrinkTime,
 });
 
-function resetLocalSettings() {
-    localSettings.circleSize = settingsStore.circleSize;
-    localSettings.spawnInterval = settingsStore.spawnInterval;
-    localSettings.shrinkTime = settingsStore.shrinkTime;
-}
-
 const settingsChanged = computed(() => {
     return (
         localSettings.circleSize !== settingsStore.circleSize ||
@@ -40,12 +35,71 @@ const settingsChanged = computed(() => {
     );
 });
 
+const showChildren = ref(false);
+const showForm = ref(false);
+
+const settingsTransitionValues = {
+    stiffness: 250,
+    damping: 23,
+    mass: 0.8,
+};
+
+const settingsTransition = {
+    type: 'spring',
+    ...settingsTransitionValues,
+    layout: { type: 'spring', ...settingsTransitionValues },
+};
+
+const settingsVariants = {
+    initial: { opacity: 0, x: -200, height: '5em', width: '5em' },
+    open: { opacity: 1, x: 0, height: '180px', width: '20em' },
+    exit: { opacity: 0, x: -200, height: 0, width: 0 },
+};
+
 onMounted(async () => {
     if (authStore.isAuthenticated) {
         await settingsStore.getSettings();
         resetLocalSettings();
     }
+
+    if (props.showSettings) {
+        showForm.value = true;
+
+        setTimeout(() => {
+            showChildren.value = true;
+        }, 100);
+    }
 });
+
+watch(
+    () => props.showSettings,
+    (newVal) => {
+        if (newVal) {
+            showForm.value = true;
+
+            setTimeout(() => {
+                showChildren.value = true;
+            }, 100);
+        } else {
+            if (settingsChanged.value) {
+                resetLocalSettings();
+            }
+
+            showChildren.value = false;
+
+            setTimeout(() => {
+                showForm.value = false;
+                isLoading.value = false;
+            }, 100);
+        }
+    },
+);
+
+function resetLocalSettings() {
+    localSettings.circleSize = settingsStore.circleSize;
+    localSettings.spawnInterval = settingsStore.spawnInterval;
+    localSettings.shrinkTime = settingsStore.shrinkTime;
+}
 
 async function saveSettings() {
     if (!settingsChanged.value) return;
@@ -63,64 +117,77 @@ function closeSettings() {
     }
 
     isLoading.value = false;
-    emit('closeSettings');
+
+    showChildren.value = false;
+    showForm.value = false;
+
+    setTimeout(() => {
+        emit('closeSettings');
+    }, 200);
 }
 
-onBeforeUnmount(() => {
-    if (settingsChanged.value) {
-        resetLocalSettings();
-    }
-});
+defineExpose({ saveSettings, resetLocalSettings, settingsChanged, isLoading });
 </script>
 
 <template>
     <div class="settings-container">
-        <div class="form-circle">
-            <form v-if="showSettings" @submit.prevent="saveSettings">
-                <div class="form-container psuedo-border">
-                    <div class="form-header">
-                        <h2>Settings</h2>
-                        <Button
-                            class="close-button"
-                            preset="icon-only"
-                            :iconLeft="CloseIcon"
-                            @click="closeSettings()"
-                        />
-                    </div>
-                    <hr />
-                    <div class="form-group">
-                        <label for="circleSize">Circle Size</label>
-                        <RangeInput
-                            id="circleSize"
-                            v-model="localSettings.circleSize"
-                            :min="25"
-                            :max="125"
-                            :disabled="isLoading"
-                            @mousedown="rangeInputActive = true"
-                            @mouseup="rangeInputActive = false"
-                        />
-                    </div>
-                    <div class="form-group">
-                        <label for="spawnInterval">Spawn Interval</label>
-                        <NumberInput
-                            v-model="localSettings.spawnInterval"
-                            :stepUpDisabled="isLoading || localSettings.spawnInterval >= 2"
-                            :stepDownDisabled="isLoading || localSettings.spawnInterval === 0.25"
-                            @stepUp="localSettings.spawnInterval += 0.25"
-                            @stepDown="localSettings.spawnInterval -= 0.25"
-                        />
-                    </div>
-                    <div class="form-group">
-                        <label for="shrinkTime">Shrink Time</label>
-                        <NumberInput
-                            v-model="localSettings.shrinkTime"
-                            :stepUpDisabled="isLoading || localSettings.shrinkTime >= 2"
-                            :stepDownDisabled="isLoading || localSettings.shrinkTime === 0.25"
-                            @stepUp="localSettings.shrinkTime += 0.25"
-                            @stepDown="localSettings.shrinkTime -= 0.25"
-                        />
-                    </div>
-                </div>
+        <div class="form-circle" :class="showForm ? 'showing-settings' : undefined">
+            <form @submit.prevent="saveSettings">
+                <AnimatePresence>
+                    <motion.div
+                        v-if="showForm"
+                        class="form-container psuedo-border"
+                        layout
+                        :transition="settingsTransition"
+                        :variants="settingsVariants"
+                        :initial="'initial'"
+                        :animate="'open'"
+                        :exit="'exit'"
+                    >
+                        <div class="form-header" :style="{ opacity: showChildren ? 1 : 0 }">
+                            <h2>Settings</h2>
+                            <Button
+                                class="close-button"
+                                preset="icon-only"
+                                :iconLeft="CloseIcon"
+                                @click="closeSettings()"
+                            />
+                        </div>
+                        <motion.hr layout />
+                        <div class="form-group" :style="{ opacity: showChildren ? 1 : 0 }">
+                            <label for="circleSize">Circle Size</label>
+                            <RangeInput
+                                id="circleSize"
+                                v-model="localSettings.circleSize"
+                                :min="25"
+                                :max="125"
+                                :disabled="isLoading"
+                                @mousedown="rangeInputActive = true"
+                                @mouseup="rangeInputActive = false"
+                            />
+                        </div>
+                        <div class="form-group" :style="{ opacity: showChildren ? 1 : 0 }">
+                            <label for="spawnInterval">Spawn Interval</label>
+                            <NumberInput
+                                v-model="localSettings.spawnInterval"
+                                :stepUpDisabled="isLoading || localSettings.spawnInterval >= 2"
+                                :stepDownDisabled="isLoading || localSettings.spawnInterval === 0.25"
+                                @stepUp="localSettings.spawnInterval += 0.25"
+                                @stepDown="localSettings.spawnInterval -= 0.25"
+                            />
+                        </div>
+                        <div class="form-group" :style="{ opacity: showChildren ? 1 : 0 }">
+                            <label for="shrinkTime">Shrink Time</label>
+                            <NumberInput
+                                v-model="localSettings.shrinkTime"
+                                :stepUpDisabled="isLoading || localSettings.shrinkTime >= 2"
+                                :stepDownDisabled="isLoading || localSettings.shrinkTime === 0.25"
+                                @stepUp="localSettings.shrinkTime += 0.25"
+                                @stepDown="localSettings.shrinkTime -= 0.25"
+                            />
+                        </div>
+                    </motion.div>
+                </AnimatePresence>
             </form>
             <Circle
                 class="settings-circle"
@@ -129,17 +196,6 @@ onBeforeUnmount(() => {
                 :localSize="localSettings.circleSize"
                 :inputActive="rangeInputActive"
             />
-        </div>
-        <div v-if="showSettings" class="form-buttons">
-            <Button text="Cancel" @click="resetLocalSettings()" :disabled="!settingsChanged" />
-            <Button
-                type="submit"
-                @click="saveSettings()"
-                text="Save"
-                :isLoading="isLoading"
-                :disabled="isLoading || !settingsChanged"
-            />
-            <slot name="startButton"></slot>
         </div>
     </div>
 </template>
@@ -155,8 +211,12 @@ onBeforeUnmount(() => {
         display: flex;
         align-items: center;
         flex-direction: column-reverse;
-        gap: $size-8;
+        gap: 0;
         font-size: 0.95em;
+
+        &.showing-settings {
+            gap: $size-8;
+        }
 
         @include bp-sm-phone {
             flex-direction: row;
@@ -165,9 +225,8 @@ onBeforeUnmount(() => {
         .form-container {
             position: relative;
             z-index: 2;
-            margin-bottom: $size-4;
             background: $color-bg-secondary;
-            padding: $size-3 $size-5;
+            margin-bottom: $size-4;
             border-radius: $border-radius-md;
             box-shadow: $box-shadow;
             border: solid 1px $color-gray3;
@@ -179,6 +238,10 @@ onBeforeUnmount(() => {
                 display: flex;
                 align-items: center;
                 justify-content: space-between;
+                margin: $size-3 $size-4 $size-2;
+                opacity: 0;
+                transition: opacity 0.3s ease;
+                overflow: hidden;
 
                 h2 {
                     font-size: 1.4em;
@@ -211,9 +274,9 @@ onBeforeUnmount(() => {
                 position: relative;
                 z-index: 2;
                 border: 0;
-                height: 1px;
+                height: 2px;
                 background-color: $color-primary-light;
-                margin: $size-2 0;
+                margin: $size-2 $size-4;
             }
 
             .form-group {
@@ -223,6 +286,9 @@ onBeforeUnmount(() => {
                 justify-content: space-between;
                 align-items: center;
                 padding: $size-1;
+                margin: 0 $size-5;
+                opacity: 0;
+                transition: opacity 0.3s ease;
 
                 label {
                     font-size: 0.9em;

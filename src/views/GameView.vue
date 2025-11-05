@@ -14,6 +14,7 @@ import CloseSVG from '@/components/Icons/CloseSVG.vue';
 const authStore = useAuthStore();
 const settingsStore = useSettingsStore();
 
+const settingsRef = ref(null);
 const gameActive = ref(false);
 const showSettings = ref(false);
 const showRecentGames = ref(false);
@@ -201,21 +202,32 @@ function toggleRecentGames() {
                         <GameStats :score="score" :time="elapsedMs" />
                     </div>
                 </div>
-                <div class="buttons">
-                    <Button @click="toggleSettings" text="Settings" />
-                    <Button @click="startGame" text="Play Again" />
-                </div>
             </div>
-            <div v-else>
-                <Settings class="settings" :showSettings="showSettings" @closeSettings="toggleSettings">
-                    <template #startButton>
-                        <Button @click="startGame" text="Start" />
-                    </template>
-                </Settings>
-                <div v-if="!showSettings" class="buttons">
-                    <Button @click="toggleSettings" text="Settings" />
-                    <Button @click="startGame" text="Start" />
-                </div>
+            <Settings
+                v-else
+                ref="settingsRef"
+                class="settings"
+                :showSettings="showSettings"
+                @closeSettings="toggleSettings"
+            />
+
+            <div class="buttons">
+                <Button
+                    v-if="showSettings"
+                    text="Cancel"
+                    @click="settingsRef?.resetLocalSettings"
+                    :disabled="!settingsRef?.settingsChanged"
+                />
+                <Button
+                    v-if="showSettings"
+                    type="submit"
+                    @click="settingsRef?.saveSettings"
+                    text="Save"
+                    :isLoading="settingsRef?.isLoading"
+                    :disabled="settingsRef?.isLoading || !settingsRef?.settingsChanged"
+                />
+                <Button v-if="!showSettings" @click="toggleSettings" text="Settings" />
+                <Button @click="startGame" :text="gamePlayed && !showSettings ? 'Play Again' : 'Start'" />
             </div>
         </div>
         <div class="countdown" v-if="showCount">
