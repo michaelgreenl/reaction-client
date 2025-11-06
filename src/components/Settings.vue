@@ -52,7 +52,7 @@ const settingsTransition = {
 
 const settingsVariants = {
     initial: { opacity: 0, x: -200, height: '5em', width: '5em' },
-    open: { opacity: 1, x: 0, height: '180px', width: '20em' },
+    open: { opacity: 1, x: 0, height: '12.25em', width: '22em' },
     exit: { opacity: 0, x: -200, height: 0, width: 0 },
 };
 
@@ -208,6 +208,7 @@ defineExpose({ saveSettings, resetLocalSettings, settingsChanged, isLoading });
     margin-bottom: $size-4;
 
     .form-circle {
+        position: relative;
         display: flex;
         align-items: center;
         flex-direction: column-reverse;
@@ -223,14 +224,8 @@ defineExpose({ saveSettings, resetLocalSettings, settingsChanged, isLoading });
         }
 
         .form-container {
-            position: relative;
-            z-index: 2;
-            background: $color-bg-secondary;
             margin-bottom: $size-4;
-            border-radius: $border-radius-md;
-            box-shadow: $box-shadow;
-            border: solid 1px $color-gray3;
-            width: 20em;
+            width: 22em;
 
             .form-header {
                 position: relative;
@@ -238,7 +233,7 @@ defineExpose({ saveSettings, resetLocalSettings, settingsChanged, isLoading });
                 display: flex;
                 align-items: center;
                 justify-content: space-between;
-                margin: $size-3 $size-4 $size-2;
+                margin: $size-4 $size-6 $size-2;
                 opacity: 0;
                 transition: opacity 0.3s ease;
                 overflow: hidden;
@@ -274,9 +269,9 @@ defineExpose({ saveSettings, resetLocalSettings, settingsChanged, isLoading });
                 position: relative;
                 z-index: 2;
                 border: 0;
-                height: 2px;
+                height: 1px;
                 background-color: $color-primary-light;
-                margin: $size-2 $size-4;
+                margin: $size-2 $size-6;
             }
 
             .form-group {
@@ -286,7 +281,7 @@ defineExpose({ saveSettings, resetLocalSettings, settingsChanged, isLoading });
                 justify-content: space-between;
                 align-items: center;
                 padding: $size-1;
-                margin: 0 $size-5;
+                margin: 0 $size-6;
                 opacity: 0;
                 transition: opacity 0.3s ease;
 

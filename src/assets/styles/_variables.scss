@@ -27,6 +27,7 @@ $secondary-font-stack: 'Poppins', helvetica, arial, sans-serif;
     --color-accent-dark: var(--color-gray5);
 
     --color-bg-primary: linear-gradient(110deg, #e73c7e, #23a6d5);
+    --color-bg-primary-alt: linear-gradient(87deg, #ea89ae, #d9edff);
     --color-bg-secondary: var(--color-gray1);
 
     --color-text-primary-light: var(--color-gray2);
@@ -58,6 +59,7 @@ $color-accent: var(--color-accent);
 $color-accent-light: var(--color-accent-light);
 
 $color-bg-primary: var(--color-bg-primary);
+$color-bg-primary-alt: var(--color-bg-primary-alt);
 $color-bg-secondary: var(--color-bg-secondary);
 
 $color-text-primary-light: var(--color-text-primary-light);

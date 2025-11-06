@@ -59,27 +59,34 @@ body,
 }
 
 .psuedo-border {
+    position: relative;
+    z-index: 2;
+    background: $color-bg-secondary;
+    border-radius: $border-radius-lg;
+    box-shadow: $box-shadow;
+    border: solid 1px transparent;
+
     &::before {
         content: '';
         position: absolute;
         z-index: 1;
-        top: 0;
-        right: 0;
-        bottom: 0;
-        left: 0;
+        top: 2px;
+        right: 2px;
+        bottom: 2px;
+        left: 2px;
         border-radius: $border-radius-md;
-        border: solid 2px $color-primary-light;
+        background: $color-bg-primary-alt;
     }
 
     &::after {
         content: '';
         position: absolute;
-        z-index: 0;
-        top: -5px;
-        right: -5px;
-        bottom: -5px;
-        left: -5px;
-        border-radius: $border-radius-lg;
+        z-index: 1;
+        top: 4px;
+        right: 4px;
+        bottom: 4px;
+        left: 4px;
+        border-radius: $border-radius-sm;
         background: $color-bg-secondary;
     }
 }

@@ -403,11 +403,7 @@ function toggleDropdown() {
         @include flexCenterAll;
         gap: $size-1;
         flex-direction: column;
-        padding: $size-2 $size-3 $size-2;
-        background: $color-bg-secondary;
-        border-radius: $border-radius-md;
-        box-shadow: $box-shadow;
-        border: solid 1px $color-gray3;
+        padding: $size-3 $size-4;
         width: 19em;
 
         @include bp-custom-min(450) {
@@ -486,10 +482,7 @@ function toggleDropdown() {
             position: relative;
             @include flexCenterAll;
             flex-direction: column;
-            background: $color-bg-secondary;
-            border-radius: $border-radius-md;
-            box-shadow: $box-shadow;
-            padding: $size-2 $size-4;
+            padding: $size-4 $size-6;
             border: solid 1px $color-gray3;
             max-width: 19em;
 
@@ -625,7 +618,7 @@ function toggleDropdown() {
 
             .filters {
                 position: relative;
-                z-index: 1;
+                z-index: 2;
                 font-size: 0.7em;
                 display: flex;
                 align-items: center;
@@ -689,7 +682,7 @@ function toggleDropdown() {
 
             .table-wrapper {
                 position: relative;
-                z-index: 1;
+                z-index: 2;
                 padding: $size-1 $size-2;
                 max-width: 17em;
                 overflow-x: scroll;
@@ -780,7 +773,7 @@ function toggleDropdown() {
 
             .table-nav {
                 position: relative;
-                z-index: 1;
+                z-index: 2;
                 @include flexCenterAll;
                 padding-top: $size-1;
 
