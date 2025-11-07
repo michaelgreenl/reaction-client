@@ -1,10 +1,11 @@
 <script setup>
 import { ref, onMounted } from 'vue';
+import { motion } from 'motion-v';
 import { useSettingsStore } from '@/stores/settingsStore';
 
 const props = defineProps({
     gameActive: { type: Boolean },
-    animation: { type: Boolean, default: true },
+    gameCircle: { type: Boolean, default: true },
     localSize: { required: false },
     inputActive: { type: Boolean },
 });
@@ -17,7 +18,7 @@ const animating = ref(false);
 const paused = ref(false);
 
 onMounted(() => {
-    if (props.animation) {
+    if (props.gameCircle) {
         animating.value = true;
     }
 });
@@ -30,6 +31,32 @@ function circleClick() {
 
 <template>
     <div
+        v-if="gameCircle"
+        :style="{
+            height: `${localSize ? localSize : settingsStore.circleSize}px`,
+            width: `${localSize ? localSize : settingsStore.circleSize}px`,
+        }"
+    >
+        <button
+            :class="{ animate: animating, 'fade-out': paused || !gameActive }"
+            :style="{
+                animationDuration: `${settingsStore.shrinkTime}s`,
+                height: `${localSize ? localSize : settingsStore.circleSize}px`,
+                width: `${localSize ? localSize : settingsStore.circleSize}px`,
+            }"
+            @mousedown="gameCircle ? circleClick() : null"
+            @animationend="$emit('endGame')"
+        >
+            <span v-if="inputActive && localSize >= 50">{{ localSize }}px</span>
+        </button>
+        <span v-if="inputActive && localSize < 50" class="outer-value">{{ localSize }}px</span>
+    </div>
+    <motion.div
+        v-else
+        :initial="{ scale: 0, opacity: 0 }"
+        :animate="{ scale: 1, opacity: 1 }"
+        :exit="{ scale: 0, opacity: 0 }"
+        :duration="0.2"
         :style="{
             height: `${localSize ? localSize : settingsStore.circleSize}px`,
             width: `${localSize ? localSize : settingsStore.circleSize}px`,
@@ -48,7 +75,7 @@ function circleClick() {
             <span v-if="inputActive && localSize >= 50">{{ localSize }}px</span>
         </button>
         <span v-if="inputActive && localSize < 50" class="outer-value">{{ localSize }}px</span>
-    </div>
+    </motion.div>
 </template>
 
 <style lang="scss" scoped>
