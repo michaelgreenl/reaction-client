@@ -394,9 +394,13 @@ function toggleDropdown() {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 1em;
+    gap: 0.5em;
     flex-direction: column;
     padding-top: $size-2;
+
+    @include bp-xl-desktop {
+        padding-top: 0;
+    }
 
     .user-stats {
         position: relative;
@@ -528,7 +532,7 @@ function toggleDropdown() {
 
             .table-header {
                 position: relative;
-                z-index: 2;
+                z-index: 3;
                 display: flex;
                 flex-wrap: wrap;
                 padding: $size-1 $size-1 $size-3;
@@ -556,30 +560,33 @@ function toggleDropdown() {
                     display: flex;
                     margin-top: $size-1;
                     padding-left: $size-1;
+
+                    @include bp-xl-desktop {
+                        :deep(button) {
+                            font-size: 0.9em;
+                        }
+                    }
                 }
 
                 .filter-toggles {
                     position: absolute;
+                    z-index: 2;
                     display: flex;
                     flex-direction: column;
                     gap: $size-1;
                     margin: $size-1 $size-2;
                     padding: 0.5em;
                     padding-right: $size-3;
-                    background: $color-bg-secondary;
-                    box-shadow: $box-shadow;
-                    border-radius: $border-radius-xs;
                     width: fit-content;
-                    border: solid 1px $color-gray3;
                     top: 3.5em;
-                    right: 0;
+                    right: -1em;
 
                     @include bp-xs-phone {
-                        right: $size-2;
+                        right: $size-1;
                     }
 
                     @include bp-custom-min(450) {
-                        right: 2em;
+                        right: $size-7;
                     }
 
                     @include bp-sm-phone {
@@ -595,6 +602,11 @@ function toggleDropdown() {
                         display: flex;
                         align-items: center;
                         gap: $size-1;
+                        margin: 0 $size-1;
+
+                        &:first-child {
+                            margin-top: $size-1;
+                        }
 
                         input {
                             cursor: pointer;
@@ -612,6 +624,7 @@ function toggleDropdown() {
                         align-self: flex-end;
                         font-size: 0.75em;
                         padding-right: 0;
+                        margin: 0 $size-1;
                     }
                 }
             }
@@ -687,13 +700,44 @@ function toggleDropdown() {
                 max-width: 17em;
                 overflow-x: scroll;
 
+                table {
+                    font-size: 0.9em;
+                }
+
                 @include bp-custom-min(450) {
                     max-width: 20em;
+
+                    table {
+                        font-size: 1em;
+                    }
                 }
 
                 @include bp-sm-phone {
                     overflow-x: hidden;
                     max-width: 34em;
+                }
+
+                &::-webkit-scrollbar {
+                    width: 6px !important;
+                    height: 6px !important;
+                    background: $color-bg-secondary;
+                }
+
+                &::-webkit-scrollbar-thumb {
+                    background: $color-gray3;
+                    border-radius: 6px;
+
+                    &:hover {
+                        background: darken-color($color-gray3, 5%);
+                    }
+
+                    &:active {
+                        background: darken-color($color-gray3, 10%);
+                    }
+                }
+
+                &::-webkit-scrollbar:horizontal {
+                    height: 12px;
                 }
 
                 table {
@@ -736,12 +780,8 @@ function toggleDropdown() {
 
                     th,
                     td {
-                        text-align: center;
-                    }
-
-                    th {
                         padding: $size-1;
-                        padding-bottom: $size-1;
+                        text-align: center;
                     }
 
                     td {
