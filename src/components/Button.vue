@@ -1,4 +1,5 @@
 <script setup>
+import { motion, AnimatePresence } from 'motion-v';
 import Loader from '@/components/Loader.vue';
 
 const props = defineProps({
@@ -11,9 +12,47 @@ const props = defineProps({
 });
 
 const emit = defineEmits(['click']);
+
+// const buttonTransitionValues = {
+//     stiffness: 1000000,
+//     damping: 100,
+//     mass: 1,
+// };
+
+// const buttonTransition = {
+//     type: 'spring',
+//     ...buttonTransitionValues,
+//     layout: { type: 'spring', ...buttonTransitionValues },
+// };
+
+// const buttonTransition = {
+//     duration: 0.2,
+//     easing: 'easeInOut',
+// };
+
+// const buttonVariants = {
+//     init: { opacity: 0, x: -10 },
+//     enter: { opacity: 1, x: 0 },
+//     exit: { opacity: 0, x: 10 },
+// };
 </script>
 
 <template>
+    <!-- <motion.button -->
+    <!--     :class="preset" -->
+    <!--     @click="$emit('click')" -->
+    <!--     :variants="buttonVariants" -->
+    <!--     :initial="'init'" -->
+    <!--     :animate="'enter'" -->
+    <!--     :exit="'exit'" -->
+    <!--     layout -->
+    <!--     :transition="buttonTransition" -->
+    <!-- > -->
+    <!--     <component class="icon icon-left" :is="iconLeft" /> -->
+    <!--     <span v-if="showText && !isLoading">{{ text }}</span> -->
+    <!--     <Loader v-if="isLoading" /> -->
+    <!--     <component class="icon icon-right" :is="iconRight" /> -->
+    <!-- </motion.button> -->
     <button :class="preset" @click="$emit('click')">
         <component class="icon icon-left" :is="iconLeft" />
         <span v-if="showText && !isLoading">{{ text }}</span>
@@ -55,7 +94,7 @@ button {
         font-style: oblique;
 
         &:disabled {
-            opacity: 0.5;
+            color: #dee2e699;
         }
     }
 
