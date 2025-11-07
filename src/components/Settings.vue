@@ -53,7 +53,6 @@ const settingsTransition = {
 };
 
 const settingsVariants = {
-    // initial: { opacity: 0, x: -200, height: '5em', width: '5em' },
     initial: { opacity: 0, x: -200, height: 0, width: 0 },
     open: { opacity: 1, x: 0, height: '12.25em', width: '22em' },
     exit: { opacity: 0, x: -200, height: 0, width: 0 },
