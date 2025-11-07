@@ -12,6 +12,7 @@ import CloseIcon from '@/components/Icons/CloseSVG.vue';
 
 const props = defineProps({
     showSettings: { type: Boolean, required: true },
+    gamePlayed: { type: Boolean, default: false },
 });
 
 const emit = defineEmits(['closeSettings']);
@@ -37,6 +38,7 @@ const settingsChanged = computed(() => {
 
 const showChildren = ref(false);
 const showForm = ref(false);
+const showCircle = ref(true);
 
 const settingsTransitionValues = {
     stiffness: 250,
@@ -51,7 +53,8 @@ const settingsTransition = {
 };
 
 const settingsVariants = {
-    initial: { opacity: 0, x: -200, height: '5em', width: '5em' },
+    // initial: { opacity: 0, x: -200, height: '5em', width: '5em' },
+    initial: { opacity: 0, x: -200, height: 0, width: 0 },
     open: { opacity: 1, x: 0, height: '12.25em', width: '22em' },
     exit: { opacity: 0, x: -200, height: 0, width: 0 },
 };
@@ -119,11 +122,18 @@ function closeSettings() {
     isLoading.value = false;
 
     showChildren.value = false;
-    showForm.value = false;
+
+    setTimeout(() => {
+        showForm.value = false;
+
+        if (props.gamePlayed) {
+            showCircle.value = false;
+        }
+    }, 10);
 
     setTimeout(() => {
         emit('closeSettings');
-    }, 200);
+    }, 210);
 }
 
 defineExpose({ saveSettings, resetLocalSettings, settingsChanged, isLoading });
@@ -189,13 +199,16 @@ defineExpose({ saveSettings, resetLocalSettings, settingsChanged, isLoading });
                     </motion.div>
                 </AnimatePresence>
             </form>
-            <Circle
-                class="settings-circle"
-                :gameActive="true"
-                :animation="false"
-                :localSize="localSettings.circleSize"
-                :inputActive="rangeInputActive"
-            />
+            <AnimatePresence>
+                <Circle
+                    v-if="showCircle"
+                    class="settings-circle"
+                    :gameActive="true"
+                    :gameCircle="false"
+                    :localSize="localSettings.circleSize"
+                    :inputActive="rangeInputActive"
+                />
+            </AnimatePresence>
         </div>
     </div>
 </template>
@@ -226,6 +239,7 @@ defineExpose({ saveSettings, resetLocalSettings, settingsChanged, isLoading });
         .form-container {
             margin-bottom: $size-4;
             width: 22em;
+            overflow: hidden;
 
             .form-header {
                 position: relative;
