@@ -28,30 +28,11 @@ let startTimestamp = 0;
 const count = ref(3);
 const showCount = ref(false);
 
+const recentGamesVariant = ref('initial');
 const recentGamesVariants = {
     initial: { opacity: 0, x: -250 },
     closed: { width: '11em', height: '3em', opacity: 1, x: 0 },
     open: { width: 'auto', height: 'auto', opacity: 1, x: 0 },
-};
-
-const recentGamesVariant = ref('initial');
-
-const transitionValues = {
-    stiffness: 250,
-    damping: 23,
-    mass: 0.8,
-};
-
-const recentGamesTransition = {
-    type: 'spring',
-    ...transitionValues,
-    layout: { type: 'spring', ...transitionValues },
-};
-
-const buttonTransition = {
-    type: 'spring',
-    ...transitionValues,
-    layout: { type: 'spring', ...transitionValues },
 };
 
 const buttonVariants = {
@@ -60,11 +41,22 @@ const buttonVariants = {
     exit: { opacity: 0 },
 };
 
-// const buttonVariants = {
-//     init: { opacity: 0 },
-//     enter: { opacity: 1 },
-//     exit: { opacity: 0 },
-// };
+const endScreenVariants = {
+    init: { opacity: 0, height: 0, width: 0 },
+    enter: { opacity: 1, height: 'auto', width: 'auto' },
+};
+
+const transitionValues = {
+    stiffness: 250,
+    damping: 23,
+    mass: 0.8,
+};
+
+const motionTransition = {
+    type: 'spring',
+    ...transitionValues,
+    layout: { type: 'spring', ...transitionValues },
+};
 
 onMounted(() => {
     recentGamesVariant.value = 'closed';
@@ -169,9 +161,9 @@ function toggleRecentGames() {
                     :variants="recentGamesVariants"
                     :exit="'initial'"
                     :style="{ borderRadius: '10px' }"
-                    :transition="recentGamesTransition"
+                    :transition="motionTransition"
                 >
-                    <motion.div layout class="recent-games-header" :transition="recentGamesTransition">
+                    <motion.div layout class="recent-games-header" :transition="motionTransition">
                         <motion.h2 layout>Recent Scores</motion.h2>
                         <Button
                             v-if="!showRecentGames || showSettings"
@@ -188,7 +180,7 @@ function toggleRecentGames() {
                     </motion.div>
                     <motion.hr
                         layout
-                        :transition="recentGamesTransition"
+                        :transition="motionTransition"
                         :style="{ width: `${!showRecentGames ? '88%' : '92%'}` }"
                     />
                     <AnimatePresence>
@@ -200,7 +192,7 @@ function toggleRecentGames() {
                             :initial="{ opacity: 0 }"
                             :animate="{ opacity: 1 }"
                             :exit="{ opacity: 0 }"
-                            :transition="recentGamesTransition"
+                            :transition="motionTransition"
                         >
                             <motion.li layout v-for="game in authStore.recentUserGames" :key="game.createdAt">
                                 <GameStats :score="game.score" :time="game.time" />
@@ -211,23 +203,33 @@ function toggleRecentGames() {
                     </AnimatePresence>
                 </motion.div>
             </AnimatePresence>
-            <div v-if="gamePlayed && !showSettings" class="end-screen-wrapper">
-                <div class="end-screen psuedo-border">
+            <AnimatePresence>
+                <motion.div
+                    v-if="gamePlayed && !showSettings"
+                    key="endScreen"
+                    class="end-screen psuedo-border"
+                    :variants="endScreenVariants"
+                    :initial="'init'"
+                    :animate="'enter'"
+                    :exit="'init'"
+                    :transition="motionTransition"
+                >
                     <h1>Game Over!</h1>
                     <hr />
                     <div class="stats">
                         <GameStats :score="score" :time="elapsedMs" />
                     </div>
-                </div>
-            </div>
-            <Settings
-                v-else
-                ref="settingsRef"
-                class="settings"
-                :showSettings="showSettings"
-                :gamePlayed="gamePlayed"
-                @closeSettings="toggleSettings"
-            />
+                </motion.div>
+                <Settings
+                    v-else
+                    key="settings"
+                    ref="settingsRef"
+                    class="settings"
+                    :showSettings="showSettings"
+                    :gamePlayed="gamePlayed"
+                    @closeSettings="toggleSettings"
+                />
+            </AnimatePresence>
             <div class="buttons">
                 <AnimatePresence mode="popLayout">
                     <motion.div
@@ -436,45 +438,43 @@ function toggleRecentGames() {
             }
         }
 
-        .end-screen-wrapper {
+        .end-screen {
+            position: relative;
             @include flexCenterAll;
             flex-direction: column;
+            background: $color-bg-secondary;
+            border-radius: $border-radius-md;
+            border: solid 1px $color-gray3;
+            box-shadow: $box-shadow;
+            overflow: hidden;
 
-            .end-screen {
+            h1 {
                 position: relative;
-                @include flexCenterAll;
-                flex-direction: column;
-                background: $color-bg-secondary;
-                padding: $size-3 $size-5 $size-3;
-                border-radius: $border-radius-md;
-                border: solid 1px $color-gray3;
-                box-shadow: $box-shadow;
+                z-index: 2;
+                margin: 0;
+                margin: $size-2 $size-2 0;
+                color: $color-accent;
+                white-space: nowrap;
+            }
 
-                h1 {
-                    position: relative;
-                    z-index: 2;
-                    margin: 0;
-                    color: $color-accent;
-                }
+            hr {
+                position: relative;
+                z-index: 2;
+                width: 86%;
+                border: 0;
+                height: 1px;
+                background-color: $color-primary-light;
+                margin: $size-1 0 $size-2;
+            }
 
-                hr {
-                    position: relative;
-                    z-index: 2;
-                    width: 100%;
-                    border: 0;
-                    height: 1px;
-                    background-color: $color-primary-light;
-                    margin: $size-1 0 $size-2;
-                }
-
-                .stats {
-                    position: relative;
-                    z-index: 2;
-                    font-size: 1.1em;
-                    display: flex;
-                    align-items: center;
-                    gap: $size-2;
-                }
+            .stats {
+                position: relative;
+                z-index: 2;
+                font-size: 1.1em;
+                display: flex;
+                align-items: center;
+                gap: $size-2;
+                margin: 0 $size-6 $size-4;
             }
         }
 
