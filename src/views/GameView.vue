@@ -36,7 +36,7 @@ const recentGamesVariants = {
 
 const recentGamesVariant = ref('initial');
 
-const recentGamesTransitionValues = {
+const transitionValues = {
     stiffness: 250,
     damping: 23,
     mass: 0.8,
@@ -44,9 +44,27 @@ const recentGamesTransitionValues = {
 
 const recentGamesTransition = {
     type: 'spring',
-    ...recentGamesTransitionValues,
-    layout: { type: 'spring', ...recentGamesTransitionValues },
+    ...transitionValues,
+    layout: { type: 'spring', ...transitionValues },
 };
+
+const buttonTransition = {
+    type: 'spring',
+    ...transitionValues,
+    layout: { type: 'spring', ...transitionValues },
+};
+
+const buttonVariants = {
+    init: { opacity: 0, x: -50 },
+    enter: { opacity: 1, x: 0 },
+    exit: { opacity: 0 },
+};
+
+// const buttonVariants = {
+//     init: { opacity: 0 },
+//     enter: { opacity: 1 },
+//     exit: { opacity: 0 },
+// };
 
 onMounted(() => {
     recentGamesVariant.value = 'closed';
@@ -138,13 +156,12 @@ function toggleRecentGames() {
 </script>
 
 <template>
-    <div class="game-container">
+    <div class="game-container" :class="`${showSettings ? 'showing-settings' : undefined}`">
         <div v-if="!gameActive" class="game-start">
             <AnimatePresence>
                 <motion.div
                     v-if="authStore.recentUserGames.length"
                     class="recent-games"
-                    :class="`${showSettings ? 'showing-settings' : undefined}`"
                     key="recentGames"
                     layout
                     :initial="'initial'"
@@ -208,26 +225,69 @@ function toggleRecentGames() {
                 ref="settingsRef"
                 class="settings"
                 :showSettings="showSettings"
+                :gamePlayed="gamePlayed"
                 @closeSettings="toggleSettings"
             />
-
             <div class="buttons">
-                <Button
-                    v-if="showSettings"
-                    text="Cancel"
-                    @click="settingsRef?.resetLocalSettings"
-                    :disabled="!settingsRef?.settingsChanged"
-                />
-                <Button
-                    v-if="showSettings"
-                    type="submit"
-                    @click="settingsRef?.saveSettings"
-                    text="Save"
-                    :isLoading="settingsRef?.isLoading"
-                    :disabled="settingsRef?.isLoading || !settingsRef?.settingsChanged"
-                />
-                <Button v-if="!showSettings" @click="toggleSettings" text="Settings" />
-                <Button @click="startGame" :text="gamePlayed && !showSettings ? 'Play Again' : 'Start'" />
+                <AnimatePresence mode="popLayout">
+                    <motion.div
+                        v-if="showSettings"
+                        class="button-wrapper"
+                        key="cancel"
+                        layout
+                        :variants="buttonVariants"
+                        :initial="'init'"
+                        :animate="'enter'"
+                        :exit="'exit'"
+                    >
+                        <Button
+                            text="Cancel"
+                            @click="settingsRef?.resetLocalSettings"
+                            :disabled="!settingsRef?.settingsChanged"
+                        />
+                    </motion.div>
+                    <motion.div
+                        v-if="showSettings"
+                        class="button-wrapper"
+                        key="save"
+                        layout
+                        :variants="buttonVariants"
+                        :initial="'init'"
+                        :animate="'enter'"
+                        :exit="'exit'"
+                    >
+                        <Button
+                            type="submit"
+                            @click="settingsRef?.saveSettings"
+                            text="Save"
+                            :isLoading="settingsRef?.isLoading"
+                            :disabled="settingsRef?.isLoading || !settingsRef?.settingsChanged"
+                        />
+                    </motion.div>
+                    <motion.div
+                        v-if="!showSettings"
+                        class="button-wrapper"
+                        key="settings"
+                        layout
+                        :variants="buttonVariants"
+                        :initial="'init'"
+                        :animate="'enter'"
+                        :exitTransition="{ duration: 0.1, delay: 0 }"
+                        :transition="{ duration: 0.1 }"
+                    >
+                        <Button @click="toggleSettings" text="Settings" />
+                    </motion.div>
+                    <motion.div
+                        class="button-wrapper"
+                        key="start"
+                        :variants="buttonVariants"
+                        :initial="'init'"
+                        :animate="'enter'"
+                        :exit="'exit'"
+                    >
+                        <Button @click="startGame" text="Start" />
+                    </motion.div>
+                </AnimatePresence>
             </div>
         </div>
         <div class="countdown" v-if="showCount">
@@ -252,10 +312,12 @@ function toggleRecentGames() {
     height: $height-minus-nav;
     width: 100%;
 
-    .test {
-        background: $color-bg-secondary;
-        width: 100px;
-        height: 100px;
+    &.showing-settings {
+        .game-start {
+            .buttons {
+                margin-top: 0;
+            }
+        }
     }
 
     .game-start {
@@ -274,15 +336,15 @@ function toggleRecentGames() {
             height: auto;
             width: auto;
 
-            @include bp-xxl-desktop {
-                padding: $size-2 $size-3 $size-1;
-            }
-
             &-header {
                 margin: $size-2 $size-1 0 $size-3;
                 display: flex;
                 justify-content: space-between;
                 gap: 2px;
+
+                @include bp-xxl-desktop {
+                    margin: $size-2 $size-3 0 $size-3;
+                }
 
                 h2 {
                     font-size: 1em;
@@ -300,6 +362,7 @@ function toggleRecentGames() {
                     padding: 0.6em;
                     margin-top: 1px;
                     transform: scale(0.75) translate(-5px, -4px);
+                    border-radius: 100%;
 
                     @include bp-xxl-desktop {
                         transform: none;
@@ -325,7 +388,7 @@ function toggleRecentGames() {
                 margin: 0 auto $size-1;
 
                 @include bp-xxl-desktop {
-                    margin: $size-1 0 $size-1;
+                    margin: $size-1 auto $size-1;
                     width: 100%;
                 }
             }
@@ -336,7 +399,6 @@ function toggleRecentGames() {
                 flex-direction: column;
                 list-style: none;
                 padding: 0 $size-4 $size-1 $size-1;
-                margin: 0;
                 margin: 0 $size-2 0.2em $size-4;
                 width: 20em;
                 overflow: hidden;
@@ -371,16 +433,6 @@ function toggleRecentGames() {
                         }
                     }
                 }
-            }
-        }
-
-        .buttons {
-            display: flex;
-            gap: $size-2;
-            margin-top: $size-8;
-
-            :deep(button) {
-                font-size: 1.4em;
             }
         }
 
@@ -423,6 +475,17 @@ function toggleRecentGames() {
                     align-items: center;
                     gap: $size-2;
                 }
+            }
+        }
+
+        .buttons {
+            display: flex;
+            justify-content: center;
+            gap: $size-2;
+            margin-top: $size-8;
+
+            :deep(button) {
+                font-size: 1.4em;
             }
         }
     }
