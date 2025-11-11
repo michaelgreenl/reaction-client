@@ -33,8 +33,10 @@ const isMobile = ref(window.innerWidth < 682);
 const isMounted = ref(false);
 
 onMounted(() => {
-    const tl = gsap.timeline();
-    showRecentGamesAnim(tl);
+    if (authStore.isAuthenticated) {
+        const tl = gsap.timeline();
+        showRecentGamesAnim(tl);
+    }
 
     window.addEventListener('resize', () => {
         isMobile.value = window.innerWidth < 682;
@@ -96,7 +98,12 @@ async function handleEndGame() {
     authStore.gameActive = false;
     gameActive.value = false;
     await nextTick();
-    showRecentGamesAnim(gsap.timeline());
+
+    if (authStore.isAuthenticated) {
+        const tl = gsap.timeline();
+        showRecentGamesAnim(tl);
+    }
+
     authStore.setGame(
         { score: score.value, time: elapsedMs.value },
         {
@@ -110,25 +117,29 @@ async function handleEndGame() {
 function toggleSettings() {
     const tl = gsap.timeline();
     if (!showSettings.value && showRecentGames.value) {
+        const onComplete = () => {
+            showRecentGames.value = false;
+            showSettings.value = true;
+        };
+
+        if (!authStore.isAuthenticated) {
+            onComplete();
+            return;
+        }
+
         if (!isMobile.value) {
-            closeRecentGamesAnim(tl, () => {
-                showRecentGames.value = false;
-                showSettings.value = true;
-            });
+            closeRecentGamesAnim(tl, onComplete);
         } else {
-            hideRecentGamesAnim(tl, () => {
-                showRecentGames.value = false;
-                showSettings.value = true;
-            });
+            hideRecentGamesAnim(tl, onComplete);
         }
     } else if (!showSettings.value && !showRecentGames.value) {
         showSettings.value = true;
 
-        if (isMobile.value) {
+        if (isMobile.value && authStore.isAuthenticated) {
             hideRecentGamesAnim(tl);
         }
     } else {
-        if (isMobile.value) {
+        if (isMobile.value && authStore.isAuthenticated) {
             showRecentGamesAnim(tl);
         }
 
