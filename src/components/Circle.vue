@@ -1,6 +1,6 @@
 <script setup>
 import { ref, onMounted } from 'vue';
-import { motion } from 'motion-v';
+import { gsap } from 'gsap';
 import { useSettingsStore } from '@/stores/settingsStore';
 
 const props = defineProps({
@@ -20,6 +20,8 @@ const paused = ref(false);
 onMounted(() => {
     if (props.gameCircle) {
         animating.value = true;
+    } else {
+        openCircle();
     }
 });
 
@@ -27,14 +29,36 @@ function circleClick() {
     paused.value = true;
     emit('click');
 }
+
+function openCircle() {
+    gsap.to('.circle', {
+        duration: 0.3,
+        ease: 'power3.out',
+        scale: 1,
+        opacity: 1,
+    });
+}
+
+function closeCircle() {
+    gsap.to('.circle', {
+        duration: 0.2,
+        ease: 'power3.in',
+        scale: 0,
+        opacity: 0,
+    });
+}
+
+defineExpose({ openCircle, closeCircle });
 </script>
 
 <template>
     <div
-        v-if="gameCircle"
+        class="circle"
         :style="{
             height: `${localSize ? localSize : settingsStore.circleSize}px`,
             width: `${localSize ? localSize : settingsStore.circleSize}px`,
+            transform: `${!gameCircle ? 'scale(0)' : undefined}`,
+            opacity: `${!gameCircle ? 0 : 1}`,
         }"
     >
         <button
@@ -51,35 +75,10 @@ function circleClick() {
         </button>
         <span v-if="inputActive && localSize < 50" class="outer-value">{{ localSize }}px</span>
     </div>
-    <motion.div
-        v-else
-        :initial="{ scale: 0, opacity: 0 }"
-        :animate="{ scale: 1, opacity: 1 }"
-        :exit="{ scale: 0, opacity: 0 }"
-        :duration="0.2"
-        :style="{
-            height: `${localSize ? localSize : settingsStore.circleSize}px`,
-            width: `${localSize ? localSize : settingsStore.circleSize}px`,
-        }"
-    >
-        <button
-            :class="{ animate: animating, 'fade-out': paused || !gameActive }"
-            :style="{
-                animationDuration: `${settingsStore.shrinkTime}s`,
-                height: `${localSize ? localSize : settingsStore.circleSize}px`,
-                width: `${localSize ? localSize : settingsStore.circleSize}px`,
-            }"
-            @mousedown="animation ? circleClick() : null"
-            @animationend="$emit('endGame')"
-        >
-            <span v-if="inputActive && localSize >= 50">{{ localSize }}px</span>
-        </button>
-        <span v-if="inputActive && localSize < 50" class="outer-value">{{ localSize }}px</span>
-    </motion.div>
 </template>
 
 <style lang="scss" scoped>
-div {
+.circle {
     position: relative;
     @include flexCenterAll;
 
