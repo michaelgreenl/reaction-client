@@ -12,7 +12,7 @@ const props = defineProps({
 
 const emit = defineEmits(['endGame', 'incrementScore']);
 
-const canvas = ref(null);
+const canvasRef = ref(null);
 
 const settingsStore = useSettingsStore();
 
@@ -36,8 +36,8 @@ function spawnCircle() {
     const circleSize = settingsStore.circleSize;
 
     // minus 30 to be safe
-    const vw = canvas.value.offsetWidth - 30;
-    const vh = canvas.value.offsetHeight - 30;
+    const vw = canvasRef.value.offsetWidth - 30;
+    const vh = canvasRef.value.offsetHeight - 30;
 
     const maxX = Math.max(0, vw - circleSize);
     const maxY = Math.max(0, vh - circleSize);
@@ -70,7 +70,7 @@ function handleGameEnd() {
 </script>
 
 <template>
-    <div ref="canvas" class="game-container">
+    <div ref="canvasRef" class="game-container">
         <div class="hud">
             <GameStats :score="score" :time="time" :adjustTimeSize="true" />
         </div>
