@@ -1,6 +1,6 @@
 <script setup>
-import { ref, onBeforeUnmount, onMounted } from 'vue';
-import { motion, AnimatePresence } from 'motion-v';
+import { ref, onMounted, onBeforeUnmount, watch, nextTick } from 'vue';
+import { gsap } from 'gsap';
 import { useAuthStore } from '@/stores/authStore.js';
 import { useSettingsStore } from '@/stores/settingsStore.js';
 import { formatTime, getTimePassed } from '@/util/time.js';
@@ -15,6 +15,7 @@ const authStore = useAuthStore();
 const settingsStore = useSettingsStore();
 
 const settingsRef = ref(null);
+
 const gameActive = ref(false);
 const showSettings = ref(false);
 const showRecentGames = ref(false);
@@ -28,45 +29,26 @@ let startTimestamp = 0;
 const count = ref(3);
 const showCount = ref(false);
 
-const recentGamesVariant = ref('initial');
-const recentGamesVariants = {
-    initial: { opacity: 0, x: -250 },
-    closed: { width: '11em', height: '3em', opacity: 1, x: 0 },
-    open: { width: 'auto', height: 'auto', opacity: 1, x: 0 },
-};
-
-const buttonVariants = {
-    init: { opacity: 0, x: -50 },
-    enter: { opacity: 1, x: 0 },
-    exit: { opacity: 0 },
-};
-
-const endScreenVariants = {
-    init: { opacity: 0, height: 0, width: 0 },
-    enter: { opacity: 1, height: 'auto', width: 'auto' },
-};
-
-const transitionValues = {
-    stiffness: 250,
-    damping: 23,
-    mass: 0.8,
-};
-
-const motionTransition = {
-    type: 'spring',
-    ...transitionValues,
-    layout: { type: 'spring', ...transitionValues },
-};
+const isMobile = ref(window.innerWidth < 682);
+const isMounted = ref(false);
 
 onMounted(() => {
-    recentGamesVariant.value = 'closed';
+    const tl = gsap.timeline();
+    showRecentGamesAnim(tl);
+
+    window.addEventListener('resize', () => {
+        isMobile.value = window.innerWidth < 682;
+    });
+
+    isMounted.value = true;
 });
 
 onBeforeUnmount(() => {
     stopTimer();
+    window.removeEventListener('resize', () => {});
 });
 
-function countdown(n) {
+function startCountdown(n) {
     count.value = n;
     return new Promise((resolve) => {
         if (n === 0) {
@@ -74,8 +56,9 @@ function countdown(n) {
             resolve(true);
             return;
         }
+
         setTimeout(() => {
-            countdown(n - 1).then(resolve);
+            startCountdown(n - 1).then(resolve);
         }, 1000);
     });
 }
@@ -99,18 +82,21 @@ async function startGame() {
     count.value = 3;
     score.value = 0;
     showSettings.value = false;
+    showRecentGames.value = false;
     gamePlayed.value = true;
     gameActive.value = true;
     authStore.gameActive = true;
     showCount.value = true;
-    await countdown(3);
+    await startCountdown(3);
     startTimer();
 }
 
-function handleEndGame() {
+async function handleEndGame() {
     stopTimer();
     authStore.gameActive = false;
     gameActive.value = false;
+    await nextTick();
+    showRecentGamesAnim(gsap.timeline());
     authStore.setGame(
         { score: score.value, time: elapsedMs.value },
         {
@@ -122,174 +108,195 @@ function handleEndGame() {
 }
 
 function toggleSettings() {
-    showSettings.value = !showSettings.value;
+    const tl = gsap.timeline();
+    if (!showSettings.value && showRecentGames.value) {
+        if (!isMobile.value) {
+            closeRecentGamesAnim(tl, () => {
+                showRecentGames.value = false;
+                showSettings.value = true;
+            });
+        } else {
+            hideRecentGamesAnim(tl, () => {
+                showRecentGames.value = false;
+                showSettings.value = true;
+            });
+        }
+    } else if (!showSettings.value && !showRecentGames.value) {
+        showSettings.value = true;
 
-    if (showSettings.value) {
-        showRecentGames.value = false;
-        recentGamesVariant.value = window.innerWidth > 682 ? 'closed' : 'initial';
+        if (isMobile.value) {
+            hideRecentGamesAnim(tl);
+        }
     } else {
-        recentGamesVariant.value = 'closed';
+        if (isMobile.value) {
+            showRecentGamesAnim(tl);
+        }
+
+        showSettings.value = false;
     }
 }
 
-function toggleRecentGames() {
-    showRecentGames.value = !showRecentGames.value;
+async function toggleRecentGames() {
+    const tl = gsap.timeline();
+    if (showSettings.value && !showRecentGames.value) {
+        showSettings.value = false;
+        showRecentGames.value = true;
+        await nextTick();
 
-    if (showRecentGames.value) {
-        recentGamesVariant.value = 'open';
-
-        if (showSettings.value) {
-            showSettings.value = false;
-        }
+        openRecentGamesAnim(tl);
+    } else if (!showRecentGames.value) {
+        showRecentGames.value = true;
+        await nextTick();
+        openRecentGamesAnim(tl);
     } else {
-        recentGamesVariant.value = 'closed';
+        closeRecentGamesAnim(tl, () => (showRecentGames.value = false));
     }
+}
+
+function openRecentGamesAnim(tl) {
+    tl.to('.recent-games', {
+        duration: 0.2,
+        ease: 'power3.out',
+        width: 'auto',
+        height: 'auto',
+        opacity: 1,
+        x: 0,
+    }).to(
+        '.recent-games-list',
+        {
+            duration: 0.2,
+            ease: 'power3.out',
+            opacity: 1,
+        },
+        0.1,
+    );
+}
+
+function hideRecentGamesAnim(tl, onComplete = () => {}) {
+    if (showRecentGames.value) {
+        tl.to('.recent-games-list', {
+            duration: 0.2,
+            ease: 'power3.out',
+            opacity: 0,
+            onComplete,
+        }).to(
+            '.recent-games',
+            {
+                duration: 0.2,
+                ease: 'power3.out',
+                width: '11em',
+                height: '3em',
+                opacity: 0,
+                x: -250,
+            },
+            0.1,
+        );
+    } else {
+        tl.to('.recent-games', {
+            duration: 0.2,
+            ease: 'power3.out',
+            width: '11em',
+            height: '3em',
+            opacity: 0,
+            x: -250,
+            onComplete,
+        });
+    }
+}
+
+function closeRecentGamesAnim(tl, onComplete = () => {}) {
+    tl.to('.recent-games-list', {
+        duration: 0.2,
+        ease: 'power3.out',
+        opacity: 0,
+        onComplete,
+    }).to(
+        '.recent-games',
+        {
+            duration: 0.2,
+            ease: 'power3.out',
+            width: '11em',
+            height: '3em',
+            opacity: 1,
+            x: 0,
+        },
+        0.1,
+    );
+}
+
+function showRecentGamesAnim(tl) {
+    tl.to('.recent-games', {
+        duration: 0.2,
+        ease: 'power3.out',
+        width: '11em',
+        height: '3em',
+        opacity: 1,
+        x: 0,
+    });
 }
 </script>
 
 <template>
     <div class="game-container" :class="`${showSettings ? 'showing-settings' : undefined}`">
         <div v-if="!gameActive" class="game-start">
-            <AnimatePresence>
-                <motion.div
-                    v-if="authStore.recentUserGames.length"
-                    class="recent-games"
-                    key="recentGames"
-                    layout
-                    :initial="'initial'"
-                    :animate="recentGamesVariant"
-                    :variants="recentGamesVariants"
-                    :exit="'initial'"
-                    :style="{ borderRadius: '10px' }"
-                    :transition="motionTransition"
-                >
-                    <motion.div layout class="recent-games-header" :transition="motionTransition">
-                        <motion.h2 layout>Recent Scores</motion.h2>
-                        <Button
-                            v-if="!showRecentGames || showSettings"
-                            preset="icon-only"
-                            :iconLeft="ArrowSVG"
-                            @click="toggleRecentGames"
-                        />
-                        <Button
-                            v-if="showRecentGames && !showSettings"
-                            preset="icon-only"
-                            :iconLeft="CloseSVG"
-                            @click="toggleRecentGames"
-                        />
-                    </motion.div>
-                    <motion.hr
-                        layout
-                        :transition="motionTransition"
-                        :style="{ width: `${!showRecentGames ? '88%' : '92%'}` }"
+            <div v-if="authStore.recentUserGames.length" class="recent-games" key="recentGames">
+                <div class="recent-games-header">
+                    <h2>Recent Scores</h2>
+                    <Button
+                        v-if="!showRecentGames || showSettings"
+                        preset="icon-only"
+                        :iconLeft="ArrowSVG"
+                        @click="toggleRecentGames"
                     />
-                    <AnimatePresence>
-                        <motion.ul
-                            key="list"
-                            class="recent-games-list"
-                            v-if="showRecentGames && !showSettings"
-                            layout
-                            :initial="{ opacity: 0 }"
-                            :animate="{ opacity: 1 }"
-                            :exit="{ opacity: 0 }"
-                            :transition="motionTransition"
-                        >
-                            <motion.li layout v-for="game in authStore.recentUserGames" :key="game.createdAt">
-                                <GameStats :score="game.score" :time="game.time" />
-                                <span class="separator"> - </span>
-                                <span>{{ getTimePassed(game.createdAt) }} </span>
-                            </motion.li>
-                        </motion.ul>
-                    </AnimatePresence>
-                </motion.div>
-            </AnimatePresence>
-            <AnimatePresence>
-                <motion.div
-                    v-if="gamePlayed && !showSettings"
-                    key="endScreen"
-                    class="end-screen psuedo-border"
-                    :variants="endScreenVariants"
-                    :initial="'init'"
-                    :animate="'enter'"
-                    :exit="'init'"
-                    :transition="motionTransition"
-                >
-                    <h1>Game Over!</h1>
-                    <hr />
-                    <div class="stats">
-                        <GameStats :score="score" :time="elapsedMs" />
-                    </div>
-                </motion.div>
-                <Settings
-                    v-else
-                    key="settings"
-                    ref="settingsRef"
-                    class="settings"
-                    :showSettings="showSettings"
-                    :gamePlayed="gamePlayed"
-                    @closeSettings="toggleSettings"
-                />
-            </AnimatePresence>
+                    <Button
+                        v-if="showRecentGames && !showSettings"
+                        preset="icon-only"
+                        :iconLeft="CloseSVG"
+                        @click="toggleRecentGames"
+                    />
+                </div>
+                <hr :style="{ width: `${!showRecentGames ? '88%' : '92%'}` }" />
+                <ul class="recent-games-list" v-if="showRecentGames && !showSettings">
+                    <li v-for="game in authStore.recentUserGames" :key="game.createdAt">
+                        <GameStats :score="game.score" :time="game.time" />
+                        <span class="separator"> - </span>
+                        <span>{{ getTimePassed(game.createdAt) }} </span>
+                    </li>
+                </ul>
+            </div>
+            <div v-if="gamePlayed && !showSettings" class="end-screen psuedo-border">
+                <h1>Game Over!</h1>
+                <hr />
+                <div class="stats">
+                    <GameStats :score="score" :time="elapsedMs" />
+                </div>
+            </div>
+            <Settings
+                ref="settingsRef"
+                class="settings"
+                :showSettings="showSettings"
+                :gamePlayed="gamePlayed"
+                @closeSettings="toggleSettings"
+            />
             <div class="buttons">
-                <AnimatePresence mode="popLayout">
-                    <motion.div
-                        v-if="showSettings"
-                        class="button-wrapper"
-                        key="cancel"
-                        layout
-                        :variants="buttonVariants"
-                        :initial="'init'"
-                        :animate="'enter'"
-                        :exit="'exit'"
-                    >
-                        <Button
-                            text="Cancel"
-                            @click="settingsRef?.resetLocalSettings"
-                            :disabled="!settingsRef?.settingsChanged"
-                        />
-                    </motion.div>
-                    <motion.div
-                        v-if="showSettings"
-                        class="button-wrapper"
-                        key="save"
-                        layout
-                        :variants="buttonVariants"
-                        :initial="'init'"
-                        :animate="'enter'"
-                        :exit="'exit'"
-                    >
-                        <Button
-                            type="submit"
-                            @click="settingsRef?.saveSettings"
-                            text="Save"
-                            :isLoading="settingsRef?.isLoading"
-                            :disabled="settingsRef?.isLoading || !settingsRef?.settingsChanged"
-                        />
-                    </motion.div>
-                    <motion.div
-                        v-if="!showSettings"
-                        class="button-wrapper"
-                        key="settings"
-                        layout
-                        :variants="buttonVariants"
-                        :initial="'init'"
-                        :animate="'enter'"
-                        :exitTransition="{ duration: 0.1, delay: 0 }"
-                        :transition="{ duration: 0.1 }"
-                    >
-                        <Button @click="toggleSettings" text="Settings" />
-                    </motion.div>
-                    <motion.div
-                        class="button-wrapper"
-                        key="start"
-                        :variants="buttonVariants"
-                        :initial="'init'"
-                        :animate="'enter'"
-                        :exit="'exit'"
-                    >
-                        <Button @click="startGame" text="Start" />
-                    </motion.div>
-                </AnimatePresence>
+                <Button
+                    v-if="showSettings"
+                    class="main-button"
+                    text="Cancel"
+                    :disabled="!settingsRef?.settingsChanged"
+                    @click="settingsRef?.resetLocalSettings"
+                />
+                <Button
+                    v-if="showSettings"
+                    type="submit"
+                    class="main-button"
+                    text="Save"
+                    :isLoading="settingsRef?.isLoading"
+                    :disabled="settingsRef?.isLoading || !settingsRef?.settingsChanged"
+                    @click="settingsRef?.saveSettings"
+                />
+                <Button v-if="!showSettings" class="main-button" text="Settings" @click="toggleSettings" />
+                <Button class="main-button" text="Start" @click="startGame" />
             </div>
         </div>
         <div class="countdown" v-if="showCount">
@@ -333,10 +340,10 @@ function toggleRecentGames() {
             flex-direction: column;
             background: $color-bg-secondary;
             box-shadow: $box-shadow;
+            border-radius: $border-radius-md;
             border: solid 1px $color-gray3;
             overflow: hidden;
-            height: auto;
-            width: auto;
+            transform: translateX(-250px);
 
             &-header {
                 margin: $size-2 $size-1 0 $size-3;
@@ -404,6 +411,7 @@ function toggleRecentGames() {
                 margin: 0 $size-2 0.2em $size-4;
                 width: 20em;
                 overflow: hidden;
+                opacity: 0;
 
                 li {
                     display: flex;
