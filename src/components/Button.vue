@@ -1,5 +1,4 @@
 <script setup>
-import { motion, AnimatePresence } from 'motion-v';
 import Loader from '@/components/Loader.vue';
 
 const props = defineProps({
@@ -25,7 +24,6 @@ const emit = defineEmits(['click']);
 
 <style lang="scss" scoped>
 button {
-    position: relative;
     cursor: pointer;
     border: 0;
 
@@ -47,6 +45,11 @@ button {
 
         &:active {
             transform: scale(0.95);
+        }
+
+        &.animated {
+            opacity: 0;
+            will-change: transform, opacity;
         }
     }
 

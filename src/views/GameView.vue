@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, onBeforeUnmount, watch, nextTick } from 'vue';
+import { ref, computed, onMounted, onBeforeUnmount, watch, nextTick } from 'vue';
 import { gsap } from 'gsap';
 import { useAuthStore } from '@/stores/authStore.js';
 import { useSettingsStore } from '@/stores/settingsStore.js';
@@ -33,6 +33,8 @@ const isMobile = ref(window.innerWidth < 682);
 const isMounted = ref(false);
 
 onMounted(() => {
+    showButtonsAnim();
+
     if (authStore.isAuthenticated) {
         const tl = gsap.timeline();
         showRecentGamesAnim(tl);
@@ -104,6 +106,8 @@ async function handleEndGame() {
         showRecentGamesAnim(tl);
     }
 
+    showButtonsAnim();
+
     authStore.setGame(
         { score: score.value, time: elapsedMs.value },
         {
@@ -114,47 +118,117 @@ async function handleEndGame() {
     );
 }
 
-function toggleSettings() {
-    const tl = gsap.timeline();
-    if (!showSettings.value && showRecentGames.value) {
-        const onComplete = () => {
-            showRecentGames.value = false;
+const mainButtons = ref([
+    {
+        key: 'cancel',
+        text: 'Cancel',
+        preset: 'primary animated',
+        condition: () => showSettings.value,
+        disabled: () => !settingsRef.value?.settingsChanged,
+        click: () => resetLocalSettings(),
+    },
+    {
+        key: 'save',
+        text: 'Save',
+        type: 'submit',
+        preset: 'primary animated',
+        condition: () => showSettings.value,
+        isLoading: () => settingsRef.value?.isLoading,
+        disabled: () => settingsRef.value?.isLoading || !settingsRef.value?.settingsChanged,
+        click: () => saveSettings(),
+    },
+    {
+        key: 'settings',
+        text: 'Settings',
+        preset: 'primary animated',
+        condition: () => !showSettings.value,
+        click: () => toggleSettings(),
+    },
+]);
+
+const buttonList = computed(() => {
+    return mainButtons.value.filter((button) => {
+        return button.condition ? button.condition() : true;
+    });
+});
+
+async function toggleSettings() {
+    const onComplete = async () => {
+        const tl2 = gsap.timeline();
+
+        if (!showSettings.value) {
+            tl2.to('.buttons', {
+                duration: 0.4,
+                ease: 'expo',
+                width: '287px',
+            });
+        }
+
+        const tl = gsap.timeline();
+        if (!showSettings.value && showRecentGames.value && authStore.isAuthenticated) {
+            const onStart = async () => {
+                showRecentGames.value = false;
+                showSettings.value = true;
+
+                await nextTick();
+                enterButtonAnim(tl);
+            };
+
+            const tl2 = gsap.timeline();
+            if (!isMobile.value) {
+                closeRecentGamesAnim(tl2, onStart);
+            } else {
+                hideRecentGamesAnim(tl2, onStart);
+            }
+        } else if (!showSettings.value && !showRecentGames.value) {
             showSettings.value = true;
-        };
+            await nextTick();
+            enterButtonAnim(tl);
 
-        if (!authStore.isAuthenticated) {
-            onComplete();
-            return;
-        }
-
-        if (!isMobile.value) {
-            closeRecentGamesAnim(tl, onComplete);
+            if (isMobile.value && authStore.isAuthenticated) {
+                const tl2 = gsap.timeline();
+                hideRecentGamesAnim(tl2);
+            }
         } else {
-            hideRecentGamesAnim(tl, onComplete);
-        }
-    } else if (!showSettings.value && !showRecentGames.value) {
-        showSettings.value = true;
+            if (isMobile.value && authStore.isAuthenticated) {
+                const tl2 = gsap.timeline();
+                showRecentGamesAnim(tl2);
+            }
 
-        if (isMobile.value && authStore.isAuthenticated) {
-            hideRecentGamesAnim(tl);
+            showSettings.value = false;
+            await nextTick();
+            enterButtonAnim(tl);
         }
-    } else {
-        if (isMobile.value && authStore.isAuthenticated) {
-            showRecentGamesAnim(tl);
-        }
+    };
 
-        showSettings.value = false;
+    const tl = gsap.timeline();
+    exitButtonAnim(tl, (tl) => onComplete(tl));
+
+    if (showSettings.value) {
+        gsap.to('.buttons', {
+            duration: 0.5,
+            ease: 'expo',
+            width: '222px',
+            delay: 0.2,
+        });
     }
 }
 
 async function toggleRecentGames() {
     const tl = gsap.timeline();
     if (showSettings.value && !showRecentGames.value) {
-        showSettings.value = false;
-        showRecentGames.value = true;
-        await nextTick();
+        settingsRef.value?.closeSettings();
+        gsap.to('.buttons', {
+            duration: 0.5,
+            ease: 'expo',
+            width: '222px',
+        });
 
-        openRecentGamesAnim(tl);
+        exitButtonAnim(tl, async () => {
+            showRecentGames.value = true;
+            await nextTick();
+            openRecentGamesAnim(tl);
+        });
     } else if (!showRecentGames.value) {
         showRecentGames.value = true;
         await nextTick();
@@ -187,14 +261,14 @@ function hideRecentGamesAnim(tl, onComplete = () => {}) {
     if (showRecentGames.value) {
         tl.to('.recent-games-list', {
             duration: 0.2,
-            ease: 'power3.out',
+            ease: 'expo',
             opacity: 0,
             onComplete,
         }).to(
             '.recent-games',
             {
                 duration: 0.2,
-                ease: 'power3.out',
+                ease: 'expo',
                 width: '11em',
                 height: '3em',
                 opacity: 0,
@@ -205,7 +279,7 @@ function hideRecentGamesAnim(tl, onComplete = () => {}) {
     } else {
         tl.to('.recent-games', {
             duration: 0.2,
-            ease: 'power3.out',
+            ease: 'expo',
             width: '11em',
             height: '3em',
             opacity: 0,
@@ -215,21 +289,21 @@ function hideRecentGamesAnim(tl, onComplete = () => {}) {
     }
 }
 
-function closeRecentGamesAnim(tl, onComplete = () => {}) {
+function closeRecentGamesAnim(tl, onStart = () => {}) {
     tl.to('.recent-games-list', {
         duration: 0.2,
-        ease: 'power3.out',
+        ease: 'expo',
         opacity: 0,
-        onComplete,
     }).to(
         '.recent-games',
         {
             duration: 0.2,
-            ease: 'power3.out',
+            ease: 'expo',
             width: '11em',
             height: '3em',
             opacity: 1,
             x: 0,
+            onStart,
         },
         0.1,
     );
@@ -238,11 +312,39 @@ function closeRecentGamesAnim(tl, onComplete = () => {}) {
 function showRecentGamesAnim(tl) {
     tl.to('.recent-games', {
         duration: 0.2,
-        ease: 'power3.out',
+        ease: 'expo',
         width: '11em',
         height: '3em',
         opacity: 1,
         x: 0,
+    });
+}
+
+function enterButtonAnim(tl) {
+    tl.to('.main-button', {
+        duration: 0.8,
+        ease: 'expo',
+        opacity: 1,
+        stagger: 0.1,
+    });
+}
+
+function exitButtonAnim(tl, onComplete = () => {}) {
+    tl.to('.main-button', {
+        duration: 0.2,
+        ease: 'linear',
+        opacity: 0,
+        stagger: 0.1,
+        onComplete,
+    });
+}
+
+function showButtonsAnim() {
+    gsap.to('.main-button, .start-button', {
+        duration: 0.8,
+        ease: 'expo',
+        opacity: 1,
+        stagger: 0.1,
     });
 }
 </script>
@@ -287,27 +389,22 @@ function showRecentGamesAnim(tl) {
                 class="settings"
                 :showSettings="showSettings"
                 :gamePlayed="gamePlayed"
+                @startingCloseSettings="exitButtonAnim(gsap.timeline())"
                 @closeSettings="toggleSettings"
             />
             <div class="buttons">
                 <Button
-                    v-if="showSettings"
-                    class="main-button"
-                    text="Cancel"
-                    :disabled="!settingsRef?.settingsChanged"
-                    @click="settingsRef?.resetLocalSettings"
+                    v-for="button in buttonList"
+                    :key="button.key"
+                    :class="['main-button', button.class]"
+                    :preset="button.preset"
+                    :text="button.text"
+                    :type="button.type"
+                    :is-loading="button.isLoading && button.isLoading()"
+                    :disabled="button.disabled && button.disabled()"
+                    @click="button.click"
                 />
-                <Button
-                    v-if="showSettings"
-                    type="submit"
-                    class="main-button"
-                    text="Save"
-                    :isLoading="settingsRef?.isLoading"
-                    :disabled="settingsRef?.isLoading || !settingsRef?.settingsChanged"
-                    @click="settingsRef?.saveSettings"
-                />
-                <Button v-if="!showSettings" class="main-button" text="Settings" @click="toggleSettings" />
-                <Button class="main-button" text="Start" @click="startGame" />
+                <Button class="start-button" preset="primary animated" text="Start" @click="startGame" />
             </div>
         </div>
         <div class="countdown" v-if="showCount">
@@ -331,14 +428,6 @@ function showRecentGamesAnim(tl) {
     @include flexCenterAll;
     height: $height-minus-nav;
     width: 100%;
-
-    &.showing-settings {
-        .game-start {
-            .buttons {
-                margin-top: 0;
-            }
-        }
-    }
 
     .game-start {
         .recent-games {
@@ -499,9 +588,10 @@ function showRecentGamesAnim(tl) {
 
         .buttons {
             display: flex;
-            justify-content: center;
+            justify-content: flex-end;
             gap: $size-2;
-            margin-top: $size-8;
+            width: 222px;
+            margin: 0 auto;
 
             :deep(button) {
                 font-size: 1.4em;

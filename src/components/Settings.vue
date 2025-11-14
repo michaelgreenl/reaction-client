@@ -15,7 +15,7 @@ const props = defineProps({
     gamePlayed: { type: Boolean, default: false },
 });
 
-const emit = defineEmits(['closeSettings']);
+const emit = defineEmits(['startingCloseSettings', 'closeSettings']);
 
 const settingsStore = useSettingsStore();
 const authStore = useAuthStore();
@@ -80,8 +80,11 @@ function closeSettings() {
 
     isLoading.value = false;
 
-    const tl = gsap.timeline({ onComplete: () => emit('closeSettings') });
+    emit('startingCloseSettings');
+
+    const tl = gsap.timeline();
     closeSettingsAnim(tl);
+    emit('closeSettings');
 
     if (props.gamePlayed) {
         settingsCircleRef.value.closeCircle();
@@ -92,20 +95,22 @@ async function openSettingsAnim(tl) {
     tl.to(
         '.form-container',
         {
+            duration: 0.3,
+            ease: 'power3.out',
             opacity: 1,
             height: '12.25em',
             width: '22em',
-            duration: 0.3,
-            ease: 'power3.out',
+            marginTop: '1.5em',
+            marginRight: window.innerWidth >= 682 ? '2em' : 0,
         },
         0,
     ).to(
         '.form-header, .form-hr, .form-group',
         {
-            opacity: 1,
             duration: 0.1,
             ease: 'circ',
             stagger: 0,
+            opacity: 1,
         },
         0.1,
     );
@@ -116,27 +121,40 @@ async function openSettingsAnim(tl) {
     }
 }
 
-function closeSettingsAnim(tl) {
+function closeSettingsAnim(tl, onComplete = () => {}) {
     tl.to('.form-header, .form-hr, .form-group', {
-        opacity: 0,
-        ease: 'power3.in',
         duration: 0.1,
+        ease: 'power3.in',
+        opacity: 0,
     })
         .to('.form-group', {
-            opacity: 0,
-            ease: 'power3.in',
             duration: 0.1,
+            ease: 'power3.in',
             stagger: 0.1,
+            opacity: 0,
         })
-        .to('.form-container', { ease: 'power3.in', duration: 0.3, opacity: 0, height: 0, width: 0 }, 0);
+        .to(
+            '.form-container',
+            {
+                duration: 0.3,
+                ease: 'power3.in',
+                marginTop: 0,
+                marginRight: 0,
+                opacity: 0,
+                height: 0,
+                width: 0,
+                onComplete,
+            },
+            0,
+        );
 }
 
-defineExpose({ saveSettings, resetLocalSettings, settingsChanged, isLoading });
+defineExpose({ saveSettings, resetLocalSettings, settingsChanged, isLoading, closeSettings });
 </script>
 
 <template>
     <div class="settings-container">
-        <div class="form-circle" :class="showSettings ? 'showing-settings' : undefined">
+        <div class="form-circle">
             <form @submit.prevent="saveSettings" v-if="showSettings" class="form-container psuedo-border">
                 <div class="form-header">
                     <h2>Settings</h2>
@@ -193,27 +211,20 @@ defineExpose({ saveSettings, resetLocalSettings, settingsChanged, isLoading });
 .settings-container {
     @include flexCenterAll;
     flex-direction: column;
-    gap: $size-4;
-    margin-bottom: $size-4;
 
     .form-circle {
         position: relative;
         display: flex;
         align-items: center;
         flex-direction: column-reverse;
-        gap: 0;
         font-size: 0.95em;
-
-        &.showing-settings {
-            gap: $size-8;
-        }
+        margin-bottom: $size-4;
 
         @include bp-sm-phone {
             flex-direction: row;
         }
 
         .form-container {
-            margin-bottom: $size-4;
             width: 22em;
             overflow: hidden;
             height: 0;
@@ -297,6 +308,10 @@ defineExpose({ saveSettings, resetLocalSettings, settingsChanged, isLoading });
                     }
                 }
             }
+        }
+
+        .settings-circle {
+            // margin-bottom: $size-4;
         }
     }
 
