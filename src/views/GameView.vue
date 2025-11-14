@@ -32,6 +32,40 @@ const showCount = ref(false);
 const isMobile = ref(window.innerWidth < 682);
 const isMounted = ref(false);
 
+const mainButtons = ref([
+    {
+        key: 'cancel',
+        text: 'Cancel',
+        preset: 'primary animated',
+        condition: () => showSettings.value,
+        disabled: () => !settingsRef.value?.settingsChanged,
+        click: () => resetLocalSettings(),
+    },
+    {
+        key: 'save',
+        text: 'Save',
+        type: 'submit',
+        preset: 'primary animated',
+        condition: () => showSettings.value,
+        isLoading: () => settingsRef.value?.isLoading,
+        disabled: () => settingsRef.value?.isLoading || !settingsRef.value?.settingsChanged,
+        click: () => saveSettings(),
+    },
+    {
+        key: 'settings',
+        text: 'Settings',
+        preset: 'primary animated',
+        condition: () => !showSettings.value,
+        click: () => toggleSettings(),
+    },
+]);
+
+const buttonList = computed(() => {
+    return mainButtons.value.filter((button) => {
+        return button.condition ? button.condition() : true;
+    });
+});
+
 onMounted(() => {
     showButtonsAnim();
 
@@ -83,16 +117,47 @@ function stopTimer() {
 }
 
 async function startGame() {
-    count.value = 3;
-    score.value = 0;
-    showSettings.value = false;
-    showRecentGames.value = false;
-    gamePlayed.value = true;
-    gameActive.value = true;
-    authStore.gameActive = true;
-    showCount.value = true;
-    await startCountdown(3);
-    startTimer();
+    const onComplete = async () => {
+        count.value = 3;
+        score.value = 0;
+        showSettings.value = false;
+        showRecentGames.value = false;
+        gamePlayed.value = true;
+        gameActive.value = true;
+        authStore.gameActive = true;
+        showCount.value = true;
+        await startCountdown(3);
+        startTimer();
+    };
+
+    const tl = gsap.timeline();
+
+    hideButtonsAnim();
+
+    if (gamePlayed.value && !showSettings.value) {
+        hideEndScreenAnim(tl, onComplete);
+    }
+
+    if (showSettings.value) {
+        settingsRef.value?.closeSettingsAnim(tl);
+    }
+
+    if (authStore.isAuthenticated) {
+        hideRecentGamesAnim(tl);
+    }
+
+    if (!gamePlayed.value || showSettings.value) {
+        gsap.to('.settings-circle', {
+            duration: 0.2,
+            ease: 'power3.in',
+            scale: 0,
+            opacity: 0,
+        });
+
+        setTimeout(async () => {
+            onComplete();
+        }, 500);
+    }
 }
 
 async function handleEndGame() {
@@ -106,6 +171,8 @@ async function handleEndGame() {
         showRecentGamesAnim(tl);
     }
 
+    const tl = gsap.timeline();
+    showEndScreenAnim(tl);
     showButtonsAnim();
 
     authStore.setGame(
@@ -117,40 +184,6 @@ async function handleEndGame() {
         },
     );
 }
-
-const mainButtons = ref([
-    {
-        key: 'cancel',
-        text: 'Cancel',
-        preset: 'primary animated',
-        condition: () => showSettings.value,
-        disabled: () => !settingsRef.value?.settingsChanged,
-        click: () => resetLocalSettings(),
-    },
-    {
-        key: 'save',
-        text: 'Save',
-        type: 'submit',
-        preset: 'primary animated',
-        condition: () => showSettings.value,
-        isLoading: () => settingsRef.value?.isLoading,
-        disabled: () => settingsRef.value?.isLoading || !settingsRef.value?.settingsChanged,
-        click: () => saveSettings(),
-    },
-    {
-        key: 'settings',
-        text: 'Settings',
-        preset: 'primary animated',
-        condition: () => !showSettings.value,
-        click: () => toggleSettings(),
-    },
-]);
-
-const buttonList = computed(() => {
-    return mainButtons.value.filter((button) => {
-        return button.condition ? button.condition() : true;
-    });
-});
 
 async function toggleSettings() {
     const onComplete = async () => {
@@ -197,12 +230,21 @@ async function toggleSettings() {
 
             showSettings.value = false;
             await nextTick();
+
+            if (gamePlayed.value) {
+                showEndScreenAnim(gsap.timeline());
+            }
+
             enterButtonAnim(tl);
         }
     };
 
     const tl = gsap.timeline();
     exitButtonAnim(tl, (tl) => onComplete(tl));
+
+    if (gamePlayed.value) {
+        hideEndScreenAnim(tl);
+    }
 
     if (showSettings.value) {
         gsap.to('.buttons', {
@@ -347,6 +389,53 @@ function showButtonsAnim() {
         stagger: 0.1,
     });
 }
+
+function hideButtonsAnim() {
+    gsap.to('.main-button, .start-button', {
+        duration: 0.2,
+        ease: 'linear',
+        opacity: 0,
+        stagger: 0.1,
+    });
+}
+
+function showEndScreenAnim(tl) {
+    tl.to('.end-screen', {
+        duration: 0.3,
+        ease: 'expo',
+        width: '260px',
+        height: '106px',
+    }).to(
+        '.end-screen-child',
+        {
+            duration: 0.3,
+            ease: 'linear',
+            opacity: 1,
+            stagger: 0.1,
+        },
+        0,
+    );
+}
+
+function hideEndScreenAnim(tl, onComplete = () => {}) {
+    tl.to('.end-screen-child', {
+        duration: 0.1,
+        ease: 'linear',
+        opacity: 0,
+        stagger: 0.1,
+    }).to(
+        '.end-screen',
+        {
+            duration: 0.3,
+            ease: 'expo',
+            width: 0,
+            height: 0,
+            opacity: 0,
+            onComplete,
+        },
+        0.1,
+    );
+}
 </script>
 
 <template>
@@ -378,9 +467,9 @@ function showButtonsAnim() {
                 </ul>
             </div>
             <div v-if="gamePlayed && !showSettings" class="end-screen psuedo-border">
-                <h1>Game Over!</h1>
-                <hr />
-                <div class="stats">
+                <h1 class="end-screen-child">Game Over!</h1>
+                <hr class="end-screen-child" />
+                <div class="stats end-screen-child">
                     <GameStats :score="score" :time="elapsedMs" />
                 </div>
             </div>
@@ -555,6 +644,8 @@ function showButtonsAnim() {
             border: solid 1px $color-gray3;
             box-shadow: $box-shadow;
             overflow: hidden;
+            height: 0;
+            width: 0;
 
             h1 {
                 position: relative;
@@ -563,6 +654,7 @@ function showButtonsAnim() {
                 margin: $size-2 $size-2 0;
                 color: $color-accent;
                 white-space: nowrap;
+                opacity: 0;
             }
 
             hr {
@@ -570,9 +662,10 @@ function showButtonsAnim() {
                 z-index: 2;
                 width: 86%;
                 border: 0;
-                height: 1px;
+                min-height: 1px;
                 background-color: $color-primary-light;
                 margin: $size-1 0 $size-2;
+                opacity: 0;
             }
 
             .stats {
@@ -583,6 +676,7 @@ function showButtonsAnim() {
                 align-items: center;
                 gap: $size-2;
                 margin: 0 $size-6 $size-4;
+                opacity: 0;
             }
         }
 

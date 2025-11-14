@@ -149,7 +149,7 @@ function closeSettingsAnim(tl, onComplete = () => {}) {
         );
 }
 
-defineExpose({ saveSettings, resetLocalSettings, settingsChanged, isLoading, closeSettings });
+defineExpose({ saveSettings, resetLocalSettings, settingsChanged, isLoading, closeSettings, closeSettingsAnim });
 </script>
 
 <template>
@@ -308,10 +308,6 @@ defineExpose({ saveSettings, resetLocalSettings, settingsChanged, isLoading, clo
                     }
                 }
             }
-        }
-
-        .settings-circle {
-            // margin-bottom: $size-4;
         }
     }
 
