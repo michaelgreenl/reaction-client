@@ -230,6 +230,7 @@ defineExpose({ saveSettings, resetLocalSettings, settingsChanged, isLoading, clo
             height: 0;
             width: 0;
             opacity: 0;
+            padding: $size-4 $size-6 $size-3;
 
             .form-header {
                 position: relative;
@@ -237,7 +238,6 @@ defineExpose({ saveSettings, resetLocalSettings, settingsChanged, isLoading, clo
                 display: flex;
                 align-items: center;
                 justify-content: space-between;
-                margin: $size-4 $size-6 $size-2;
                 overflow: hidden;
                 opacity: 0;
 
@@ -274,7 +274,7 @@ defineExpose({ saveSettings, resetLocalSettings, settingsChanged, isLoading, clo
                 border: 0;
                 height: 1px;
                 background-color: $color-primary-light;
-                margin: $size-2 $size-6;
+                margin: $size-2 0;
                 opacity: 0;
             }
 
@@ -285,13 +285,8 @@ defineExpose({ saveSettings, resetLocalSettings, settingsChanged, isLoading, clo
                 justify-content: space-between;
                 align-items: center;
                 padding: $size-1;
-                margin: 0 $size-6;
                 transition: opacity 0.3s ease;
                 opacity: 0;
-
-                &:last-child {
-                    margin: 0 $size-6 $size-3;
-                }
 
                 label {
                     font-size: 0.9em;

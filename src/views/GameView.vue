@@ -30,6 +30,7 @@ const count = ref(3);
 const showCount = ref(false);
 
 const isMobile = ref(window.innerWidth < 682);
+const isXlDesktop = ref(window.innerWidth > 1600);
 const isMounted = ref(false);
 
 const mainButtons = ref([
@@ -187,14 +188,8 @@ async function handleEndGame() {
 
 async function toggleSettings() {
     const onComplete = async () => {
-        const tl2 = gsap.timeline();
-
         if (!showSettings.value) {
-            tl2.to('.buttons', {
-                duration: 0.4,
-                ease: 'expo',
-                width: '287px',
-            });
+            growButtonDiv();
         }
 
         const tl = gsap.timeline();
@@ -247,12 +242,7 @@ async function toggleSettings() {
     }
 
     if (showSettings.value) {
-        gsap.to('.buttons', {
-            duration: 0.5,
-            ease: 'expo',
-            width: '222px',
-            delay: 0.2,
-        });
+        shrinkButtonDiv(0.2);
     }
 }
 
@@ -260,11 +250,7 @@ async function toggleRecentGames() {
     const tl = gsap.timeline();
     if (showSettings.value && !showRecentGames.value) {
         settingsRef.value?.closeSettings();
-        gsap.to('.buttons', {
-            duration: 0.5,
-            ease: 'expo',
-            width: '222px',
-        });
+        shrinkButtonDiv();
 
         exitButtonAnim(tl, async () => {
             showRecentGames.value = true;
@@ -400,17 +386,18 @@ function hideButtonsAnim() {
 }
 
 function showEndScreenAnim(tl) {
+    const width = !isXlDesktop.value ? '265px' : '328px';
+    const height = !isXlDesktop.value ? '114px' : '146px';
     tl.to('.end-screen', {
         duration: 0.3,
         ease: 'expo',
-        width: '265px',
-        height: '114px',
+        width,
+        height,
     }).to(
         '.end-screen-child',
         {
             duration: 0.3,
             ease: 'linear',
-            // ease: 'power3.out',
             opacity: 1,
             stagger: 0.05,
         },
@@ -437,6 +424,23 @@ function hideEndScreenAnim(tl, onComplete = () => {}) {
         0.1,
     );
 }
+
+function shrinkButtonDiv(delay) {
+    gsap.to('.buttons', {
+        duration: 0.5,
+        ease: 'expo',
+        width: !isXlDesktop.value ? '222px' : '280px',
+        delay,
+    });
+}
+
+function growButtonDiv() {
+    gsap.to('.buttons', {
+        duration: 0.4,
+        ease: 'expo',
+        width: !isXlDesktop.value ? '287px' : '400px',
+    });
+}
 </script>
 
 <template>
@@ -458,7 +462,7 @@ function hideEndScreenAnim(tl, onComplete = () => {}) {
                         @click="toggleRecentGames"
                     />
                 </div>
-                <hr :style="{ width: `${!showRecentGames ? '88%' : '92%'}` }" />
+                <hr :style="{ width: `${!showRecentGames ? '96%' : '98%'}` }" />
                 <ul class="recent-games-list" v-if="showRecentGames && !showSettings">
                     <li v-for="game in authStore.recentUserGames" :key="game.createdAt">
                         <GameStats :score="game.score" :time="game.time" />
@@ -535,14 +539,18 @@ function hideEndScreenAnim(tl, onComplete = () => {}) {
             overflow: hidden;
             transform: translateX(-250px);
 
+            padding: $size-2 $size-1 0.2em $size-3;
+
+            @include bp-xxl-desktop {
+                margin: $size-2 $size-3 0;
+            }
+
             &-header {
-                margin: $size-2 $size-1 0 $size-3;
                 display: flex;
                 justify-content: space-between;
                 gap: 2px;
 
                 @include bp-xxl-desktop {
-                    margin: $size-2 $size-3 0 $size-3;
                 }
 
                 h2 {
@@ -565,6 +573,7 @@ function hideEndScreenAnim(tl, onComplete = () => {}) {
 
                     @include bp-xxl-desktop {
                         transform: none;
+                        transform: scale(0.9) translate(-8px, 1px);
                     }
 
                     &:hover {
@@ -584,11 +593,10 @@ function hideEndScreenAnim(tl, onComplete = () => {}) {
                 min-height: 2px;
                 max-height: 2px;
                 background-color: $color-primary-light;
-                margin: 0 auto $size-1;
+                margin: 0 0 $size-1;
 
                 @include bp-xxl-desktop {
-                    margin: $size-1 auto $size-1;
-                    width: 100%;
+                    margin: $size-1 0;
                 }
             }
 
@@ -599,6 +607,7 @@ function hideEndScreenAnim(tl, onComplete = () => {}) {
                 list-style: none;
                 padding: 0 $size-4 $size-1 $size-1;
                 margin: 0 $size-2 0.2em $size-4;
+                margin: 0;
                 width: 20em;
                 overflow: hidden;
                 opacity: 0;
@@ -648,11 +657,12 @@ function hideEndScreenAnim(tl, onComplete = () => {}) {
             height: 0;
             width: 0;
 
+            padding: $size-2;
+
             h1 {
                 position: relative;
                 z-index: 2;
                 margin: 0;
-                margin: $size-2 $size-2 0;
                 color: $color-accent;
                 white-space: nowrap;
                 opacity: 0;
@@ -665,7 +675,7 @@ function hideEndScreenAnim(tl, onComplete = () => {}) {
                 border: 0;
                 min-height: 1px;
                 background-color: $color-primary-light;
-                margin: $size-1 0 $size-2;
+                margin-top: $size-1;
                 opacity: 0;
             }
 
@@ -676,7 +686,6 @@ function hideEndScreenAnim(tl, onComplete = () => {}) {
                 display: flex;
                 align-items: center;
                 gap: $size-2;
-                margin: 0 $size-6 $size-4;
                 opacity: 0;
             }
         }
@@ -687,6 +696,10 @@ function hideEndScreenAnim(tl, onComplete = () => {}) {
             gap: $size-2;
             width: 222px;
             margin: 0 auto;
+
+            @include bp-xxl-desktop {
+                width: 280px;
+            }
 
             :deep(button) {
                 font-size: 1.4em;
