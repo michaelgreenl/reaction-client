@@ -26,8 +26,8 @@ const elapsedMs = ref(0);
 let timerId;
 let startTimestamp = 0;
 
-const count = ref(3);
-const showCount = ref(false);
+// const count = ref(3);
+// const showCount = ref(false);
 
 const isMobile = ref(window.innerWidth < 682);
 const isXlDesktop = ref(window.innerWidth > 1600);
@@ -87,20 +87,20 @@ onBeforeUnmount(() => {
     window.removeEventListener('resize', () => {});
 });
 
-function startCountdown(n) {
-    count.value = n;
-    return new Promise((resolve) => {
-        if (n === 0) {
-            showCount.value = false;
-            resolve(true);
-            return;
-        }
+// function startCountdown(n) {
+//     count.value = n;
+//     return new Promise((resolve) => {
+//         if (n === 0) {
+//             showCount.value = false;
+//             resolve(true);
+//             return;
+//         }
 
-        setTimeout(() => {
-            startCountdown(n - 1).then(resolve);
-        }, 1000);
-    });
-}
+//         setTimeout(() => {
+//             startCountdown(n - 1).then(resolve);
+//         }, 1000);
+//     });
+// }
 
 function startTimer() {
     elapsedMs.value = 0;
@@ -119,16 +119,13 @@ function stopTimer() {
 
 async function startGame() {
     const onComplete = async () => {
-        count.value = 3;
+        elapsedMs.value = 0;
         score.value = 0;
         showSettings.value = false;
         showRecentGames.value = false;
         gamePlayed.value = true;
         gameActive.value = true;
         authStore.gameActive = true;
-        showCount.value = true;
-        await startCountdown(3);
-        startTimer();
     };
 
     const tl = gsap.timeline();
@@ -501,16 +498,14 @@ function growButtonDiv() {
                 <Button class="start-button" preset="primary animated" text="Start" @click="startGame" />
             </div>
         </div>
-        <div class="countdown" v-if="showCount">
-            <span>{{ count }}</span>
-        </div>
         <Canvas
-            v-if="gameActive && count === 0"
+            v-if="gameActive"
             :gameActive="gameActive"
             :score="score"
             :time="elapsedMs"
             @endGame="handleEndGame"
             @incrementScore="score += 1"
+            @startTimer="startTimer"
         />
     </div>
 </template>
@@ -705,25 +700,6 @@ function growButtonDiv() {
                 font-size: 1.4em;
             }
         }
-    }
-
-    @keyframes shrink {
-        from {
-            font-size: 3.5em;
-        }
-
-        to {
-            font-size: 1.5em;
-        }
-    }
-
-    .countdown {
-        color: $color-text-primary-light;
-        font-weight: 600;
-        font-size: 3.5em;
-        text-shadow: 1px 1px 2px #00000033;
-        animation: shrink 1s ease-in-out;
-        animation-iteration-count: 3;
     }
 }
 </style>

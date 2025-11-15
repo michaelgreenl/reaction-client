@@ -1,5 +1,6 @@
 <script setup>
-import { ref, onMounted, onBeforeUnmount } from 'vue';
+import { ref, onMounted, onBeforeUnmount, watch } from 'vue';
+import { gsap } from 'gsap';
 import { useSettingsStore } from '@/stores/settingsStore';
 import Circle from '@/components/Circle.vue';
 import GameStats from '@/components/GameStats.vue';
@@ -8,9 +9,11 @@ const props = defineProps({
     gameActive: { type: Boolean, default: false },
     score: { type: Number, default: 0 },
     time: { type: Number, default: 0 },
+    // showCount: { type: Boolean, required: true },
+    // count: { type: Number, required: true },
 });
 
-const emit = defineEmits(['endGame', 'incrementScore']);
+const emit = defineEmits(['startTimer', 'endGame', 'incrementScore']);
 
 const canvasRef = ref(null);
 
@@ -19,7 +22,14 @@ const settingsStore = useSettingsStore();
 const circles = ref([]);
 let spawnTimer;
 
-onMounted(() => {
+const count = ref(3);
+const showCount = ref(false);
+
+onMounted(async () => {
+    showCount.value = true;
+    await startCountdown(3);
+    emit('startTimer');
+
     spawnCircle();
     spawnTimer = setInterval(spawnCircle, 1000 * settingsStore.spawnInterval);
 });
@@ -27,6 +37,21 @@ onMounted(() => {
 onBeforeUnmount(() => {
     if (spawnTimer) clearInterval(spawnTimer);
 });
+
+function startCountdown(n) {
+    count.value = n;
+    return new Promise((resolve) => {
+        if (n === 0) {
+            showCount.value = false;
+            resolve(true);
+            return;
+        }
+
+        setTimeout(() => {
+            startCountdown(n - 1).then(resolve);
+        }, 1000);
+    });
+}
 
 function getRandomInt(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -74,7 +99,10 @@ function handleGameEnd() {
         <div class="hud">
             <GameStats :score="score" :time="time" :adjustTimeSize="true" />
         </div>
-        <div class="canvas">
+        <div class="countdown" v-if="showCount">
+            <span>{{ count }}</span>
+        </div>
+        <div v-else class="canvas">
             <div v-for="c in circles" :key="c.id" class="circle-wrapper" :style="{ left: c.x + 'px', top: c.y + 'px' }">
                 <Circle @click="handleCircleClick(c.id)" @endGame="handleGameEnd()" :gameActive="localGameActive" />
             </div>
@@ -132,6 +160,25 @@ function handleGameEnd() {
 
         :deep(button) {
             pointer-events: auto;
+        }
+    }
+
+    .countdown {
+        color: $color-text-primary-light;
+        font-weight: 600;
+        font-size: 3.5em;
+        text-shadow: 1px 1px 2px #00000033;
+        animation: shrink 1s ease-in-out;
+        animation-iteration-count: 3;
+    }
+
+    @keyframes shrink {
+        from {
+            font-size: 3.5em;
+        }
+
+        to {
+            font-size: 1.5em;
         }
     }
 }
