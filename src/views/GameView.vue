@@ -39,7 +39,7 @@ const mainButtons = ref([
         preset: 'primary animated',
         condition: () => showSettings.value,
         disabled: () => !settingsRef.value?.settingsChanged,
-        click: () => resetLocalSettings(),
+        click: () => settingsRef.value?.resetLocalSettings(),
     },
     {
         key: 'save',
@@ -49,7 +49,7 @@ const mainButtons = ref([
         condition: () => showSettings.value,
         isLoading: () => settingsRef.value?.isLoading,
         disabled: () => settingsRef.value?.isLoading || !settingsRef.value?.settingsChanged,
-        click: () => saveSettings(),
+        click: () => settingsRef.value?.saveSettings(),
     },
     {
         key: 'settings',
@@ -403,17 +403,18 @@ function showEndScreenAnim(tl) {
     tl.to('.end-screen', {
         duration: 0.3,
         ease: 'expo',
-        width: '260px',
-        height: '106px',
+        width: '265px',
+        height: '114px',
     }).to(
         '.end-screen-child',
         {
             duration: 0.3,
             ease: 'linear',
+            // ease: 'power3.out',
             opacity: 1,
-            stagger: 0.1,
+            stagger: 0.05,
         },
-        0,
+        0.1,
     );
 }
 
@@ -467,7 +468,7 @@ function hideEndScreenAnim(tl, onComplete = () => {}) {
                 </ul>
             </div>
             <div v-if="gamePlayed && !showSettings" class="end-screen psuedo-border">
-                <h1 class="end-screen-child">Game Over!</h1>
+                <h1 class="end-screen-child">Game Over</h1>
                 <hr class="end-screen-child" />
                 <div class="stats end-screen-child">
                     <GameStats :score="score" :time="elapsedMs" />
