@@ -268,8 +268,8 @@ async function toggleRecentGames() {
 
 function openRecentGamesAnim(tl) {
     tl.to('.recent-games', {
-        duration: 0.2,
-        ease: 'power3.out',
+        duration: 0.3,
+        ease: 'expo',
         width: 'auto',
         height: 'auto',
         opacity: 1,
@@ -277,12 +277,28 @@ function openRecentGamesAnim(tl) {
     }).to(
         '.recent-games-list',
         {
-            duration: 0.2,
+            duration: 0.3,
             ease: 'power3.out',
             opacity: 1,
         },
         0.1,
     );
+    // tl.to('.recent-games', {
+    //     duration: 0.2,
+    //     ease: 'power3.out',
+    //     width: 'auto',
+    //     height: 'auto',
+    //     opacity: 1,
+    //     x: 0,
+    // }).to(
+    //     '.recent-games-list',
+    //     {
+    //         duration: 0.2,
+    //         ease: 'power3.out',
+    //         opacity: 1,
+    //     },
+    //     0.1,
+    // );
 }
 
 function hideRecentGamesAnim(tl, onComplete = () => {}) {
