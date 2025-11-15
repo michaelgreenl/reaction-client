@@ -237,7 +237,7 @@ async function toggleSettings() {
     const tl = gsap.timeline();
     exitButtonAnim(tl, (tl) => onComplete(tl));
 
-    if (gamePlayed.value) {
+    if (gamePlayed.value && !showSettings.value) {
         hideEndScreenAnim(tl);
     }
 
