@@ -54,11 +54,10 @@ defineExpose({ openCircle, closeCircle });
 <template>
     <div
         class="circle"
+        :class="`${!gameCircle ? 'start-circle' : undefined}`"
         :style="{
             height: `${localSize ? localSize : settingsStore.circleSize}px`,
             width: `${localSize ? localSize : settingsStore.circleSize}px`,
-            transform: `${!gameCircle ? 'scale(0)' : undefined}`,
-            opacity: `${!gameCircle ? 0 : 1}`,
         }"
     >
         <button
@@ -81,6 +80,11 @@ defineExpose({ openCircle, closeCircle });
 .circle {
     position: relative;
     @include flexCenterAll;
+
+    &.start-circle {
+        transform: scale(0);
+        opacity: 0;
+    }
 
     span {
         font-family: $primary-font-stack;
