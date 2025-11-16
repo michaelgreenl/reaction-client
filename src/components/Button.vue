@@ -46,11 +46,6 @@ button {
         &:active {
             transform: scale(0.95);
         }
-
-        &.animated {
-            opacity: 0;
-            will-change: transform, opacity;
-        }
     }
 
     &.primary,

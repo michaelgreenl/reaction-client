@@ -34,7 +34,7 @@ const mainButtons = ref([
     {
         key: 'cancel',
         text: 'Cancel',
-        preset: 'primary animated',
+        preset: 'primary',
         condition: () => showSettings.value,
         disabled: () => !settingsRef.value?.settingsChanged,
         click: () => settingsRef.value?.resetLocalSettings(),
@@ -43,7 +43,7 @@ const mainButtons = ref([
         key: 'save',
         text: 'Save',
         type: 'submit',
-        preset: 'primary animated',
+        preset: 'primary',
         condition: () => showSettings.value,
         isLoading: () => settingsRef.value?.isLoading,
         disabled: () => settingsRef.value?.isLoading || !settingsRef.value?.settingsChanged,
@@ -52,7 +52,7 @@ const mainButtons = ref([
     {
         key: 'settings',
         text: 'Settings',
-        preset: 'primary animated',
+        preset: 'primary',
         condition: () => !showSettings.value,
         click: () => toggleSettings(),
     },
@@ -681,6 +681,8 @@ function growButtonDiv() {
 
             :deep(button) {
                 font-size: 1.4em;
+                opacity: 0;
+                will-change: transform, opacity;
             }
         }
     }
