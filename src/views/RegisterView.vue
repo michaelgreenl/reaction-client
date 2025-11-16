@@ -238,6 +238,11 @@ const handleRegister = async () => {
             z-index: 2;
             align-self: flex-end;
             margin-right: $size-4;
+
+            :deep(span) {
+                text-shadow: none;
+                color: $color-white;
+            }
         }
 
         .bottom-border {
