@@ -14,11 +14,9 @@ function timeValueSize(timeMs) {
         return '1.8ch';
     } else if (seconds >= 20) {
         return '2.8ch';
-    } else if (seconds >= 10) {
+    } else {
         return '2.4ch';
     }
-
-    return '2.2ch';
 }
 </script>
 
