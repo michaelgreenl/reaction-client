@@ -33,6 +33,7 @@ const handleLogin = async () => {
     } catch (error) {
         errorMessage.value = 'An unexpected error occurred.';
         password.value = '';
+        console.error(error);
     } finally {
         isLoading.value = false;
     }
@@ -41,7 +42,7 @@ const handleLogin = async () => {
 
 <template>
     <div class="auth-container">
-        <form @submit.prevent="handleLogin" class="auth-form psuedo-border">
+        <form class="auth-form psuedo-border" @submit.prevent="handleLogin">
             <div class="auth-header">
                 <LogoSVG />
                 <h2>Login</h2>
@@ -60,16 +61,16 @@ const handleLogin = async () => {
                             v-model="password"
                             required
                             :disabled="isLoading"
-                            :showPassword="showPassword"
-                            :passwordHideButton="passwordHideButton"
-                            @toggleHideButton="showPassword = !showPassword"
+                            :show-password="showPassword"
+                            :password-hide-button="passwordHideButton"
+                            @toggle-hide-button="showPassword = !showPassword"
                             @focus="passwordHideButton = true"
                             @blur="passwordHideButton = false"
                         />
                     </div>
                 </div>
             </div>
-            <Button type="submit" text="Login" preset="secondary" :isLoading="isLoading" :disabled="isLoading" />
+            <Button type="submit" text="Login" preset="secondary" :is-loading="isLoading" :disabled="isLoading" />
             <hr class="bottom-border" />
             <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
             <p class="form-link">Don't have an account? <router-link to="/register">Register</router-link></p>

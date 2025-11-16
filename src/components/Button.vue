@@ -1,24 +1,24 @@
 <script setup>
 import Loader from '@/components/Loader.vue';
 
-const props = defineProps({
-    text: { type: String },
+defineProps({
+    text: { type: String, default: null },
     showText: { type: Boolean, default: true },
     preset: { type: String, default: 'primary' },
-    iconLeft: { type: Object },
-    iconRight: { type: Object },
+    iconLeft: { type: Object, default: null },
+    iconRight: { type: Object, default: null },
     isLoading: { type: Boolean, default: false },
 });
 
-const emit = defineEmits(['click']);
+defineEmits(['click']);
 </script>
 
 <template>
     <button :class="preset" @click="$emit('click')">
-        <component class="icon icon-left" :is="iconLeft" />
+        <component :is="iconLeft" class="icon icon-left" />
         <span v-if="showText && !isLoading">{{ text }}</span>
         <Loader v-if="isLoading" />
-        <component class="icon icon-right" :is="iconRight" />
+        <component :is="iconRight" class="icon icon-right" />
     </button>
 </template>
 

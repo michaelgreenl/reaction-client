@@ -1,5 +1,5 @@
 <script setup>
-const props = defineProps({
+defineProps({
     id: { type: String, required: true },
     modelValue: { type: String, required: true },
     required: { type: Boolean, default: false },
@@ -8,7 +8,7 @@ const props = defineProps({
     passwordHideButton: { type: Boolean, default: false },
 });
 
-const emit = defineEmits(['toggleHideButton', 'update:modelValue', 'focus', 'blur']);
+defineEmits(['toggleHideButton', 'update:modelValue', 'focus', 'blur']);
 </script>
 
 <template>
@@ -18,15 +18,15 @@ const emit = defineEmits(['toggleHideButton', 'update:modelValue', 'focus', 'blu
         :type="showPassword ? 'text' : 'password'"
         :required="required"
         :disabled="disabled"
-        @focus="emit('focus')"
-        @blur="emit('blur')"
-        @input="emit('update:modelValue', $event.target.value)"
+        @focus="$emit('focus')"
+        @blur="$emit('blur')"
+        @input="$emit('update:modelValue', $event.target.value)"
     />
     <button
         v-if="passwordHideButton"
         type="button"
         class="toggle-password"
-        @click="emit('toggleHideButton')"
+        @click="$emit('toggleHideButton')"
         @mousedown.prevent
     >
         {{ showPassword ? 'Hide' : 'Show' }}

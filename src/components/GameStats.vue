@@ -1,9 +1,9 @@
 <script setup>
 import { formatTime } from '@/util/time.js';
 
-const props = defineProps({
-    score: { required: true },
-    time: { required: true },
+defineProps({
+    score: { type: Number, required: true },
+    time: { type: Number, required: true },
     adjustTimeSize: { type: Boolean, default: false },
 });
 

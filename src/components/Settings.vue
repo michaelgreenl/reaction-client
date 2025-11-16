@@ -1,9 +1,8 @@
 <script setup>
-import { ref, reactive, computed, onMounted, onBeforeUnmount, nextTick, watch } from 'vue';
+import { ref, reactive, computed, onMounted, nextTick, watch } from 'vue';
 import { gsap } from 'gsap';
 import { useSettingsStore } from '@/stores/settingsStore';
 import { useAuthStore } from '@/stores/authStore';
-import Loader from '@/components/Loader.vue';
 import Button from '@/components/Button.vue';
 import Circle from '@/components/Circle.vue';
 import RangeInput from '@/components/Inputs/Range.vue';
@@ -155,10 +154,10 @@ defineExpose({ saveSettings, resetLocalSettings, settingsChanged, isLoading, clo
 <template>
     <div class="settings-container">
         <div class="form-circle">
-            <form @submit.prevent="saveSettings" v-if="showSettings" class="form-container psuedo-border">
+            <form v-if="showSettings" class="form-container psuedo-border" @submit.prevent="saveSettings">
                 <div class="form-header">
                     <h2>Settings</h2>
-                    <Button class="close-button" preset="icon-only" :iconLeft="CloseIcon" @click="closeSettings()" />
+                    <Button class="close-button" preset="icon-only" :icon-left="CloseIcon" @click="closeSettings()" />
                 </div>
                 <hr class="form-hr" />
                 <div class="form-group">
@@ -177,20 +176,20 @@ defineExpose({ saveSettings, resetLocalSettings, settingsChanged, isLoading, clo
                     <label for="spawnInterval">Spawn Interval</label>
                     <NumberInput
                         v-model="localSettings.spawnInterval"
-                        :stepUpDisabled="isLoading || localSettings.spawnInterval >= 2"
-                        :stepDownDisabled="isLoading || localSettings.spawnInterval === 0.25"
-                        @stepUp="localSettings.spawnInterval += 0.25"
-                        @stepDown="localSettings.spawnInterval -= 0.25"
+                        :step-up-disabled="isLoading || localSettings.spawnInterval >= 2"
+                        :step-down-disabled="isLoading || localSettings.spawnInterval === 0.25"
+                        @step-up="localSettings.spawnInterval += 0.25"
+                        @step-down="localSettings.spawnInterval -= 0.25"
                     />
                 </div>
                 <div class="form-group">
                     <label for="shrinkTime">Shrink Time</label>
                     <NumberInput
                         v-model="localSettings.shrinkTime"
-                        :stepUpDisabled="isLoading || localSettings.shrinkTime >= 2"
-                        :stepDownDisabled="isLoading || localSettings.shrinkTime === 0.25"
-                        @stepUp="localSettings.shrinkTime += 0.25"
-                        @stepDown="localSettings.shrinkTime -= 0.25"
+                        :step-up-disabled="isLoading || localSettings.shrinkTime >= 2"
+                        :step-down-disabled="isLoading || localSettings.shrinkTime === 0.25"
+                        @step-up="localSettings.shrinkTime += 0.25"
+                        @step-down="localSettings.shrinkTime -= 0.25"
                     />
                 </div>
             </form>
@@ -198,10 +197,10 @@ defineExpose({ saveSettings, resetLocalSettings, settingsChanged, isLoading, clo
                 v-if="!gamePlayed || showSettings"
                 ref="settingsCircleRef"
                 class="settings-circle"
-                :gameActive="true"
-                :gameCircle="false"
-                :localSize="localSettings.circleSize"
-                :inputActive="rangeInputActive"
+                :game-active="true"
+                :game-circle="false"
+                :local-size="localSettings.circleSize"
+                :input-active="rangeInputActive"
             />
         </div>
     </div>

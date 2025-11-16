@@ -14,18 +14,18 @@ const route = useRoute();
             <h2>Reaction</h2>
         </router-link>
         <router-link
-            class="nav-link"
             v-if="!authStore.isAuthenticated && route.fullPath !== '/login' && route.fullPath !== '/register'"
+            class="nav-link"
             to="/login"
         >
             Login
         </router-link>
-        <router-link class="nav-link" v-if="authStore.isAuthenticated && route.fullPath !== '/profile'" to="/profile"
+        <router-link v-if="authStore.isAuthenticated && route.fullPath !== '/profile'" class="nav-link" to="/profile"
             >Profile</router-link
         >
         <button
-            class="nav-link"
             v-if="authStore.isAuthenticated && route.fullPath === '/profile'"
+            class="nav-link"
             @click="authStore.logout"
         >
             Logout

@@ -3,9 +3,9 @@ import { ref, onBeforeUnmount } from 'vue';
 
 const props = defineProps({
     id: { type: String, required: true },
-    modelValue: { required: true },
-    min: { required: true },
-    max: { required: true },
+    modelValue: { type: Number, required: true },
+    min: { type: Number, required: true },
+    max: { type: Number, required: true },
     required: { type: Boolean, default: false },
     disabled: { type: Boolean, default: false },
     showValue: { type: Boolean, default: false },
@@ -50,12 +50,12 @@ function getCircleSizePercent() {
 
 <template>
     <input
+        :id="id"
         ref="rangeInput"
         type="range"
         :value="modelValue"
         :min="min"
         :max="max"
-        :id="id"
         :required="required"
         :disabled="disabled"
         @pointerdown="onPointerDown"

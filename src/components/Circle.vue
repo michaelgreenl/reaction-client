@@ -6,7 +6,7 @@ import { useSettingsStore } from '@/stores/settingsStore';
 const props = defineProps({
     gameActive: { type: Boolean },
     gameCircle: { type: Boolean, default: true },
-    localSize: { required: false },
+    localSize: { type: [String, Number], default: null },
     inputActive: { type: Boolean },
 });
 

@@ -1,16 +1,14 @@
 <script setup>
-import { ref, onMounted, onBeforeUnmount, watch } from 'vue';
+import { ref, onMounted, onBeforeUnmount } from 'vue';
 import { gsap } from 'gsap';
 import { useSettingsStore } from '@/stores/settingsStore';
 import Circle from '@/components/Circle.vue';
 import GameStats from '@/components/GameStats.vue';
 
-const props = defineProps({
+defineProps({
     gameActive: { type: Boolean, default: false },
     score: { type: Number, default: 0 },
     time: { type: Number, default: 0 },
-    // showCount: { type: Boolean, required: true },
-    // count: { type: Number, required: true },
 });
 
 const emit = defineEmits(['startTimer', 'endGame', 'incrementScore']);
@@ -40,6 +38,11 @@ onBeforeUnmount(() => {
 
 function startCountdown(n) {
     count.value = n;
+
+    if (n === 2) {
+        // TODO: Start hud animation
+    }
+
     return new Promise((resolve) => {
         if (n === 0) {
             showCount.value = false;
@@ -97,14 +100,14 @@ function handleGameEnd() {
 <template>
     <div ref="canvasRef" class="game-container">
         <div class="hud">
-            <GameStats :score="score" :time="time" :adjustTimeSize="true" />
+            <GameStats :adjust-time-size="true" :score="score" :time="time" />
         </div>
-        <div class="countdown" v-if="showCount">
+        <div v-if="showCount" class="countdown">
             <span>{{ count }}</span>
         </div>
         <div v-else class="canvas">
             <div v-for="c in circles" :key="c.id" class="circle-wrapper" :style="{ left: c.x + 'px', top: c.y + 'px' }">
-                <Circle @click="handleCircleClick(c.id)" @endGame="handleGameEnd()" :gameActive="localGameActive" />
+                <Circle :game-active="localGameActive" @click="handleCircleClick(c.id)" @end-game="handleGameEnd()" />
             </div>
         </div>
     </div>

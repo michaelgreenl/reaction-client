@@ -1,20 +1,20 @@
 <script setup>
-const props = defineProps({
-    modelValue: { required: true },
+defineProps({
+    modelValue: { type: Number, required: true },
     required: { type: Boolean, default: false },
     stepUpDisabled: { type: Boolean, default: false },
     stepDownDisabled: { type: Boolean, default: false },
 });
 
-const emit = defineEmits(['stepUp', 'stepDown']);
+defineEmits(['stepUp', 'stepDown']);
 </script>
 
 <template>
     <div class="number-input">
         <span> {{ Number.isInteger(modelValue) ? modelValue.toFixed(1) : modelValue.toString() }}s </span>
         <div class="step-buttons">
-            <button @click="emit('stepUp')" :disabled="stepUpDisabled" type="button">+</button>
-            <button @click="emit('stepDown')" :disabled="stepDownDisabled" type="button">−</button>
+            <button :disabled="stepUpDisabled" type="button" @click="$emit('stepUp')">+</button>
+            <button :disabled="stepDownDisabled" type="button" @click="$emit('stepDown')">−</button>
         </div>
     </div>
 </template>

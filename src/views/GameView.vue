@@ -1,9 +1,9 @@
 <script setup>
-import { ref, computed, onMounted, onBeforeUnmount, watch, nextTick } from 'vue';
+import { ref, computed, onMounted, onBeforeUnmount, nextTick } from 'vue';
 import { gsap } from 'gsap';
 import { useAuthStore } from '@/stores/authStore.js';
 import { useSettingsStore } from '@/stores/settingsStore.js';
-import { formatTime, getTimePassed } from '@/util/time.js';
+import { getTimePassed } from '@/util/time.js';
 import Settings from '@/components/Settings.vue';
 import Canvas from '@/components/Canvas.vue';
 import Button from '@/components/Button.vue';
@@ -25,9 +25,6 @@ const gamePlayed = ref(false);
 const elapsedMs = ref(0);
 let timerId;
 let startTimestamp = 0;
-
-// const count = ref(3);
-// const showCount = ref(false);
 
 const isMobile = ref(window.innerWidth < 682);
 const isXlDesktop = ref(window.innerWidth > 1600);
@@ -77,6 +74,7 @@ onMounted(() => {
 
     window.addEventListener('resize', () => {
         isMobile.value = window.innerWidth < 682;
+        isXlDesktop.value = window.innerWidth > 1600;
     });
 
     isMounted.value = true;
@@ -86,21 +84,6 @@ onBeforeUnmount(() => {
     stopTimer();
     window.removeEventListener('resize', () => {});
 });
-
-// function startCountdown(n) {
-//     count.value = n;
-//     return new Promise((resolve) => {
-//         if (n === 0) {
-//             showCount.value = false;
-//             resolve(true);
-//             return;
-//         }
-
-//         setTimeout(() => {
-//             startCountdown(n - 1).then(resolve);
-//         }, 1000);
-//     });
-// }
 
 function startTimer() {
     elapsedMs.value = 0;
@@ -443,24 +426,24 @@ function growButtonDiv() {
 <template>
     <div class="game-container" :class="`${showSettings ? 'showing-settings' : undefined}`">
         <div v-if="!gameActive" class="game-start">
-            <div v-if="authStore.recentUserGames.length" class="recent-games" key="recentGames">
+            <div v-if="authStore.recentUserGames.length" key="recentGames" class="recent-games">
                 <div class="recent-games-header">
                     <h2>Recent Scores</h2>
                     <Button
                         v-if="!showRecentGames || showSettings"
                         preset="icon-only"
-                        :iconLeft="ArrowSVG"
+                        :icon-left="ArrowSVG"
                         @click="toggleRecentGames"
                     />
                     <Button
                         v-if="showRecentGames && !showSettings"
                         preset="icon-only"
-                        :iconLeft="CloseSVG"
+                        :icon-left="CloseSVG"
                         @click="toggleRecentGames"
                     />
                 </div>
                 <hr :style="{ width: `${!showRecentGames ? '96%' : '98%'}` }" />
-                <ul class="recent-games-list" v-if="showRecentGames && !showSettings">
+                <ul v-if="showRecentGames && !showSettings" class="recent-games-list">
                     <li v-for="game in authStore.recentUserGames" :key="game.createdAt">
                         <GameStats :score="game.score" :time="game.time" />
                         <span class="separator"> - </span>
@@ -478,10 +461,10 @@ function growButtonDiv() {
             <Settings
                 ref="settingsRef"
                 class="settings"
-                :showSettings="showSettings"
-                :gamePlayed="gamePlayed"
-                @startingCloseSettings="exitButtonAnim(gsap.timeline())"
-                @closeSettings="toggleSettings"
+                :show-settings="showSettings"
+                :game-played="gamePlayed"
+                @starting-close-settings="exitButtonAnim(gsap.timeline())"
+                @close-settings="toggleSettings"
             />
             <div class="buttons">
                 <Button
@@ -500,12 +483,12 @@ function growButtonDiv() {
         </div>
         <Canvas
             v-if="gameActive"
-            :gameActive="gameActive"
+            :game-active="gameActive"
             :score="score"
             :time="elapsedMs"
-            @endGame="handleEndGame"
-            @incrementScore="score += 1"
-            @startTimer="startTimer"
+            @end-game="handleEndGame"
+            @increment-score="score += 1"
+            @start-timer="startTimer"
         />
     </div>
 </template>

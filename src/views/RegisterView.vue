@@ -48,6 +48,7 @@ const handleRegister = async () => {
         }
     } catch (error) {
         errorMessage.value = 'An unexpected error occurred.';
+        console.error(error);
     } finally {
         isLoading.value = false;
     }
@@ -56,7 +57,7 @@ const handleRegister = async () => {
 
 <template>
     <div class="auth-container">
-        <form @submit.prevent="handleRegister" class="auth-form psuedo-border">
+        <form class="auth-form psuedo-border" @submit.prevent="handleRegister">
             <div class="auth-header">
                 <LogoSVG />
                 <h2>Register</h2>
@@ -75,9 +76,9 @@ const handleRegister = async () => {
                             v-model="password"
                             required
                             :disabled="isLoading"
-                            :showPassword="showPassword"
-                            :passwordHideButton="passwordHideButton"
-                            @toggleHideButton="showPassword = !showPassword"
+                            :show-password="showPassword"
+                            :password-hide-button="passwordHideButton"
+                            @toggle-hide-button="showPassword = !showPassword"
                             @focus="passwordHideButton = true"
                             @blur="passwordHideButton = false"
                         />
@@ -91,9 +92,9 @@ const handleRegister = async () => {
                             v-model="retypePassword"
                             required
                             :disabled="isLoading"
-                            :showPassword="showPassword"
-                            :passwordHideButton="rePasswordHideButton"
-                            @toggleHideButton="showPassword = !showPassword"
+                            :show-password="showPassword"
+                            :password-hide-button="rePasswordHideButton"
+                            @toggle-hide-button="showPassword = !showPassword"
                             @focus="rePasswordHideButton = true"
                             @blur="rePasswordHideButton = false"
                         />
@@ -120,7 +121,7 @@ const handleRegister = async () => {
                 </li>
             </ul>
 
-            <Button type="submit" text="Register" preset="secondary" :isLoading="isLoading" :disabled="isLoading" />
+            <Button type="submit" text="Register" preset="secondary" :is-loading="isLoading" :disabled="isLoading" />
             <hr class="bottom-border" />
             <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
             <p class="form-link">Already have an account? <router-link to="/login">Login</router-link></p>

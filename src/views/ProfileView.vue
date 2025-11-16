@@ -168,7 +168,7 @@ function toggleDropdown() {
                 <span class="stat">{{ authStore.userStats.totalGames }}</span>
             </div>
         </div>
-        <div class="loader" v-if="isLoading">
+        <div v-if="isLoading" class="loader">
             <Loader text="Loading Games" />
         </div>
         <div v-else class="main-wrapper">
@@ -195,8 +195,8 @@ function toggleDropdown() {
                         <div v-for="key in Object.keys(settingsStore.settingsKeyVal)" :key="key" class="form-group">
                             <CheckboxInput
                                 :id="`${key}Filter`"
-                                type="checkbox"
                                 v-model="filterToggles[`${key}`]"
+                                type="checkbox"
                                 :disabled="loadingGames"
                             />
                             <label :for="`${key}Filter`">
@@ -209,7 +209,7 @@ function toggleDropdown() {
                 <div class="filters">
                     <form v-if="filtersAdded" @submit.prevent="filterGamesBySettings">
                         <div class="form-groups">
-                            <div class="form-group" v-if="filterToggles.circleSize">
+                            <div v-if="filterToggles.circleSize" class="form-group">
                                 <label for="circleSize">Circle Size</label>
                                 <RangeInput
                                     id="circleSize"
@@ -217,42 +217,42 @@ function toggleDropdown() {
                                     :min="25"
                                     :max="125"
                                     :disabled="loadingGames || !filterToggles.circleSize"
-                                    :showValue="true"
-                                    :inputActive="rangeInputActive"
+                                    :show-value="true"
+                                    :input-active="rangeInputActive"
                                     @mousedown="rangeInputActive = true"
                                     @mouseup="rangeInputActive = false"
                                 />
                             </div>
                             <span v-if="filterToggles.spawnInterval && showSettings" class="seperator"> | </span>
-                            <div class="form-group" v-if="filterToggles.spawnInterval">
+                            <div v-if="filterToggles.spawnInterval" class="form-group">
                                 <label>Spawn Interval</label>
                                 <NumberInput
                                     v-model="settingsFilters.spawnInterval"
-                                    :stepUpDisabled="
+                                    :step-up-disabled="
                                         isLoading || !filterToggles.spawnInterval || settingsFilters.spawnInterval >= 2
                                     "
-                                    :stepDownDisabled="
+                                    :step-down-disabled="
                                         isLoading ||
                                         !filterToggles.spawnInterval ||
                                         settingsFilters.spawnInterval === 0.25
                                     "
-                                    @stepUp="settingsFilters.spawnInterval += 0.25"
-                                    @stepDown="settingsFilters.spawnInterval -= 0.25"
+                                    @step-up="settingsFilters.spawnInterval += 0.25"
+                                    @step-down="settingsFilters.spawnInterval -= 0.25"
                                 />
                             </div>
                             <span v-if="filterToggles.shrinkTime && showSettings" class="seperator"> | </span>
-                            <div class="form-group" v-if="filterToggles.shrinkTime">
+                            <div v-if="filterToggles.shrinkTime" class="form-group">
                                 <label>Shrink Time</label>
                                 <NumberInput
                                     v-model="settingsFilters.shrinkTime"
-                                    :stepUpDisabled="
+                                    :step-up-disabled="
                                         loadingGames || !filterToggles.shrinkTime || settingsFilters.shrinkTime >= 2
                                     "
-                                    :stepDownDisabled="
+                                    :step-down-disabled="
                                         loadingGames || !filterToggles.shrinkTime || settingsFilters.shrinkTime === 0.25
                                     "
-                                    @stepUp="settingsFilters.shrinkTime += 0.25"
-                                    @stepDown="settingsFilters.shrinkTime -= 0.25"
+                                    @step-up="settingsFilters.shrinkTime += 0.25"
+                                    @step-down="settingsFilters.shrinkTime -= 0.25"
                                 />
                             </div>
                         </div>
@@ -327,7 +327,7 @@ function toggleDropdown() {
                                 height: `${activeGames.games.length > 0 ? activeGames.games.length * 26 : 260}px`,
                             }"
                         >
-                            <tr v-for="(game, i) in activeGames.games">
+                            <tr v-for="game in activeGames.games" :key="game.createdAt">
                                 <td :class="`${activeGames.sorted.by === 'score' ? 'sorted' : undefined}`">
                                     {{ game.score }}
                                 </td>
