@@ -23,6 +23,8 @@ let spawnTimer;
 const count = ref(3);
 const showCount = ref(false);
 
+const localGameActive = ref(true);
+
 onMounted(async () => {
     showCount.value = true;
     await startCountdown(3);
@@ -40,7 +42,8 @@ function startCountdown(n) {
     count.value = n;
 
     if (n === 2) {
-        // TODO: Start hud animation
+        const tl = gsap.timeline();
+        enterHudAnim(tl);
     }
 
     return new Promise((resolve) => {
@@ -85,15 +88,87 @@ function handleCircleClick(id) {
     circles.value = circles.value.filter((c) => c.id !== id);
 }
 
-const localGameActive = ref(true);
-
 function handleGameEnd() {
+    const tl = gsap.timeline();
+    exitHudAnim(tl);
     localGameActive.value = false;
 
-    // Timeout for the circle's fade-out transitions
+    // Timeout for the hud exit animation & all of the circle's fade-out transitions
     setTimeout(() => {
         emit('endGame');
-    }, 400);
+    }, 900);
+}
+
+function enterHudAnim(tl) {
+    tl.to('.hud', {
+        duration: 0.3,
+        ease: 'power4.out',
+        y: 0,
+    })
+        .to(
+            '.stat-wrapper',
+            {
+                duration: 0.3,
+                ease: 'power4.out',
+                width: 'auto',
+            },
+            0.3,
+        )
+        .to(
+            '.hud',
+            {
+                duration: 0.3,
+                ease: 'power4.out',
+                paddingRight: '2em',
+            },
+            0.3,
+        )
+        .to(
+            '.stat-wrapper',
+            {
+                duration: 0.3,
+                ease: 'linear',
+                opacity: 1,
+                stagger: 0.05,
+            },
+            0.4,
+        );
+}
+
+function exitHudAnim(tl) {
+    tl.to('.stat-wrapper', {
+        duration: 0.3,
+        ease: 'linear',
+        opacity: 0,
+        stagger: 0.05,
+    })
+        .to(
+            '.stat-wrapper',
+            {
+                duration: 0.3,
+                ease: 'power4.out',
+                width: 0,
+            },
+            0.3,
+        )
+        .to(
+            '.hud',
+            {
+                duration: 0.3,
+                ease: 'power4.out',
+                paddingRight: '1em',
+            },
+            0.3,
+        )
+        .to(
+            '.hud',
+            {
+                duration: 0.3,
+                ease: 'power4.out',
+                y: '-60px',
+            },
+            0.6,
+        );
 }
 </script>
 
@@ -130,11 +205,19 @@ function handleGameEnd() {
         align-items: center;
         justify-content: space-around;
         background: $color-bg-secondary;
-        padding: $size-2 $size-8 $size-2 $size-4;
+        padding: $size-2 $size-4 $size-2 $size-4;
         border-radius: $border-radius-sm;
         gap: $size-2;
         border: solid 1px $color-gray3;
         box-shadow: $box-shadow;
+
+        transform: translateY(-60px);
+        overflow: hidden;
+
+        :deep(.stat-wrapper) {
+            opacity: 0;
+            width: 0;
+        }
 
         @include bp-custom-min(400) {
             margin-left: auto;
