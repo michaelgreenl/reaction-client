@@ -22,11 +22,9 @@ onUnmounted(() => {
 
 <template>
     <div class="loading-wrapper">
-        <div class="loading-text" :style="{ width: `${text.length - 4}ch` }">
-            <span>
-                {{ loadingText }}
-            </span>
-        </div>
+        <span>
+            {{ loadingText }}
+        </span>
     </div>
 </template>
 
@@ -35,7 +33,9 @@ onUnmounted(() => {
     @include flexCenterAll;
 
     span {
+        width: 5.2ch;
         text-wrap: nowrap;
+        text-align: left;
         text-shadow: 1px 1px 2px #00000033;
     }
 }
