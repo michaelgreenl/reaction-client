@@ -30,8 +30,8 @@ function circleClick() {
     emit('click');
 }
 
-function openCircle() {
-    gsap.to('.circle', {
+function openCircle({ tl = gsap.timeline() } = {}) {
+    tl.to('.circle', {
         duration: 0.3,
         ease: 'power3.out',
         scale: 1,
@@ -39,8 +39,8 @@ function openCircle() {
     });
 }
 
-function closeCircle() {
-    gsap.to('.circle', {
+function closeCircle({ tl = gsap.timeline() } = {}) {
+    tl.to('.circle', {
         duration: 0.2,
         ease: 'power3.in',
         scale: 0,

@@ -68,8 +68,7 @@ onMounted(() => {
     showButtonsAnim();
 
     if (authStore.isAuthenticated) {
-        const tl = gsap.timeline();
-        showRecentGamesAnim(tl);
+        showRecentGamesAnim();
     }
 
     window.addEventListener('resize', () => {
@@ -112,19 +111,18 @@ async function startGame() {
     };
 
     const tl = gsap.timeline();
-
     hideButtonsAnim();
 
     if (gamePlayed.value && !showSettings.value) {
-        hideEndScreenAnim(tl, onComplete);
+        hideEndScreenAnim({ tl, onComplete });
     }
 
     if (showSettings.value) {
-        settingsRef.value?.closeSettingsAnim(tl);
+        settingsRef.value?.closeSettingsAnim({ tl });
     }
 
     if (authStore.isAuthenticated) {
-        hideRecentGamesAnim(tl);
+        hideRecentGamesAnim({ tl });
     }
 
     if (!gamePlayed.value || showSettings.value) {
@@ -148,12 +146,10 @@ async function handleEndGame() {
     await nextTick();
 
     if (authStore.isAuthenticated) {
-        const tl = gsap.timeline();
-        showRecentGamesAnim(tl);
+        showRecentGamesAnim();
     }
 
-    const tl = gsap.timeline();
-    showEndScreenAnim(tl);
+    showEndScreenAnim();
     showButtonsAnim();
 
     authStore.setGame(
@@ -169,7 +165,7 @@ async function handleEndGame() {
 async function toggleSettings() {
     const onComplete = async () => {
         if (!showSettings.value) {
-            growButtonDiv();
+            growButtonDivAnim();
         }
 
         const tl = gsap.timeline();
@@ -179,74 +175,73 @@ async function toggleSettings() {
                 showSettings.value = true;
 
                 await nextTick();
-                enterButtonAnim(tl);
+                enterButtonAnim({ tl });
             };
 
             const tl2 = gsap.timeline();
             if (!isMobile.value) {
-                closeRecentGamesAnim(tl2, onStart);
+                closeRecentGamesAnim({ onStart });
             } else {
-                hideRecentGamesAnim(tl2, onStart);
+                hideRecentGamesAnim({ onComplete: onStart });
             }
         } else if (!showSettings.value && !showRecentGames.value) {
             showSettings.value = true;
             await nextTick();
-            enterButtonAnim(tl);
+            enterButtonAnim({ tl });
 
             if (isMobile.value && authStore.isAuthenticated) {
-                const tl2 = gsap.timeline();
-                hideRecentGamesAnim(tl2);
+                hideRecentGamesAnim();
             }
         } else {
             if (isMobile.value && authStore.isAuthenticated) {
-                const tl2 = gsap.timeline();
-                showRecentGamesAnim(tl2);
+                showRecentGamesAnim();
             }
 
             showSettings.value = false;
             await nextTick();
 
             if (gamePlayed.value) {
-                showEndScreenAnim(gsap.timeline());
+                showEndScreenAnim();
             }
 
-            enterButtonAnim(tl);
+            enterButtonAnim({ tl });
         }
     };
 
     const tl = gsap.timeline();
-    exitButtonAnim(tl, (tl) => onComplete(tl));
+    exitButtonAnim({ tl, onComplete: (tl) => onComplete(tl) });
 
     if (gamePlayed.value && !showSettings.value) {
-        hideEndScreenAnim(tl);
+        hideEndScreenAnim({ tl });
     }
 
     if (showSettings.value) {
-        shrinkButtonDiv(0.2);
+        shrinkButtonDivAnim({ delay: 0.2 });
     }
 }
 
 async function toggleRecentGames() {
-    const tl = gsap.timeline();
     if (showSettings.value && !showRecentGames.value) {
         settingsRef.value?.closeSettings();
-        shrinkButtonDiv();
+        shrinkButtonDivAnim();
 
-        exitButtonAnim(tl, async () => {
-            showRecentGames.value = true;
-            await nextTick();
-            openRecentGamesAnim(tl);
+        exitButtonAnim({
+            onComplete: async () => {
+                showRecentGames.value = true;
+                await nextTick();
+                openRecentGamesAnim();
+            },
         });
     } else if (!showRecentGames.value) {
         showRecentGames.value = true;
         await nextTick();
-        openRecentGamesAnim(tl);
+        openRecentGamesAnim();
     } else {
-        closeRecentGamesAnim(tl, () => (showRecentGames.value = false));
+        closeRecentGamesAnim({ onStart: () => (showRecentGames.value = false) });
     }
 }
 
-function openRecentGamesAnim(tl) {
+function openRecentGamesAnim({ tl = gsap.timeline() } = {}) {
     tl.to('.recent-games', {
         duration: 0.3,
         ease: 'expo',
@@ -265,7 +260,7 @@ function openRecentGamesAnim(tl) {
     );
 }
 
-function hideRecentGamesAnim(tl, onComplete = () => {}) {
+function hideRecentGamesAnim({ tl = gsap.timeline(), onComplete = () => {} } = {}) {
     if (showRecentGames.value) {
         tl.to('.recent-games-list', {
             duration: 0.2,
@@ -297,7 +292,8 @@ function hideRecentGamesAnim(tl, onComplete = () => {}) {
     }
 }
 
-function closeRecentGamesAnim(tl, onStart = () => {}) {
+function closeRecentGamesAnim({ tl = gsap.timeline(), onStart = () => {} } = {}) {
+    console.log('here');
     tl.to('.recent-games-list', {
         duration: 0.2,
         ease: 'expo',
@@ -317,7 +313,7 @@ function closeRecentGamesAnim(tl, onStart = () => {}) {
     );
 }
 
-function showRecentGamesAnim(tl) {
+function showRecentGamesAnim({ tl = gsap.timeline() } = {}) {
     tl.to('.recent-games', {
         duration: 0.2,
         ease: 'expo',
@@ -328,7 +324,7 @@ function showRecentGamesAnim(tl) {
     });
 }
 
-function enterButtonAnim(tl) {
+function enterButtonAnim({ tl = gsap.timeline() } = {}) {
     tl.to('.main-button', {
         duration: 0.8,
         ease: 'expo',
@@ -337,7 +333,7 @@ function enterButtonAnim(tl) {
     });
 }
 
-function exitButtonAnim(tl, onComplete = () => {}) {
+function exitButtonAnim({ tl = gsap.timeline(), onComplete = () => {} } = {}) {
     tl.to('.main-button', {
         duration: 0.2,
         ease: 'linear',
@@ -347,8 +343,8 @@ function exitButtonAnim(tl, onComplete = () => {}) {
     });
 }
 
-function showButtonsAnim() {
-    gsap.to('.main-button, .start-button', {
+function showButtonsAnim({ tl = gsap.timeline() } = {}) {
+    tl.to('.main-button, .start-button', {
         duration: 0.8,
         ease: 'expo',
         opacity: 1,
@@ -356,8 +352,8 @@ function showButtonsAnim() {
     });
 }
 
-function hideButtonsAnim() {
-    gsap.to('.main-button, .start-button', {
+function hideButtonsAnim({ tl = gsap.timeline() } = {}) {
+    tl.to('.main-button, .start-button', {
         duration: 0.2,
         ease: 'linear',
         opacity: 0,
@@ -365,7 +361,7 @@ function hideButtonsAnim() {
     });
 }
 
-function showEndScreenAnim(tl) {
+function showEndScreenAnim({ tl = gsap.timeline() } = {}) {
     const width = !isXlDesktop.value ? '265px' : '328px';
     const height = !isXlDesktop.value ? '114px' : '146px';
     tl.to('.end-screen', {
@@ -385,7 +381,7 @@ function showEndScreenAnim(tl) {
     );
 }
 
-function hideEndScreenAnim(tl, onComplete = () => {}) {
+function hideEndScreenAnim({ tl = gsap.timeline(), onComplete = () => {} } = {}) {
     tl.to('.end-screen-child', {
         duration: 0.1,
         ease: 'linear',
@@ -405,8 +401,8 @@ function hideEndScreenAnim(tl, onComplete = () => {}) {
     );
 }
 
-function shrinkButtonDiv(delay) {
-    gsap.to('.buttons', {
+function shrinkButtonDivAnim({ tl = gsap.timeline(), delay = 0 } = {}) {
+    tl.to('.buttons', {
         duration: 0.5,
         ease: 'expo',
         width: !isXlDesktop.value ? '222px' : '280px',
@@ -414,8 +410,8 @@ function shrinkButtonDiv(delay) {
     });
 }
 
-function growButtonDiv() {
-    gsap.to('.buttons', {
+function growButtonDivAnim({ tl = gsap.timeline() } = {}) {
+    tl.to('.buttons', {
         duration: 0.4,
         ease: 'expo',
         width: !isXlDesktop.value ? '287px' : '400px',

@@ -50,8 +50,7 @@ watch(
     async (newVal) => {
         if (newVal) {
             await nextTick();
-            const tl = gsap.timeline();
-            openSettingsAnim(tl);
+            openSettingsAnim();
         }
     },
 );
@@ -80,9 +79,7 @@ function closeSettings() {
     isLoading.value = false;
 
     emit('startingCloseSettings');
-
-    const tl = gsap.timeline();
-    closeSettingsAnim(tl);
+    closeSettingsAnim();
     emit('closeSettings');
 
     if (props.gamePlayed) {
@@ -90,7 +87,7 @@ function closeSettings() {
     }
 }
 
-async function openSettingsAnim(tl) {
+async function openSettingsAnim({ tl = gsap.timeline() } = {}) {
     tl.to(
         '.form-container',
         {
@@ -120,7 +117,7 @@ async function openSettingsAnim(tl) {
     }
 }
 
-function closeSettingsAnim(tl, onComplete = () => {}) {
+function closeSettingsAnim({ tl = gsap.timeline(), onComplete = () => {} } = {}) {
     tl.to('.form-header, .form-hr, .form-group', {
         duration: 0.1,
         ease: 'power3.in',

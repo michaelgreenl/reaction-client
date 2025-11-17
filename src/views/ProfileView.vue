@@ -128,21 +128,14 @@ const filterDropdownListener = async (e) => {
     if (!showFilters.value) {
         showFilters.value = true;
         await nextTick();
-        const tl = gsap.timeline();
-        showFilterDropdownAnim(tl);
+        showFilterDropdownAnim();
     } else if (e) {
         if (e.target !== filterDropdownRef.value && !e.composedPath().includes(filterDropdownRef.value)) {
-            const tl = gsap.timeline();
-            hideFilterDropdownAnim(tl, () => {
-                showFilters.value = false;
-            });
+            hideFilterDropdownAnim({ onComplete: () => (showFilters.value = false) });
             window.removeEventListener('click', filterDropdownListener);
         }
     } else {
-        const tl = gsap.timeline();
-        hideFilterDropdownAnim(tl, () => {
-            showFilters.value = false;
-        });
+        hideFilterDropdownAnim({ onComplete: () => (showFilters.value = false) });
         window.removeEventListener('click', filterDropdownListener);
     }
 };
@@ -155,7 +148,7 @@ function toggleFilterDropdwon() {
     }
 }
 
-function showFilterDropdownAnim(tl) {
+function showFilterDropdownAnim({ tl = gsap.timeline() } = {}) {
     tl.to('.filter-toggles', {
         duration: 0.4,
         ease: 'power4.out',
@@ -190,7 +183,7 @@ function showFilterDropdownAnim(tl) {
         );
 }
 
-function hideFilterDropdownAnim(tl, onComplete = () => {}) {
+function hideFilterDropdownAnim({ tl = gsap.timeline(), onComplete = () => {} } = {}) {
     tl.to('.filter-toggles-button', {
         duration: 0.2,
         ease: 'linear',
@@ -225,6 +218,14 @@ function hideFilterDropdownAnim(tl, onComplete = () => {}) {
             0.15,
         );
 }
+
+function showFilterInputAnim(tl) {}
+
+function hideFilterInputAnim(tl) {}
+
+function showSettingsColumns(tl) {}
+
+function hideSettingsColumns(tl) {}
 </script>
 
 <template>

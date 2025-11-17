@@ -42,8 +42,7 @@ function startCountdown(n) {
     count.value = n;
 
     if (n === 2) {
-        const tl = gsap.timeline();
-        enterHudAnim(tl);
+        enterHudAnim();
     }
 
     return new Promise((resolve) => {
@@ -89,8 +88,7 @@ function handleCircleClick(id) {
 }
 
 function handleGameEnd() {
-    const tl = gsap.timeline();
-    exitHudAnim(tl);
+    exitHudAnim();
     localGameActive.value = false;
 
     // Timeout for the hud exit animation & all of the circle's fade-out transitions
@@ -99,7 +97,7 @@ function handleGameEnd() {
     }, 900);
 }
 
-function enterHudAnim(tl) {
+function enterHudAnim({ tl = gsap.timeline() } = {}) {
     tl.to('.hud', {
         duration: 0.3,
         ease: 'power4.out',
@@ -135,7 +133,7 @@ function enterHudAnim(tl) {
         );
 }
 
-function exitHudAnim(tl) {
+function exitHudAnim({ tl = gsap.timeline() } = {}) {
     tl.to('.stat-wrapper', {
         duration: 0.3,
         ease: 'linear',
