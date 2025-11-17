@@ -1,5 +1,6 @@
 <script setup>
-import { computed, ref, reactive, onMounted } from 'vue';
+import { computed, ref, reactive, onMounted, nextTick } from 'vue';
+import { gsap } from 'gsap';
 import { useAuthStore } from '@/stores/authStore.js';
 import { useSettingsStore } from '@/stores/settingsStore.js';
 import { formatDate, formatTime } from '@/util/time.js';
@@ -38,7 +39,6 @@ const filtersAdded = computed(() => {
 
 onMounted(async () => {
     await getUnfilteredGames().then(() => {
-        console.log();
         isLoading.value = false;
         loadingGames.value = false;
     });
@@ -121,29 +121,109 @@ function addAllFilters() {
         filterToggles[`${filter}`] = true;
     });
 
-    toggleDropdown();
+    toggleFilterDropdwon();
 }
 
-const dropdownListener = (e) => {
+const filterDropdownListener = async (e) => {
     if (!showFilters.value) {
         showFilters.value = true;
+        await nextTick();
+        const tl = gsap.timeline();
+        showFilterDropdownAnim(tl);
     } else if (e) {
         if (e.target !== filterDropdownRef.value && !e.composedPath().includes(filterDropdownRef.value)) {
-            showFilters.value = false;
-            window.removeEventListener('click', dropdownListener);
+            const tl = gsap.timeline();
+            hideFilterDropdownAnim(tl, () => {
+                showFilters.value = false;
+            });
+            window.removeEventListener('click', filterDropdownListener);
         }
     } else {
-        showFilters.value = false;
-        window.removeEventListener('click', dropdownListener);
+        const tl = gsap.timeline();
+        hideFilterDropdownAnim(tl, () => {
+            showFilters.value = false;
+        });
+        window.removeEventListener('click', filterDropdownListener);
     }
 };
 
-function toggleDropdown() {
+function toggleFilterDropdwon() {
     if (!showFilters.value) {
-        window.addEventListener('click', dropdownListener);
+        window.addEventListener('click', filterDropdownListener);
     } else {
-        dropdownListener();
+        filterDropdownListener();
     }
+}
+
+function showFilterDropdownAnim(tl) {
+    tl.to('.filter-toggles', {
+        duration: 0.4,
+        ease: 'power4.out',
+        width: 'auto',
+    })
+        .to(
+            '.filter-toggles',
+            {
+                duration: 0.3,
+                ease: 'power3.out',
+                height: 'auto',
+            },
+            0.05,
+        )
+        .to(
+            '.filter-form-group',
+            {
+                duration: 0.2,
+                ease: 'linear',
+                opacity: 1,
+            },
+            0.1,
+        )
+        .to(
+            '.filter-toggles-button',
+            {
+                duration: 0.2,
+                ease: 'linear',
+                opacity: 1,
+            },
+            0.15,
+        );
+}
+
+function hideFilterDropdownAnim(tl, onComplete = () => {}) {
+    tl.to('.filter-toggles-button', {
+        duration: 0.2,
+        ease: 'linear',
+        opacity: 0,
+        onComplete,
+    })
+        .to(
+            '.filter-form-group',
+            {
+                duration: 0.2,
+                ease: 'linear',
+                opacity: 0,
+            },
+            0.05,
+        )
+        .to(
+            '.filter-toggles',
+            {
+                duration: 0.3,
+                ease: 'power3.out',
+                height: 0,
+            },
+            0.1,
+        )
+        .to(
+            '.filter-toggles',
+            {
+                duration: 0.4,
+                ease: 'power4.out',
+                width: 0,
+            },
+            0.15,
+        );
 }
 </script>
 
@@ -184,7 +264,7 @@ function toggleDropdown() {
                             :text="`${showSettings ? 'Hide' : 'Show'} Settings`"
                             @click="showSettings = !showSettings"
                         />
-                        <Button preset="primary-alt" text="Add Filters ▾" @click="toggleDropdown()" />
+                        <Button preset="primary-alt" text="Add Filters ▾" @click="toggleFilterDropdwon()" />
                     </div>
                     <div
                         v-if="showFilters"
@@ -192,7 +272,11 @@ function toggleDropdown() {
                         class="filter-toggles psuedo-border"
                         :class="`${showSettings ? 'showing-settings' : undefined}`"
                     >
-                        <div v-for="key in Object.keys(settingsStore.settingsKeyVal)" :key="key" class="form-group">
+                        <div
+                            v-for="key in Object.keys(settingsStore.settingsKeyVal)"
+                            :key="key"
+                            class="form-group filter-form-group"
+                        >
                             <CheckboxInput
                                 :id="`${key}Filter`"
                                 v-model="filterToggles[`${key}`]"
@@ -203,7 +287,12 @@ function toggleDropdown() {
                                 {{ settingsStore.settingsKeyVal[`${key}`] }}
                             </label>
                         </div>
-                        <Button preset="primary-alt" text="+All" @click="addAllFilters()" />
+                        <Button
+                            class="filter-toggles-button"
+                            preset="primary-alt"
+                            text="+All"
+                            @click="addAllFilters()"
+                        />
                     </div>
                 </div>
                 <div class="filters">
@@ -581,6 +670,13 @@ function toggleDropdown() {
                     top: 3.5em;
                     right: -1em;
 
+                    overflow: hidden;
+                    height: 8px;
+                    width: 8px;
+
+                    // width: 0;
+                    // height: 0;
+
                     @include bp-xs-phone {
                         right: $size-1;
                     }
@@ -604,6 +700,8 @@ function toggleDropdown() {
                         gap: $size-1;
                         margin: 0 $size-1;
 
+                        opacity: 0;
+
                         &:first-child {
                             margin-top: $size-1;
                         }
@@ -615,6 +713,7 @@ function toggleDropdown() {
                         label {
                             font-size: 0.8em;
                             color: $color-text-primary-dark;
+                            white-space: nowrap;
                         }
                     }
 
@@ -625,6 +724,7 @@ function toggleDropdown() {
                         font-size: 0.75em;
                         padding-right: 0;
                         margin: 0 $size-1;
+                        opacity: 0;
                     }
                 }
             }
