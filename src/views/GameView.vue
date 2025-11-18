@@ -4,12 +4,17 @@ import { gsap } from 'gsap';
 import { useAuthStore } from '@/stores/authStore.js';
 import { useSettingsStore } from '@/stores/settingsStore.js';
 import { getTimePassed } from '@/util/time.js';
+import { useBreakpoints } from '@/composables/useBreakpoints.js';
 import Settings from '@/components/Settings.vue';
 import Canvas from '@/components/Canvas.vue';
 import Button from '@/components/Button.vue';
 import GameStats from '@/components/GameStats.vue';
 import ArrowSVG from '@/components/Icons/ArrowSVG.vue';
 import CloseSVG from '@/components/Icons/CloseSVG.vue';
+
+const isMounted = ref(false);
+
+const { isMobile, isLgDesktop, isXlDesktop } = useBreakpoints();
 
 const authStore = useAuthStore();
 const settingsStore = useSettingsStore();
@@ -25,10 +30,6 @@ const gamePlayed = ref(false);
 const elapsedMs = ref(0);
 let timerId;
 let startTimestamp = 0;
-
-const isMobile = ref(window.innerWidth < 682);
-const isXlDesktop = ref(window.innerWidth > 1600);
-const isMounted = ref(false);
 
 const mainButtons = ref([
     {
@@ -173,16 +174,20 @@ async function toggleSettings() {
             const onStart = async () => {
                 showRecentGames.value = false;
                 showSettings.value = true;
-
                 await nextTick();
                 enterButtonAnim({ tl });
             };
 
             const tl2 = gsap.timeline();
-            if (!isMobile.value) {
+
+            if (!isMobile.value && !isLgDesktop.value) {
                 closeRecentGamesAnim({ onStart });
-            } else {
+            } else if (isMobile.value) {
                 hideRecentGamesAnim({ onComplete: onStart });
+            } else {
+                showSettings.value = true;
+                await nextTick();
+                enterButtonAnim();
             }
         } else if (!showSettings.value && !showRecentGames.value) {
             showSettings.value = true;
@@ -221,7 +226,7 @@ async function toggleSettings() {
 }
 
 async function toggleRecentGames() {
-    if (showSettings.value && !showRecentGames.value) {
+    if (showSettings.value && !showRecentGames.value && !isLgDesktop.value) {
         settingsRef.value?.closeSettings();
         shrinkButtonDivAnim();
 
@@ -293,7 +298,6 @@ function hideRecentGamesAnim({ tl = gsap.timeline(), onComplete = () => {} } = {
 }
 
 function closeRecentGamesAnim({ tl = gsap.timeline(), onStart = () => {} } = {}) {
-    console.log('here');
     tl.to('.recent-games-list', {
         duration: 0.2,
         ease: 'expo',
@@ -362,13 +366,11 @@ function hideButtonsAnim({ tl = gsap.timeline() } = {}) {
 }
 
 function showEndScreenAnim({ tl = gsap.timeline() } = {}) {
-    const width = !isXlDesktop.value ? '265px' : '328px';
-    const height = !isXlDesktop.value ? '114px' : '146px';
     tl.to('.end-screen', {
         duration: 0.3,
         ease: 'expo',
-        width,
-        height,
+        width: !isXlDesktop.value ? '265px' : '328px',
+        height: !isXlDesktop.value ? '114px' : '146px',
     }).to(
         '.end-screen-child',
         {
@@ -426,20 +428,20 @@ function growButtonDivAnim({ tl = gsap.timeline() } = {}) {
                 <div class="recent-games-header">
                     <h2>Recent Scores</h2>
                     <Button
-                        v-if="!showRecentGames || showSettings"
+                        v-if="!showRecentGames"
                         preset="icon-only"
                         :icon-left="ArrowSVG"
                         @click="toggleRecentGames"
                     />
                     <Button
-                        v-if="showRecentGames && !showSettings"
+                        v-if="showRecentGames"
                         preset="icon-only"
                         :icon-left="CloseSVG"
                         @click="toggleRecentGames"
                     />
                 </div>
                 <hr :style="{ width: `${!showRecentGames ? '96%' : '98%'}` }" />
-                <ul v-if="showRecentGames && !showSettings" class="recent-games-list">
+                <ul v-if="showRecentGames && (!showSettings || isLgDesktop)" class="recent-games-list">
                     <li v-for="game in authStore.recentUserGames" :key="game.createdAt">
                         <GameStats :score="game.score" :time="game.time" />
                         <span class="separator"> - </span>
