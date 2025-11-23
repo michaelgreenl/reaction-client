@@ -76,9 +76,6 @@ export const useAuthStore = defineStore('auth', () => {
 
     async function logout() {
         await apiFetch('/users/logout', { method: 'POST' });
-        user.value = null;
-        userStats.value = null;
-        userGames.value = [];
         localStorage.setItem('AUTHORIZED', false);
         router.push({ name: 'Login' });
     }
