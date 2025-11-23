@@ -3,8 +3,9 @@ import { ref, computed, onMounted, onBeforeUnmount, nextTick } from 'vue';
 import { gsap } from 'gsap';
 import { useAuthStore } from '@/stores/authStore.js';
 import { useSettingsStore } from '@/stores/settingsStore.js';
-import { getTimePassed } from '@/util/time.js';
 import { useBreakpoints } from '@/composables/useBreakpoints.js';
+import { useGameAnimations } from '@/composables/animations/useGameAnimations.js';
+import { getTimePassed } from '@/util/time.js';
 import Settings from '@/components/Settings.vue';
 import Canvas from '@/components/Canvas.vue';
 import Button from '@/components/Button.vue';
@@ -65,7 +66,24 @@ const buttonList = computed(() => {
     });
 });
 
+const {
+    initContext,
+    openRecentGamesAnim,
+    hideRecentGamesAnim,
+    closeRecentGamesAnim,
+    showRecentGamesAnim,
+    enterButtonAnim,
+    exitButtonAnim,
+    showButtonsAnim,
+    hideButtonsAnim,
+    showEndScreenAnim,
+    hideEndScreenAnim,
+    shrinkButtonDivAnim,
+    growButtonDivAnim,
+} = useGameAnimations({ isXlDesktop, showRecentGames });
+
 onMounted(() => {
+    initContext();
     showButtonsAnim();
 
     if (authStore.isAuthenticated) {
@@ -244,180 +262,6 @@ async function toggleRecentGames() {
     } else {
         closeRecentGamesAnim({ onStart: () => (showRecentGames.value = false) });
     }
-}
-
-function openRecentGamesAnim({ tl = gsap.timeline() } = {}) {
-    tl.to('.recent-games', {
-        duration: 0.3,
-        ease: 'expo',
-        width: 'auto',
-        height: 'auto',
-        opacity: 1,
-        x: 0,
-    }).to(
-        '.recent-games-list',
-        {
-            duration: 0.3,
-            ease: 'power3.out',
-            opacity: 1,
-        },
-        0.1,
-    );
-}
-
-function hideRecentGamesAnim({ tl = gsap.timeline(), onComplete = () => {} } = {}) {
-    if (showRecentGames.value) {
-        tl.to('.recent-games-list', {
-            duration: 0.2,
-            ease: 'expo',
-            opacity: 0,
-            onComplete,
-        }).to(
-            '.recent-games',
-            {
-                duration: 0.2,
-                ease: 'expo',
-                width: '11em',
-                height: '3em',
-                opacity: 0,
-                x: -250,
-            },
-            0.1,
-        );
-    } else {
-        tl.to('.recent-games', {
-            duration: 0.2,
-            ease: 'expo',
-            width: '11em',
-            height: '3em',
-            opacity: 0,
-            x: -250,
-            onComplete,
-        });
-    }
-}
-
-function closeRecentGamesAnim({ tl = gsap.timeline(), onStart = () => {} } = {}) {
-    tl.to('.recent-games-list', {
-        duration: 0.2,
-        ease: 'expo',
-        opacity: 0,
-    }).to(
-        '.recent-games',
-        {
-            duration: 0.2,
-            ease: 'expo',
-            width: '11em',
-            height: '3em',
-            opacity: 1,
-            x: 0,
-            onStart,
-        },
-        0.1,
-    );
-}
-
-function showRecentGamesAnim({ tl = gsap.timeline() } = {}) {
-    tl.to('.recent-games', {
-        duration: 0.2,
-        ease: 'expo',
-        width: '11em',
-        height: '3em',
-        opacity: 1,
-        x: 0,
-    });
-}
-
-function enterButtonAnim({ tl = gsap.timeline() } = {}) {
-    tl.to('.main-button', {
-        duration: 0.8,
-        ease: 'expo',
-        opacity: 1,
-        stagger: 0.1,
-    });
-}
-
-function exitButtonAnim({ tl = gsap.timeline(), onComplete = () => {} } = {}) {
-    tl.to('.main-button', {
-        duration: 0.2,
-        ease: 'linear',
-        opacity: 0,
-        stagger: 0.1,
-        onComplete,
-    });
-}
-
-function showButtonsAnim({ tl = gsap.timeline() } = {}) {
-    tl.to('.main-button, .start-button', {
-        duration: 0.8,
-        ease: 'expo',
-        opacity: 1,
-        stagger: 0.1,
-    });
-}
-
-function hideButtonsAnim({ tl = gsap.timeline() } = {}) {
-    tl.to('.main-button, .start-button', {
-        duration: 0.2,
-        ease: 'linear',
-        opacity: 0,
-        stagger: 0.1,
-    });
-}
-
-function showEndScreenAnim({ tl = gsap.timeline() } = {}) {
-    tl.to('.end-screen', {
-        duration: 0.3,
-        ease: 'expo',
-        width: !isXlDesktop.value ? '265px' : '328px',
-        height: !isXlDesktop.value ? '114px' : '146px',
-    }).to(
-        '.end-screen-child',
-        {
-            duration: 0.3,
-            ease: 'linear',
-            opacity: 1,
-            stagger: 0.05,
-        },
-        0.1,
-    );
-}
-
-function hideEndScreenAnim({ tl = gsap.timeline(), onComplete = () => {} } = {}) {
-    tl.to('.end-screen-child', {
-        duration: 0.1,
-        ease: 'linear',
-        opacity: 0,
-        stagger: 0.1,
-    }).to(
-        '.end-screen',
-        {
-            duration: 0.3,
-            ease: 'expo',
-            width: 0,
-            height: 0,
-            opacity: 0,
-            onComplete,
-        },
-        0.1,
-    );
-}
-
-function shrinkButtonDivAnim({ tl = gsap.timeline(), delay = 0 } = {}) {
-    tl.to('.buttons', {
-        duration: 0.5,
-        ease: 'expo',
-        width: !isXlDesktop.value ? '222px' : '280px',
-        delay,
-    });
-}
-
-function growButtonDivAnim({ tl = gsap.timeline() } = {}) {
-    tl.to('.buttons', {
-        duration: 0.4,
-        ease: 'expo',
-        width: !isXlDesktop.value ? '287px' : '400px',
-    });
 }
 </script>
 

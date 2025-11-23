@@ -103,70 +103,16 @@ function enterHudAnim({ tl = gsap.timeline() } = {}) {
         ease: 'power4.out',
         y: 0,
     })
-        .to(
-            '.stat-wrapper',
-            {
-                duration: 0.3,
-                ease: 'power4.out',
-                width: 'auto',
-            },
-            0.3,
-        )
-        .to(
-            '.hud',
-            {
-                duration: 0.3,
-                ease: 'power4.out',
-                paddingRight: '2em',
-            },
-            0.3,
-        )
-        .to(
-            '.stat-wrapper',
-            {
-                duration: 0.3,
-                ease: 'linear',
-                opacity: 1,
-                stagger: 0.05,
-            },
-            0.4,
-        );
+        .to('.stat-wrapper', { duration: 0.3, ease: 'power4.out', width: 'auto' }, 0.3)
+        .to('.hud', { duration: 0.3, ease: 'power4.out', paddingRight: '2em' }, 0.3)
+        .to('.stat-wrapper', { duration: 0.3, ease: 'linear', opacity: 1, stagger: 0.05 }, 0.4);
 }
 
 function exitHudAnim({ tl = gsap.timeline() } = {}) {
-    tl.to('.stat-wrapper', {
-        duration: 0.3,
-        ease: 'linear',
-        opacity: 0,
-        stagger: 0.05,
-    })
-        .to(
-            '.stat-wrapper',
-            {
-                duration: 0.3,
-                ease: 'power4.out',
-                width: 0,
-            },
-            0.3,
-        )
-        .to(
-            '.hud',
-            {
-                duration: 0.3,
-                ease: 'power4.out',
-                paddingRight: '1em',
-            },
-            0.3,
-        )
-        .to(
-            '.hud',
-            {
-                duration: 0.3,
-                ease: 'power4.out',
-                y: '-60px',
-            },
-            0.6,
-        );
+    tl.to('.stat-wrapper', { duration: 0.3, ease: 'linear', opacity: 0, stagger: 0.05 })
+        .to('.stat-wrapper', { duration: 0.3, ease: 'power4.out', width: 0 }, 0.3)
+        .to('.hud', { duration: 0.3, ease: 'power4.out', paddingRight: '1em' }, 0.3)
+        .to('.hud', { duration: 0.3, ease: 'power4.out', y: '-60px' }, 0.6);
 }
 </script>
 

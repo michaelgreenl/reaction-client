@@ -3,6 +3,7 @@ import { ref, reactive, computed, onMounted, nextTick, watch } from 'vue';
 import { gsap } from 'gsap';
 import { useSettingsStore } from '@/stores/settingsStore';
 import { useAuthStore } from '@/stores/authStore';
+import { useBreakpoints } from '@/composables/useBreakpoints.js';
 import Button from '@/components/Button.vue';
 import Circle from '@/components/Circle.vue';
 import RangeInput from '@/components/Inputs/Range.vue';
@@ -15,6 +16,8 @@ const props = defineProps({
 });
 
 const emit = defineEmits(['startingCloseSettings', 'closeSettings']);
+
+const { isMobile } = useBreakpoints();
 
 const settingsStore = useSettingsStore();
 const authStore = useAuthStore();
@@ -97,19 +100,10 @@ async function openSettingsAnim({ tl = gsap.timeline() } = {}) {
             height: '12.25em',
             width: '22em',
             marginTop: '1.5em',
-            marginRight: window.innerWidth >= 682 ? '2em' : 0,
+            marginRight: !isMobile.value ? '2em' : 0,
         },
         0,
-    ).to(
-        '.form-header, .form-hr, .form-group',
-        {
-            duration: 0.1,
-            ease: 'circ',
-            stagger: 0,
-            opacity: 1,
-        },
-        0.1,
-    );
+    ).to('.form-header, .form-hr, .form-group', { duration: 0.1, ease: 'circ', stagger: 0, opacity: 1 }, 0.1);
 
     if (props.gamePlayed) {
         await nextTick();
@@ -118,17 +112,8 @@ async function openSettingsAnim({ tl = gsap.timeline() } = {}) {
 }
 
 function closeSettingsAnim({ tl = gsap.timeline(), onComplete = () => {} } = {}) {
-    tl.to('.form-header, .form-hr, .form-group', {
-        duration: 0.1,
-        ease: 'power3.in',
-        opacity: 0,
-    })
-        .to('.form-group', {
-            duration: 0.1,
-            ease: 'power3.in',
-            stagger: 0.1,
-            opacity: 0,
-        })
+    tl.to('.form-header, .form-hr, .form-group', { duration: 0.1, ease: 'power3.in', opacity: 0 })
+        .to('.form-group', { duration: 0.1, ease: 'power3.in', stagger: 0.1, opacity: 0 })
         .to(
             '.form-container',
             {
