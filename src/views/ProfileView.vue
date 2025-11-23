@@ -241,9 +241,9 @@ async function resetFilters() {
         });
         addedFilters.value = [];
 
-        settingsFilters.circleSize = 100;
-        settingsFilters.spawnInterval = 1;
-        settingsFilters.shrinkTime = 1;
+        settingsFilters.circleSize = settingsStore.circleSize;
+        settingsFilters.spawnInterval = settingsStore.spawnInterval;
+        settingsFilters.shrinkTime = settingsStore.shrinkTime;
 
         offset.value = 0;
         activePage.value = 1;
