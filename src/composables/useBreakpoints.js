@@ -1,6 +1,7 @@
 import { ref, onMounted, onUnmounted } from 'vue';
 
 export function useBreakpoints() {
+    const isSmPhone = ref(false);
     const isMobile = ref(false);
     const isLgDesktop = ref(false);
     const isXlDesktop = ref(false);
@@ -8,6 +9,7 @@ export function useBreakpoints() {
     const update = () => {
         const width = window.innerWidth;
 
+        isSmPhone.value = width < 400;
         isMobile.value = width < 682;
         isLgDesktop.value = width > 1200;
         isXlDesktop.value = width > 1600;
@@ -22,5 +24,5 @@ export function useBreakpoints() {
         window.removeEventListener('resize', update);
     });
 
-    return { isMobile, isLgDesktop, isXlDesktop };
+    return { isSmPhone, isMobile, isLgDesktop, isXlDesktop };
 }
