@@ -7,7 +7,6 @@ export function useBreakpoints() {
 
     const update = () => {
         const width = window.innerWidth;
-        const height = window.innerHeight;
 
         isMobile.value = width < 682;
         isLgDesktop.value = width > 1200;
