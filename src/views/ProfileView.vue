@@ -215,6 +215,14 @@ async function toggleFilterInput(key) {
 }
 
 async function addAllFilters() {
+    const targets = '.filters, .input-form-group, .filter-form-buttons, .filter-form-seperator';
+    const flipOpts = {
+        duration: 0.3,
+        ease: 'power3.out',
+        nested: true,
+    };
+
+    const state = Flip.getState(targets);
     const tl = gsap.timeline();
 
     showFilterInputs.value = true;
@@ -231,6 +239,7 @@ async function addAllFilters() {
     showFilterInputsAnim();
     enterAllFilterInputsAnim();
     enterFilterButtonsAnim();
+    Flip.from(state, flipOpts);
     toggleFilterDropdown();
 }
 
@@ -487,13 +496,14 @@ function exitAllFilterInputsAnim({ tl = gsap.timeline(), onComplete = () => {}, 
     );
 }
 
-function enterFilterButtonsAnim({ tl = gsap.timeline() } = {}) {
+function enterFilterButtonsAnim({ tl = gsap.timeline(), onComplete = () => {} } = {}) {
     tl.to('.filter-form-button', {
         duration: 0.3,
         ease: 'linear',
         opacity: 1,
         x: 0,
         stagger: 0.1,
+        onComplete,
     });
 }
 
