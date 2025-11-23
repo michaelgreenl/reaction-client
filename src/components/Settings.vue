@@ -222,9 +222,6 @@ defineExpose({ saveSettings, resetLocalSettings, settingsChanged, isLoading, clo
     }
 }
 
-// ------------------------------------------------------------------
-// Form Box (The expandable container)
-// ------------------------------------------------------------------
 .form-container {
     width: 22em;
     overflow: hidden;
@@ -234,9 +231,6 @@ defineExpose({ saveSettings, resetLocalSettings, settingsChanged, isLoading, clo
     padding: $size-4 $size-6 $size-3;
 }
 
-// ------------------------------------------------------------------
-// Form Internal Elements
-// ------------------------------------------------------------------
 .form-header {
     position: relative;
     z-index: 2;
@@ -298,7 +292,6 @@ defineExpose({ saveSettings, resetLocalSettings, settingsChanged, isLoading, clo
         color: $color-text-secondary-dark;
     }
 
-    // Specific input styling overrides
     input[type='range'] {
         width: 40% !important;
     }
