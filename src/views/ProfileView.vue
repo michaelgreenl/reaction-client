@@ -146,6 +146,8 @@ async function filterGamesBySettings() {
         await resetFilters();
         return;
     } else if (!activeGames.filtered) {
+        offset.value = 0;
+        activePage.value = 1;
         activeGames.filtered = true;
     }
 
@@ -167,6 +169,9 @@ async function filterGamesBySettings() {
 }
 
 async function handleSort(by) {
+    offset.value = 0;
+    activePage.value = 1;
+
     if (activeGames.sorted.by === by) {
         activeGames.sorted.order = activeGames.sorted.order === 'DESC' ? 'ASC' : 'DESC';
     } else {
