@@ -1,23 +1,22 @@
 <script setup>
 defineProps({
     id: { type: String, required: true },
-    modelValue: { type: null, required: true },
+    model: { type: null, required: true },
     required: { type: Boolean, default: false },
     disabled: { type: Boolean, default: false },
 });
 
-defineEmits(['update:modelValue']);
+defineEmits(['input']);
 </script>
 
 <template>
     <input
         :id="id"
-        :value="modelValue"
-        :checked="modelValue"
         type="checkbox"
+        :checked="model"
         :required="required"
         :disabled="disabled"
-        @input="$emit('update:modelValue', $event.target.checked)"
+        @input="$emit('input')"
     />
 </template>
 
