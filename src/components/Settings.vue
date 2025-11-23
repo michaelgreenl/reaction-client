@@ -1,9 +1,9 @@
 <script setup>
 import { ref, reactive, computed, onMounted, nextTick, watch } from 'vue';
-import { gsap } from 'gsap';
 import { useSettingsStore } from '@/stores/settingsStore';
 import { useAuthStore } from '@/stores/authStore';
 import { useBreakpoints } from '@/composables/useBreakpoints.js';
+import { gsap } from 'gsap';
 import Button from '@/components/Button.vue';
 import Circle from '@/components/Circle.vue';
 import RangeInput from '@/components/Inputs/Range.vue';

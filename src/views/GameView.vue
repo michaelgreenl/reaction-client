@@ -1,11 +1,11 @@
 <script setup>
 import { ref, computed, onMounted, onBeforeUnmount, nextTick } from 'vue';
-import { gsap } from 'gsap';
 import { useAuthStore } from '@/stores/authStore.js';
 import { useSettingsStore } from '@/stores/settingsStore.js';
 import { useBreakpoints } from '@/composables/useBreakpoints.js';
 import { useGameAnimations } from '@/composables/animations/useGameAnimations.js';
 import { getTimePassed } from '@/util/time.js';
+import { gsap } from 'gsap';
 import Settings from '@/components/Settings.vue';
 import Canvas from '@/components/Canvas.vue';
 import Button from '@/components/Button.vue';

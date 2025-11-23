@@ -1,12 +1,12 @@
 <script setup>
 import { computed, ref, reactive, onMounted, nextTick } from 'vue';
-import { gsap } from 'gsap';
-import Flip from 'gsap/Flip';
 import { useAuthStore } from '@/stores/authStore.js';
 import { useSettingsStore } from '@/stores/settingsStore.js';
 import { useBreakpoints } from '@/composables/useBreakpoints.js';
 import { useProfileAnimations } from '@/composables/animations/useProfileAnimations.js';
 import { formatDate, formatTime } from '@/util/time.js';
+import { gsap } from 'gsap';
+import Flip from 'gsap/Flip';
 import Button from '@/components/Button.vue';
 import Loader from '@/components/Loader.vue';
 import RangeInput from '@/components/Inputs/Range.vue';
