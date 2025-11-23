@@ -136,149 +136,149 @@ const handleRegister = async () => {
     width: 100%;
     @include flexCenterAll;
     padding: 0 $size-4 $size-12;
+}
 
-    .auth-form {
-        position: relative;
+.auth-form {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: $size-1;
+    padding: $size-6 $size-7 0;
+    width: 90%;
+    max-width: 30em;
+}
+
+.auth-header {
+    position: relative;
+    z-index: 2;
+    align-self: flex-start;
+    @include flexCenterAll;
+
+    svg {
+        height: $size-9;
+        width: $size-9;
+    }
+
+    h2 {
+        font-size: 2.2em;
+        color: $color-accent;
+        margin: 0;
+    }
+}
+
+.header-border {
+    position: relative;
+    z-index: 2;
+    border: 0;
+    height: 2px;
+    background-color: $color-primary-light;
+    margin: 0 0 $size-2;
+}
+
+.bottom-border {
+    position: relative;
+    z-index: 2;
+    border: 0;
+    height: 1px;
+    width: 90%;
+    background-color: $color-gray4;
+    margin: $size-2 auto 0;
+}
+
+.form-groups {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    gap: $size-3;
+    padding: $size-1 $size-2;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: $size-1;
+
+    label {
+        font-size: 0.9em;
+        color: $color-text-secondary-dark;
+    }
+}
+
+.password-input-wrapper {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+
+    :deep(input) {
+        padding-right: 60px;
+    }
+}
+
+.password-requirements {
+    position: relative;
+    z-index: 2;
+    list-style: none;
+    padding: 0 1em;
+    font-size: 0.9em;
+    margin: $size-2 0 0;
+    color: $color-text-secondary-dark;
+
+    li {
         display: flex;
-        flex-direction: column;
-        gap: $size-1;
-        padding: $size-6 $size-7 0;
-        width: 90%;
-        max-width: 30em;
+        align-items: center;
+        gap: $size-2;
+        margin-bottom: $size-1;
 
-        .auth-header {
-            position: relative;
-            z-index: 2;
-            align-self: flex-start;
-            @include flexCenterAll;
-
-            svg {
-                height: $size-9;
-                width: $size-9;
-            }
-
-            h2 {
-                font-size: 2.2em;
-                color: $color-accent;
-                margin: 0;
-            }
+        .icon {
+            line-height: 1;
         }
 
-        .header-border {
-            position: relative;
-            z-index: 2;
-            border: 0;
-            height: 2px;
-            background-color: $color-primary-light;
-            margin: 0 0 $size-2;
+        &.valid {
+            color: $color-success;
         }
 
-        .form-groups {
-            position: relative;
-            z-index: 2;
-            display: flex;
-            flex-direction: column;
-            gap: $size-3;
-            padding: $size-1 $size-2;
-
-            .form-group {
-                display: flex;
-                flex-direction: column;
-                gap: $size-1;
-
-                label {
-                    font-size: 0.9em;
-                    color: $color-text-secondary-dark;
-                }
-            }
-        }
-
-        .password-input-wrapper {
-            position: relative;
-            z-index: 2;
-            display: flex;
-            align-items: center;
-
-            :deep(input) {
-                padding-right: 60px;
-            }
-        }
-
-        .password-requirements {
-            position: relative;
-            z-index: 2;
-            list-style: none;
-            padding: 0 1em;
-            font-size: 0.9em;
-            margin: $size-2 0 0;
-            color: $color-text-secondary-dark;
-
-            li {
-                display: flex;
-                align-items: center;
-                gap: $size-2;
-                margin-bottom: $size-1;
-
-                .icon {
-                    line-height: 1;
-                }
-
-                &.valid {
-                    color: $color-success;
-                }
-
-                &.invalid {
-                    color: $color-error;
-                }
-            }
-        }
-
-        button[type='submit'] {
-            position: relative;
-            z-index: 2;
-            align-self: flex-end;
-            margin-right: $size-4;
-
-            :deep(span) {
-                text-shadow: none;
-                color: $color-white;
-            }
-        }
-
-        .bottom-border {
-            position: relative;
-            z-index: 2;
-            border: 0;
-            height: 1px;
-            width: 90%;
-            background-color: $color-gray4;
-            margin: $size-2 auto 0;
-        }
-
-        .error-message {
-            position: relative;
-            z-index: 2;
+        &.invalid {
             color: $color-error;
-            text-align: center;
-            margin-top: $size-1;
         }
+    }
+}
 
-        .form-link {
-            position: relative;
-            z-index: 2;
-            font-size: 0.9em;
-            font-family: $secondary-font-stack;
-            text-align: center;
-            margin-top: $size-2;
-            color: $color-text-secondary-dark;
+.submit-button {
+    position: relative;
+    z-index: 2;
+    align-self: flex-end;
+    margin-right: $size-4;
 
-            a {
-                color: $color-primary;
+    :deep(span) {
+        text-shadow: none;
+        color: $color-white;
+    }
+}
 
-                &:hover {
-                    text-decoration: underline;
-                }
-            }
+.error-message {
+    position: relative;
+    z-index: 2;
+    color: $color-error;
+    text-align: center;
+    margin-top: $size-1;
+}
+
+.form-link {
+    position: relative;
+    z-index: 2;
+    font-size: 0.9em;
+    font-family: $secondary-font-stack;
+    text-align: center;
+    margin-top: $size-2;
+    color: $color-text-secondary-dark;
+
+    a {
+        color: $color-primary;
+
+        &:hover {
+            text-decoration: underline;
         }
     }
 }

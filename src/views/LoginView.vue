@@ -84,121 +84,121 @@ const handleLogin = async () => {
     @include flexCenterAll;
     padding: 0 $size-4 $size-12;
     width: 100%;
+}
 
-    .auth-form {
-        position: relative;
-        display: flex;
-        flex-direction: column;
-        gap: $size-1;
-        padding: $size-6 $size-7 0;
-        width: 90%;
-        max-width: 30em;
+.auth-form {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: $size-1;
+    padding: $size-6 $size-7 0;
+    width: 90%;
+    max-width: 30em;
+}
 
-        .auth-header {
-            position: relative;
-            z-index: 2;
-            align-self: flex-start;
-            @include flexCenterAll;
+.auth-header {
+    position: relative;
+    z-index: 2;
+    align-self: flex-start;
+    @include flexCenterAll;
 
-            svg {
-                height: $size-9;
-                width: $size-9;
-            }
+    svg {
+        height: $size-9;
+        width: $size-9;
+    }
 
-            h2 {
-                font-size: 2.2em;
-                color: $color-accent;
-                margin: 0;
-            }
-        }
+    h2 {
+        font-size: 2.2em;
+        color: $color-accent;
+        margin: 0;
+    }
+}
 
-        .header-border {
-            position: relative;
-            z-index: 2;
-            border: 0;
-            height: 2px;
-            background-color: $color-primary-light;
-            margin: 0 0 $size-1;
-        }
+.header-border {
+    position: relative;
+    z-index: 2;
+    border: 0;
+    height: 2px;
+    background-color: $color-primary-light;
+    margin: 0 0 $size-1;
+}
 
-        .form-groups {
-            position: relative;
-            z-index: 2;
-            display: flex;
-            flex-direction: column;
-            gap: $size-3;
-            padding: $size-1 $size-2 $size-2;
+.bottom-border {
+    position: relative;
+    z-index: 2;
+    border: 0;
+    height: 1px;
+    width: 90%;
+    background-color: $color-gray4;
+    margin: $size-2 auto 0;
+}
 
-            .form-group {
-                display: flex;
-                flex-direction: column;
-                gap: $size-1;
+.form-groups {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    gap: $size-3;
+    padding: $size-1 $size-2 $size-2;
+}
 
-                label {
-                    font-size: 0.9em;
-                    color: $color-text-secondary-dark;
-                }
-            }
-        }
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: $size-1;
 
-        .password-input-wrapper {
-            position: relative;
-            z-index: 2;
-            position: relative;
-            display: flex;
-            align-items: center;
+    label {
+        font-size: 0.9em;
+        color: $color-text-secondary-dark;
+    }
+}
 
-            :deep(input) {
-                padding-right: 60px;
-            }
-        }
+.password-input-wrapper {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    align-items: center;
 
-        button[type='submit'] {
-            position: relative;
-            z-index: 2;
-            align-self: flex-end;
-            margin-right: $size-4;
+    :deep(input) {
+        padding-right: 60px;
+    }
+}
 
-            :deep(span) {
-                text-shadow: none;
-                color: $color-white;
-            }
-        }
+.submit-button {
+    position: relative;
+    z-index: 2;
 
-        .bottom-border {
-            position: relative;
-            z-index: 2;
-            border: 0;
-            height: 1px;
-            width: 90%;
-            background-color: $color-gray4;
-            margin: $size-2 auto 0;
-        }
+    align-self: flex-end;
+    margin-right: $size-4;
 
-        .error-message {
-            position: relative;
-            z-index: 2;
-            color: $color-error;
-            text-align: center;
-            margin-top: $size-1;
-        }
+    :deep(span) {
+        text-shadow: none;
+        color: $color-white;
+    }
+}
 
-        .form-link {
-            position: relative;
-            z-index: 2;
-            font-size: 0.9em;
-            font-family: $secondary-font-stack;
-            text-align: center;
-            margin-top: $size-2;
-            color: $color-text-secondary-dark;
+.error-message {
+    position: relative;
+    z-index: 2;
+    color: $color-error;
+    text-align: center;
+    margin-top: $size-1;
+}
 
-            a {
-                color: $color-primary;
+.form-link {
+    position: relative;
+    z-index: 2;
+    font-size: 0.9em;
+    font-family: $secondary-font-stack;
+    text-align: center;
+    margin-top: $size-2;
+    color: $color-text-secondary-dark;
 
-                &:hover {
-                    text-decoration: underline;
-                }
-            }
+    a {
+        color: $color-primary;
+
+        &:hover {
+            text-decoration: underline;
         }
     }
 }

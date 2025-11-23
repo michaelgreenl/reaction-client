@@ -207,107 +207,105 @@ defineExpose({ saveSettings, resetLocalSettings, settingsChanged, isLoading, clo
 .settings-container {
     @include flexCenterAll;
     flex-direction: column;
+}
 
-    .form-circle {
-        position: relative;
-        display: flex;
-        align-items: center;
-        flex-direction: column-reverse;
-        font-size: 0.95em;
-        margin-bottom: $size-4;
+.form-circle {
+    position: relative;
+    display: flex;
+    align-items: center;
+    flex-direction: column-reverse;
+    font-size: 0.95em;
+    margin-bottom: $size-4;
 
-        @include bp-sm-phone {
-            flex-direction: row;
+    @include bp-sm-phone {
+        flex-direction: row;
+    }
+}
+
+// ------------------------------------------------------------------
+// Form Box (The expandable container)
+// ------------------------------------------------------------------
+.form-container {
+    width: 22em;
+    overflow: hidden;
+    height: 0;
+    width: 0;
+    opacity: 0;
+    padding: $size-4 $size-6 $size-3;
+}
+
+// ------------------------------------------------------------------
+// Form Internal Elements
+// ------------------------------------------------------------------
+.form-header {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    overflow: hidden;
+    opacity: 0;
+
+    h2 {
+        font-size: 1.4em;
+        margin: 0;
+        color: $color-accent;
+    }
+
+    .close-button {
+        &:hover {
+            background: #ec6e9e22;
         }
 
-        .form-container {
-            width: 22em;
-            overflow: hidden;
-            height: 0;
-            width: 0;
-            opacity: 0;
-            padding: $size-4 $size-6 $size-3;
+        :deep(.icon) {
+            height: 0.9em;
+            width: 0.9em;
+            stroke: $color-accent;
 
-            .form-header {
-                position: relative;
-                z-index: 2;
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-                overflow: hidden;
-                opacity: 0;
-
-                h2 {
-                    font-size: 1.4em;
-                    margin: 0;
-                    color: $color-accent;
-                }
-
-                .close-button {
-                    &:hover {
-                        background: #ec6e9e22;
-                    }
-
-                    :deep(.icon) {
-                        height: 0.9em;
-                        width: 0.9em;
-                        stroke: $color-accent;
-
-                        path {
-                            stroke-width: 14 !important;
-                        }
-
-                        @include bp-xxl-desktop {
-                            font-size: 1.2em;
-                        }
-                    }
-                }
+            path {
+                stroke-width: 14 !important;
             }
 
-            hr {
-                position: relative;
-                z-index: 2;
-                border: 0;
-                height: 1px;
-                background-color: $color-primary-light;
-                margin: $size-2 0;
-                opacity: 0;
-            }
-
-            .form-group {
-                position: relative;
-                z-index: 2;
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                padding: $size-1;
-                transition: opacity 0.3s ease;
-                opacity: 0;
-
-                label {
-                    font-size: 0.9em;
-                    color: $color-text-secondary-dark;
-                }
-
-                input[type='range'] {
-                    width: 40% !important;
-                }
-
-                :deep(.number-input) {
-                    span {
-                        font-size: 0.85em;
-                    }
-                }
+            @include bp-xxl-desktop {
+                font-size: 1.2em;
             }
         }
     }
+}
 
-    .form-buttons {
-        display: flex;
-        gap: $size-2;
+.form-hr {
+    position: relative;
+    z-index: 2;
+    border: 0;
+    height: 1px;
+    background-color: $color-primary-light;
+    margin: $size-2 0;
+    opacity: 0;
+}
 
-        :deep(button) {
-            font-size: 1.2em;
+.form-group {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: $size-1;
+    transition: opacity 0.3s ease;
+    opacity: 0;
+
+    label {
+        font-size: 0.9em;
+        color: $color-text-secondary-dark;
+    }
+
+    // Specific input styling overrides
+    input[type='range'] {
+        width: 40% !important;
+    }
+
+    :deep(.number-input) {
+        span {
+            font-size: 0.85em;
         }
     }
 }

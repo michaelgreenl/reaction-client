@@ -498,191 +498,185 @@ function growButtonDivAnim({ tl = gsap.timeline() } = {}) {
     @include flexCenterAll;
     height: $height-minus-nav;
     width: 100%;
+}
 
-    .game-start {
-        .recent-games {
-            font-size: 1.1em;
-            position: absolute;
-            z-index: 3;
-            top: $size-1;
-            left: $size-3;
-            display: flex;
-            flex-direction: column;
-            background: $color-bg-secondary;
-            box-shadow: $box-shadow;
-            border-radius: $border-radius-md;
-            border: solid 1px $color-gray3;
-            overflow: hidden;
-            transform: translateX(-250px);
+.recent-games {
+    font-size: 1.1em;
+    position: absolute;
+    z-index: 3;
+    top: $size-1;
+    left: $size-3;
+    display: flex;
+    flex-direction: column;
+    background: $color-bg-secondary;
+    box-shadow: $box-shadow;
+    border-radius: $border-radius-md;
+    border: solid 1px $color-gray3;
+    overflow: hidden;
+    transform: translateX(-250px);
+    padding: $size-2 $size-1 0.2em $size-3;
 
-            padding: $size-2 $size-1 0.2em $size-3;
+    @include bp-xxl-desktop {
+        margin: $size-2 $size-3 0;
+    }
 
-            @include bp-xxl-desktop {
-                margin: $size-2 $size-3 0;
-            }
+    hr {
+        border: 0;
+        min-height: 2px;
+        max-height: 2px;
+        background-color: $color-primary-light;
+        margin: 0 0 $size-1;
 
-            &-header {
-                display: flex;
-                justify-content: space-between;
-                gap: 2px;
+        @include bp-xxl-desktop {
+            margin: $size-1 0;
+        }
+    }
+}
 
-                @include bp-xxl-desktop {
-                }
+.recent-games-header {
+    display: flex;
+    justify-content: space-between;
+    gap: 2px;
 
-                h2 {
-                    font-size: 1em;
-                    color: $color-accent;
-                    margin: 0;
-                    line-height: 1.6ch;
-                    white-space: nowrap;
+    h2 {
+        font-size: 1em;
+        color: $color-accent;
+        margin: 0;
+        line-height: 1.6ch;
+        white-space: nowrap;
 
-                    @include bp-xs-phone {
-                        line-height: normal;
-                    }
-                }
+        @include bp-xs-phone {
+            line-height: normal;
+        }
+    }
 
-                button {
-                    padding: 0.6em;
-                    margin-top: 1px;
-                    transform: scale(0.75) translate(-5px, -4px);
-                    border-radius: 100%;
+    button {
+        padding: 0.6em;
+        margin-top: 1px;
+        transform: scale(0.75) translate(-5px, -4px);
+        border-radius: 100%;
 
-                    @include bp-xxl-desktop {
-                        transform: none;
-                        transform: scale(0.9) translate(-8px, 1px);
-                    }
-
-                    &:hover {
-                        background: #ec6e9e22;
-                    }
-
-                    :deep(.icon) {
-                        height: 1em;
-                        width: 1em;
-                        stroke: $color-accent;
-                    }
-                }
-            }
-
-            hr {
-                border: 0;
-                min-height: 2px;
-                max-height: 2px;
-                background-color: $color-primary-light;
-                margin: 0 0 $size-1;
-
-                @include bp-xxl-desktop {
-                    margin: $size-1 0;
-                }
-            }
-
-            &-list {
-                font-size: 0.85em;
-                display: flex;
-                flex-direction: column;
-                list-style: none;
-                padding: 0 $size-4 $size-1 $size-1;
-                margin: 0 $size-2 0.2em $size-4;
-                margin: 0;
-                width: 20em;
-                overflow: hidden;
-                opacity: 0;
-
-                li {
-                    display: flex;
-                    justify-content: space-between;
-                    align-items: center;
-                    border-bottom: solid 1px $color-gray2;
-                    padding: 0.3em 0.15em;
-
-                    &:last-child {
-                        border: 0;
-                    }
-
-                    span {
-                        font-size: 1em;
-
-                        &:last-child,
-                        &.separator {
-                            font-family: $secondary-font-stack;
-                            color: $color-text-muted;
-                        }
-
-                        &:last-child {
-                            font-size: 0.65em;
-                        }
-
-                        &.separator {
-                            font-size: 0.7em;
-                            margin: 0 $size-2;
-                        }
-                    }
-                }
-            }
+        @include bp-xxl-desktop {
+            transform: none;
+            transform: scale(0.9) translate(-8px, 1px);
         }
 
-        .end-screen {
-            position: relative;
-            @include flexCenterAll;
-            flex-direction: column;
-            background: $color-bg-secondary;
-            border-radius: $border-radius-md;
-            border: solid 1px $color-gray3;
-            box-shadow: $box-shadow;
-            overflow: hidden;
-            height: 0;
-            width: 0;
-
-            padding: $size-2;
-
-            h1 {
-                position: relative;
-                z-index: 2;
-                margin: 0;
-                color: $color-accent;
-                white-space: nowrap;
-                opacity: 0;
-            }
-
-            hr {
-                position: relative;
-                z-index: 2;
-                width: 86%;
-                border: 0;
-                min-height: 1px;
-                background-color: $color-primary-light;
-                margin-top: $size-1;
-                opacity: 0;
-            }
-
-            .stats {
-                position: relative;
-                z-index: 2;
-                font-size: 1.1em;
-                display: flex;
-                align-items: center;
-                gap: $size-2;
-                opacity: 0;
-            }
+        &:hover {
+            background: #ec6e9e22;
         }
 
-        .buttons {
-            display: flex;
-            justify-content: flex-end;
-            gap: $size-2;
-            width: 222px;
-            margin: 0 auto;
+        :deep(.icon) {
+            height: 1em;
+            width: 1em;
+            stroke: $color-accent;
+        }
+    }
+}
 
-            @include bp-xxl-desktop {
-                width: 280px;
+.recent-games-list {
+    font-size: 0.85em;
+
+    display: flex;
+    flex-direction: column;
+    list-style: none;
+    padding: 0 $size-4 $size-1 $size-1;
+    margin: 0 $size-2 0.2em $size-4;
+    margin: 0;
+    width: 20em;
+    overflow: hidden;
+    opacity: 0;
+
+    li {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: solid 1px $color-gray2;
+        padding: 0.3em 0.15em;
+
+        &:last-child {
+            border: 0;
+        }
+
+        span {
+            font-size: 1em;
+
+            &:last-child,
+            &.separator {
+                font-family: $secondary-font-stack;
+                color: $color-text-muted;
             }
 
-            :deep(button) {
-                font-size: 1.4em;
-                opacity: 0;
-                will-change: transform, opacity;
+            &:last-child {
+                font-size: 0.65em;
+            }
+
+            &.separator {
+                font-size: 0.7em;
+                margin: 0 $size-2;
             }
         }
+    }
+}
+
+.end-screen {
+    position: relative;
+    @include flexCenterAll;
+    flex-direction: column;
+    background: $color-bg-secondary;
+    border-radius: $border-radius-md;
+    border: solid 1px $color-gray3;
+    box-shadow: $box-shadow;
+    overflow: hidden;
+    height: 0;
+    width: 0;
+    padding: $size-2;
+
+    h1 {
+        position: relative;
+        z-index: 2;
+        margin: 0;
+        color: $color-accent;
+        white-space: nowrap;
+        opacity: 0;
+    }
+
+    hr {
+        position: relative;
+        z-index: 2;
+        width: 86%;
+        border: 0;
+        min-height: 1px;
+        background-color: $color-primary-light;
+        margin-top: $size-1;
+        opacity: 0;
+    }
+
+    .stats {
+        position: relative;
+        z-index: 2;
+        font-size: 1.1em;
+        display: flex;
+        align-items: center;
+        gap: $size-2;
+        opacity: 0;
+    }
+}
+
+.buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: $size-2;
+    width: 222px;
+    margin: 0 auto;
+
+    @include bp-xxl-desktop {
+        width: 280px;
+    }
+
+    :deep(button) {
+        font-size: 1.4em;
+        opacity: 0;
+        will-change: transform, opacity;
     }
 }
 </style>

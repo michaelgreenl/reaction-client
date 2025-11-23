@@ -191,79 +191,78 @@ function exitHudAnim({ tl = gsap.timeline() } = {}) {
     position: relative;
     height: 100%;
     width: 100%;
+}
 
-    .hud {
-        position: absolute;
-        top: $size-1;
-        left: 0;
-        right: 0;
+.hud {
+    position: absolute;
+    top: $size-1;
+    left: 0;
+    right: 0;
+    margin: 0 auto;
+    width: fit-content;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    background: $color-bg-secondary;
+    padding: $size-2 $size-4 $size-2 $size-4;
+    border-radius: $border-radius-sm;
+    gap: $size-2;
+    border: solid 1px $color-gray3;
+    box-shadow: $box-shadow;
+    transform: translateY(-60px);
+    overflow: hidden;
+
+    :deep(.stat-wrapper) {
+        opacity: 0;
+        width: 0;
+    }
+
+    @include bp-custom-min(400) {
+        margin-left: auto;
+        margin-right: 0.4em;
+        top: -2.8em;
+    }
+
+    @include bp-sm-phone {
+        font-size: 1em;
+        top: -2.8em;
         margin: 0 auto;
-        width: fit-content;
-        display: flex;
-        align-items: center;
-        justify-content: space-around;
-        background: $color-bg-secondary;
-        padding: $size-2 $size-4 $size-2 $size-4;
-        border-radius: $border-radius-sm;
-        gap: $size-2;
-        border: solid 1px $color-gray3;
-        box-shadow: $box-shadow;
-
-        transform: translateY(-60px);
-        overflow: hidden;
-
-        :deep(.stat-wrapper) {
-            opacity: 0;
-            width: 0;
-        }
-
-        @include bp-custom-min(400) {
-            margin-left: auto;
-            margin-right: 0.4em;
-            top: -2.8em;
-        }
-
-        @include bp-sm-phone {
-            font-size: 1em;
-            top: -2.8em;
-            margin: 0 auto;
-        }
     }
+}
 
-    .canvas {
-        position: relative;
-        height: 100%;
-        width: 100%;
+.canvas {
+    position: relative;
+    height: 100%;
+    width: 100%;
+}
+
+.circle-wrapper {
+    position: absolute;
+    height: 100px;
+    width: 100px;
+    pointer-events: none;
+
+    :deep(button) {
+        pointer-events: auto;
     }
+}
 
-    .circle-wrapper {
-        position: absolute;
-        height: 100px;
-        width: 100px;
-        pointer-events: none;
+.countdown {
+    color: $color-text-primary-light;
+    font-weight: 600;
+    font-size: 3.5em;
+    text-shadow: 1px 1px 2px #00000033;
+    animation: shrink 1s ease-in-out;
+    animation-iteration-count: 3;
+}
 
-        :deep(button) {
-            pointer-events: auto;
-        }
-    }
-
-    .countdown {
-        color: $color-text-primary-light;
-        font-weight: 600;
+@keyframes shrink {
+    from {
         font-size: 3.5em;
-        text-shadow: 1px 1px 2px #00000033;
-        animation: shrink 1s ease-in-out;
-        animation-iteration-count: 3;
     }
 
-    @keyframes shrink {
-        from {
-            font-size: 3.5em;
-        }
-
-        to {
-            font-size: 1.5em;
-        }
+    to {
+        font-size: 1.5em;
     }
 }
 </style>

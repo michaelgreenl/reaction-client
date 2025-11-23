@@ -43,72 +43,64 @@ const route = useRoute();
     padding-left: $size-3;
     padding-right: $size-4;
 
-    &.game-active {
-        display: none;
-
-        @include bp-custom-min(400) {
-            display: flex;
-        }
-    }
-
-    &-logo {
-        @include flexCenterAll;
-        transition: transform 0.2s ease;
-
-        svg {
-            height: $size-8;
-            width: $size-8;
-        }
-
-        h2 {
-            color: $color-gray1;
-            font-style: italic;
-            font-weight: 300;
-            margin: 0;
-            text-shadow: 1px 1px 2px #00000033;
-        }
-
-        a {
-            margin-left: $size-4;
-        }
-
-        &:hover {
-            transform: scale(1.02);
-        }
-    }
-
-    &-link {
-        position: relative;
-        font-size: 0.9em;
-        font-family: $primary-font-stack;
-        color: $color-gray1;
-        font-weight: 300;
-        background: transparent;
-        border: 0;
-        padding: 0;
-
-        &::after {
-            content: '';
-            position: absolute;
-            bottom: -5px;
-            left: -10%;
-            right: 110%;
-            height: 2px;
-            background: $color-bg-secondary;
-            transition: all 0.2s ease;
-            border-radius: 2px;
-        }
-
-        &:hover {
-            &::after {
-                right: -10%;
-            }
-        }
-    }
-
     @include bp-sm-phone {
         padding-left: $size-4;
         padding-right: $size-5;
+    }
+}
+
+.nav-logo {
+    @include flexCenterAll;
+    transition: transform 0.2s ease;
+
+    svg {
+        height: $size-8;
+        width: $size-8;
+    }
+
+    h2 {
+        color: $color-gray1;
+        font-style: italic;
+        font-weight: 300;
+        margin: 0;
+        text-shadow: 1px 1px 2px #00000033;
+    }
+
+    a {
+        margin-left: $size-4;
+    }
+
+    &:hover {
+        transform: scale(1.02);
+    }
+}
+
+.nav-link {
+    position: relative;
+    font-size: 0.9em;
+    font-family: $primary-font-stack;
+    color: $color-gray1;
+    font-weight: 300;
+    background: transparent;
+    border: 0;
+    padding: 0;
+
+    &::after {
+        content: '';
+        position: absolute;
+        bottom: -5px;
+        left: -10%;
+        right: 110%;
+        height: 2px;
+        background: $color-bg-secondary;
+        transition: all 0.2s ease;
+        border-radius: 2px;
+    }
+
+    &:hover {
+        &::after {
+            right: -10%;
+        }
     }
 }
 </style>

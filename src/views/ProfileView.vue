@@ -749,453 +749,460 @@ function hideSettingsColumns({ tl = gsap.timeline() } = {}) {}
     @include bp-xl-desktop {
         padding-top: 0;
     }
+}
 
-    .user-stats {
-        position: relative;
-        @include flexCenterAll;
-        gap: $size-1;
-        flex-direction: column;
-        padding: $size-3 $size-4;
-        width: 19em;
+.main-wrapper {
+    @include flexCenterAll;
+    flex-direction: column;
+    width: 100%;
+    margin-bottom: $size-8;
+    padding-top: $size-2;
+}
 
-        @include bp-custom-min(450) {
-            width: 22em;
-        }
+.user-stats {
+    position: relative;
+    @include flexCenterAll;
+    gap: $size-1;
+    flex-direction: column;
+    padding: $size-3 $size-4;
+    width: 19em;
 
-        @include bp-sm-phone {
-            &.show-settings {
-                width: 34em;
-                flex-direction: row;
-                gap: $size-4;
+    @include bp-custom-min(450) {
+        width: 22em;
+    }
 
-                .seperator {
-                    display: block;
-                }
+    @include bp-sm-phone {
+        &.show-settings {
+            width: 34em;
+            flex-direction: row;
+            gap: $size-4;
 
-                .stat-wrapper {
-                    width: fit-content;
-
-                    hr {
-                        display: none;
-                    }
-                }
-            }
-        }
-
-        span {
-            position: relative;
-            z-index: 2;
-            font-size: 0.5em;
-            font-weight: 500;
-            color: $color-gray3;
-        }
-
-        .seperator {
-            display: none;
-        }
-
-        .stat-wrapper {
-            position: relative;
-            z-index: 2;
-            display: flex;
-            justify-content: space-between;
-            gap: $size-1;
-            width: 100%;
-
-            span {
-                font-size: 0.95em !important;
-                color: $color-text-secondary-dark;
-                line-height: 1.6ch;
-
-                &.label {
-                    color: $color-accent;
-                    line-height: 1.6ch;
-                }
+            .seperator {
+                display: block;
             }
 
-            hr {
-                border: 0;
-                border-bottom: dotted 2px $color-gray4;
-                flex: 1;
-                align-self: flex-end;
-                margin: 0 0 $size-1;
+            .stat-wrapper {
+                width: fit-content;
+
+                hr {
+                    display: none;
+                }
             }
         }
     }
 
-    .main-wrapper {
-        @include flexCenterAll;
-        flex-direction: column;
+    > span {
+        position: relative;
+        z-index: 2;
+        font-size: 0.5em;
+        font-weight: 500;
+        color: $color-gray3;
+    }
+
+    .seperator {
+        display: none;
+    }
+
+    .stat-wrapper {
+        position: relative;
+        z-index: 2;
+        display: flex;
+        justify-content: space-between;
+        gap: $size-1;
         width: 100%;
-        margin-bottom: $size-8;
-        padding-top: $size-2;
 
-        .table-container {
-            position: relative;
-            @include flexCenterAll;
-            flex-direction: column;
-            padding: $size-4 $size-6;
-            border: solid 1px $color-gray3;
-            max-width: 19em;
+        span {
+            font-size: 0.95em !important;
+            color: $color-text-secondary-dark;
+            line-height: 1.6ch;
 
-            @include bp-custom-min(450) {
-                max-width: 22em;
+            &.label {
+                color: $color-accent;
+                line-height: 1.6ch;
             }
+        }
+
+        hr {
+            border: 0;
+            border-bottom: dotted 2px $color-gray4;
+            flex: 1;
+            align-self: flex-end;
+            margin: 0 0 $size-1;
+        }
+    }
+}
+
+.table-container {
+    position: relative;
+    @include flexCenterAll;
+    flex-direction: column;
+    padding: $size-4 $size-6;
+    border: solid 1px $color-gray3;
+    max-width: 19em;
+
+    @include bp-custom-min(450) {
+        max-width: 22em;
+    }
+
+    @include bp-sm-phone {
+        &.show-settings {
+            max-width: 34em;
+        }
+    }
+}
+
+.table-header {
+    position: relative;
+    z-index: 3;
+    display: flex;
+    flex-wrap: wrap;
+    padding: $size-1 $size-1 $size-3;
+    width: 100%;
+    border-bottom: solid 1px $color-primary-light;
+    justify-content: center;
+
+    @include bp-sm-phone {
+        .table-container.show-settings & {
+            justify-content: space-between;
+        }
+    }
+
+    .logo {
+        @include flexCenterAll;
+
+        svg {
+            height: 1.7em;
+            width: 1.7em;
+        }
+
+        h1 {
+            margin-left: -2px;
+            font-size: 1.5em;
+            color: $color-accent;
+            margin: 0;
+        }
+    }
+
+    .toggle-buttons {
+        display: flex;
+        margin-top: $size-1;
+        padding-left: $size-1;
+
+        @include bp-xl-desktop {
+            :deep(button) {
+                font-size: 0.9em;
+            }
+        }
+    }
+}
+
+.filter-toggles {
+    position: absolute;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    gap: $size-1;
+    margin: $size-1 $size-2;
+    padding: 0.5em;
+    padding-right: $size-3;
+    width: fit-content;
+    top: 3.5em;
+    right: -1em;
+    overflow: hidden;
+    height: 8px;
+    width: 8px;
+
+    @include bp-xs-phone {
+        right: $size-1;
+    }
+
+    @include bp-custom-min(450) {
+        right: $size-7;
+    }
+
+    @include bp-sm-phone {
+        &.showing-settings {
+            top: 2em;
+            right: 0;
+        }
+    }
+
+    .form-group {
+        position: relative;
+        z-index: 2;
+        display: flex;
+        align-items: center;
+        gap: $size-1;
+        margin: 0 $size-1;
+        opacity: 0;
+
+        &:first-child {
+            margin-top: $size-1;
+        }
+
+        input {
+            cursor: pointer;
+        }
+
+        label {
+            font-size: 0.8em;
+            color: $color-text-primary-dark;
+            white-space: nowrap;
+        }
+    }
+
+    :deep(button) {
+        position: relative;
+        z-index: 2;
+        align-self: flex-end;
+        font-size: 0.75em;
+        padding-right: 0;
+        margin: 0 $size-1;
+        opacity: 0;
+    }
+}
+
+.filters {
+    position: relative;
+    z-index: 2;
+    font-size: 0.7em;
+    width: 25em;
+    height: 0;
+
+    @include bp-sm-phone {
+        .table-container.show-settings & {
+            width: 49em;
+
+            .filter-form-buttons {
+                padding-right: $size-5;
+            }
+        }
+    }
+
+    form {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+        padding: $size-1 $size-4;
+
+        @include bp-sm-phone {
+            .table-container.show-settings & {
+                height: 100%;
+            }
+        }
+
+        .form-groups {
+            @include flexCenterAll;
+            align-self: flex-start;
+            flex-wrap: wrap;
+            width: 100%;
+            padding: $size-2;
+            margin: 0 auto;
 
             @include bp-sm-phone {
-                &.show-settings {
-                    max-width: 34em;
-
-                    .table-header {
-                        justify-content: space-between;
-                    }
-
-                    .filters {
-                        width: 49em;
-
-                        form {
-                            height: 100%;
-
-                            .form-groups {
-                                width: fit-content;
-                                flex-wrap: nowrap;
-
-                                .form-group {
-                                    width: fit-content;
-                                    max-width: 15em;
-                                }
-
-                                .seperator {
-                                    display: block;
-                                    font-size: 0.5em;
-                                    color: $color-gray3;
-                                    margin: 0 $size-4;
-                                    transform: scale(0);
-                                    opacity: 0;
-                                }
-                            }
-                        }
-
-                        .filter-form-buttons {
-                            padding-right: $size-5;
-                        }
-                    }
-                }
-            }
-
-            .table-header {
-                position: relative;
-                z-index: 3;
-                display: flex;
-                flex-wrap: wrap;
-                padding: $size-1 $size-1 $size-3;
-                width: 100%;
-                border-bottom: solid 1px $color-primary-light;
-                justify-content: center;
-
-                .logo {
-                    @include flexCenterAll;
-
-                    svg {
-                        height: 1.7em;
-                        width: 1.7em;
-                    }
-
-                    h1 {
-                        margin-left: -2px;
-                        font-size: 1.5em;
-                        color: $color-accent;
-                        margin: 0;
-                    }
-                }
-
-                .toggle-buttons {
-                    display: flex;
-                    margin-top: $size-1;
-                    padding-left: $size-1;
-
-                    @include bp-xl-desktop {
-                        :deep(button) {
-                            font-size: 0.9em;
-                        }
-                    }
-                }
-
-                .filter-toggles {
-                    position: absolute;
-                    z-index: 2;
-                    display: flex;
-                    flex-direction: column;
-                    gap: $size-1;
-                    margin: $size-1 $size-2;
-                    padding: 0.5em;
-                    padding-right: $size-3;
+                .table-container.show-settings & {
                     width: fit-content;
-                    top: 3.5em;
-                    right: -1em;
-                    overflow: hidden;
-                    height: 8px;
-                    width: 8px;
+                    flex-wrap: nowrap;
+                }
+            }
 
-                    @include bp-xs-phone {
-                        right: $size-1;
-                    }
+            .seperator {
+                display: none;
 
-                    @include bp-custom-min(450) {
-                        right: $size-7;
-                    }
-
-                    @include bp-sm-phone {
-                        &.showing-settings {
-                            top: 2em;
-                            right: 0;
-                        }
-                    }
-
-                    .form-group {
-                        position: relative;
-                        z-index: 2;
-                        display: flex;
-                        align-items: center;
-                        gap: $size-1;
-                        margin: 0 $size-1;
-                        opacity: 0;
-
-                        &:first-child {
-                            margin-top: $size-1;
-                        }
-
-                        input {
-                            cursor: pointer;
-                        }
-
-                        label {
-                            font-size: 0.8em;
-                            color: $color-text-primary-dark;
-                            white-space: nowrap;
-                        }
-                    }
-
-                    :deep(button) {
-                        position: relative;
-                        z-index: 2;
-                        align-self: flex-end;
-                        font-size: 0.75em;
-                        padding-right: 0;
-                        margin: 0 $size-1;
+                @include bp-sm-phone {
+                    .table-container.show-settings & {
+                        display: block;
+                        font-size: 0.5em;
+                        color: $color-gray3;
+                        margin: 0 $size-4;
+                        transform: scale(0);
                         opacity: 0;
                     }
                 }
             }
 
-            .filters {
+            .form-group {
                 position: relative;
-                z-index: 2;
-                font-size: 0.7em;
-                width: 25em;
-                height: 0;
+                display: flex;
+                align-items: center;
+                width: 200%;
+                justify-content: space-between;
+                gap: $size-2;
+                opacity: 0;
 
-                form {
-                    display: flex;
-                    flex-wrap: wrap;
-                    justify-content: space-between;
-                    align-items: center;
-                    width: 100%;
-                    padding: $size-1 $size-4;
-
-                    .form-groups {
-                        @include flexCenterAll;
-                        align-self: flex-start;
-                        flex-wrap: wrap;
-                        width: 100%;
-                        padding: $size-2;
-                        margin: 0 auto;
-
-                        .seperator {
-                            display: none;
-                        }
-
-                        .form-group {
-                            position: relative;
-                            display: flex;
-                            align-items: center;
-                            width: 200%;
-                            justify-content: space-between;
-                            gap: $size-2;
-                            opacity: 0;
-
-                            label {
-                                font-size: 1.1em;
-                            }
-
-                            label,
-                            span {
-                                color: $color-text-secondary-dark;
-                                white-space: nowrap;
-                            }
-
-                            :deep(.number-input) {
-                                span {
-                                    font-size: 1em;
-                                }
-                            }
-
-                            :deep(input[type='range']) {
-                                margin: 0.85em 0;
-                            }
-                        }
-                    }
-
-                    .filter-form-buttons {
-                        @include flexCenterAll;
-                        margin-left: auto;
-
-                        :deep(button) {
-                            font-size: 1.1em;
-
-                            transfrom: translateX(-20px);
-                            opacity: 0;
-                        }
+                @include bp-sm-phone {
+                    .table-container.show-settings & {
+                        width: fit-content;
+                        max-width: 15em;
                     }
                 }
-            }
 
-            .table-wrapper {
-                position: relative;
-                z-index: 2;
-                padding: $size-1 $size-2;
-                max-width: 17em;
-                overflow-x: scroll;
-
-                table {
-                    font-size: 0.9em;
+                label {
+                    font-size: 1.1em;
                 }
 
-                @include bp-custom-min(450) {
-                    max-width: 20em;
+                label,
+                span {
+                    color: $color-text-secondary-dark;
+                    white-space: nowrap;
+                }
 
-                    table {
+                :deep(.number-input) {
+                    span {
                         font-size: 1em;
                     }
                 }
 
-                @include bp-sm-phone {
-                    overflow-x: hidden;
-                    max-width: 34em;
-                }
-
-                &::-webkit-scrollbar {
-                    width: 6px !important;
-                    height: 6px !important;
-                    background: $color-bg-secondary;
-                }
-
-                &::-webkit-scrollbar-thumb {
-                    background: $color-gray3;
-                    border-radius: 6px;
-
-                    &:hover {
-                        background: darken-color($color-gray3, 5%);
-                    }
-
-                    &:active {
-                        background: darken-color($color-gray3, 10%);
-                    }
-                }
-
-                &::-webkit-scrollbar:horizontal {
-                    height: 12px;
-                }
-
-                table {
-                    border-bottom: solid 1px $color-gray3;
-                    border-collapse: collapse;
-
-                    .loader {
-                        min-height: auto;
-                        position: absolute;
-                        top: 0;
-                        left: 0;
-                        right: 0;
-                        bottom: 0;
-                        color: $color-text-secondary-dark;
-                        margin: $size-4 auto 0;
-
-                        span {
-                            font-size: 0.9em;
-                            text-shadow: 1px 1px 2px #00000033;
-                        }
-                    }
-
-                    :deep(button) {
-                        font-size: 1.2em;
-
-                        &.setting {
-                            font-size: 0.8em;
-                            color: $color-text-secondary-dark;
-                            cursor: auto;
-
-                            span {
-                                white-space: wrap;
-                            }
-
-                            &:hover {
-                                transform: scale(1); // reverting the button preset's hover transform properties
-                            }
-                        }
-                    }
-
-                    th,
-                    td {
-                        padding: $size-1;
-                        text-align: center;
-                    }
-
-                    td {
-                        font-size: 0.85em;
-                        color: $color-text-secondary-dark;
-                        font-weight: 500;
-                        border: solid 1px $color-gray3;
-
-                        &.date {
-                            font-family: $secondary-font-stack;
-                            font-size: 0.75em;
-                            font-weight: 400;
-                            color: $color-gray6;
-                            padding: 0 $size-2;
-
-                            span {
-                                display: flex;
-                                justify-content: center;
-                                width: 8em;
-                            }
-                        }
-
-                        &.sorted {
-                            background: darken-color($color-gray1, 2%);
-                        }
-                    }
-                }
-            }
-
-            .table-nav {
-                position: relative;
-                z-index: 2;
-                @include flexCenterAll;
-                padding-top: $size-1;
-
-                :deep(button) {
-                    font-size: 1em;
-                }
-
-                span {
-                    color: $color-text-secondary-dark;
-                    border-bottom: solid 1px $color-gray3;
-                    width: 1ch;
-                    text-align: center;
+                :deep(input[type='range']) {
+                    margin: 0.85em 0;
                 }
             }
         }
+
+        .filter-form-buttons {
+            @include flexCenterAll;
+            margin-left: auto;
+
+            :deep(button) {
+                font-size: 1.1em;
+                opacity: 0;
+            }
+        }
+    }
+}
+
+.table-wrapper {
+    position: relative;
+    z-index: 2;
+    padding: $size-1 $size-2;
+    max-width: 17em;
+    overflow-x: scroll;
+
+    @include bp-custom-min(450) {
+        max-width: 20em;
+    }
+
+    @include bp-sm-phone {
+        overflow-x: hidden;
+        max-width: 34em;
+    }
+
+    &::-webkit-scrollbar {
+        width: 6px !important;
+        height: 6px !important;
+        background: $color-bg-secondary;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background: $color-gray3;
+        border-radius: 6px;
+
+        &:hover {
+            background: darken-color($color-gray3, 5%);
+        }
+
+        &:active {
+            background: darken-color($color-gray3, 10%);
+        }
+    }
+
+    &::-webkit-scrollbar:horizontal {
+        height: 12px;
+    }
+
+    table {
+        font-size: 0.9em;
+        border-bottom: solid 1px $color-gray3;
+        border-collapse: collapse;
+
+        @include bp-custom-min(450) {
+            font-size: 1em;
+        }
+
+        .loader {
+            min-height: auto;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            color: $color-text-secondary-dark;
+            margin: $size-4 auto 0;
+
+            span {
+                font-size: 0.9em;
+                text-shadow: 1px 1px 2px #00000033;
+            }
+        }
+
+        :deep(button) {
+            font-size: 1.2em;
+
+            &.setting {
+                font-size: 0.8em;
+                color: $color-text-secondary-dark;
+                cursor: auto;
+
+                span {
+                    white-space: wrap;
+                }
+
+                &:hover {
+                    transform: scale(1);
+                }
+            }
+        }
+
+        th,
+        td {
+            padding: $size-1;
+            text-align: center;
+        }
+
+        td {
+            font-size: 0.85em;
+            color: $color-text-secondary-dark;
+            font-weight: 500;
+            border: solid 1px $color-gray3;
+
+            &.date {
+                font-family: $secondary-font-stack;
+                font-size: 0.75em;
+                font-weight: 400;
+                color: $color-gray6;
+                padding: 0 $size-2;
+
+                span {
+                    display: flex;
+                    justify-content: center;
+                    width: 8em;
+                }
+            }
+
+            &.sorted {
+                background: darken-color($color-gray1, 2%);
+            }
+        }
+    }
+}
+
+.table-nav {
+    position: relative;
+    z-index: 2;
+    @include flexCenterAll;
+    padding-top: $size-1;
+
+    :deep(button) {
+        font-size: 1em;
+    }
+
+    span {
+        color: $color-text-secondary-dark;
+        border-bottom: solid 1px $color-gray3;
+        width: 1ch;
+        text-align: center;
     }
 }
 </style>
