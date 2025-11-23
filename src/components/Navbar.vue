@@ -1,10 +1,34 @@
 <script setup>
+import { watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { useAuthStore } from '@/stores/authStore.js';
+import { useBreakpoints } from '@/composables/useBreakpoints.js';
+import { gsap } from 'gsap';
 import LogoSVG from '@/components/Icons/LogoSVG.vue';
+
+const { isMobile } = useBreakpoints();
 
 const authStore = useAuthStore();
 const route = useRoute();
+
+watch(
+    () => authStore.gameActive,
+    (newVal) => {
+        if (newVal && isMobile.value) {
+            gsap.to('.nav-link', {
+                duration: 0.2,
+                ease: 'linear',
+                opacity: 0,
+            });
+        } else if (!newVal) {
+            gsap.to('.nav-link', {
+                duration: 0.2,
+                ease: 'linear',
+                opacity: 1,
+            });
+        }
+    },
+);
 </script>
 
 <template>
@@ -84,6 +108,7 @@ const route = useRoute();
     background: transparent;
     border: 0;
     padding: 0;
+    opacity: 1;
 
     &::after {
         content: '';
