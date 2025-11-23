@@ -1,9 +1,11 @@
 <script setup>
 import { computed, ref, reactive, onMounted, nextTick } from 'vue';
 import { gsap } from 'gsap';
+import Flip from 'gsap/Flip';
 import { useAuthStore } from '@/stores/authStore.js';
 import { useSettingsStore } from '@/stores/settingsStore.js';
 import { formatDate, formatTime } from '@/util/time.js';
+import { useBreakpoints } from '@/composables/useBreakpoints.js';
 import Button from '@/components/Button.vue';
 import Loader from '@/components/Loader.vue';
 import RangeInput from '@/components/Inputs/Range.vue';
@@ -11,11 +13,21 @@ import NumberInput from '@/components/Inputs/Number.vue';
 import CheckboxInput from '@/components/Inputs/Checkbox.vue';
 import LogoSVG from '@/components/Icons/LogoSVG.vue';
 
+gsap.registerPlugin(Flip);
+
+const { isMobile, isLgDesktop, isXlDesktop } = useBreakpoints();
+
 const authStore = useAuthStore();
 const settingsStore = useSettingsStore();
 
+const filterDropdownRef = ref(null);
+
 const isLoading = ref(true);
 const loadingGames = ref(true);
+
+const showFilters = ref(false);
+const showFilterInputs = ref(false);
+const showSettings = ref(true);
 
 const offset = ref(0);
 const activePage = ref(1);
@@ -25,16 +37,62 @@ const activeGames = reactive({
     games: [],
 });
 
-const filterDropdownRef = ref(null);
-const showFilters = ref(false);
 const filterToggles = reactive({ circleSize: false, spawnInterval: false, shrinkTime: false });
-
+const addedFilters = ref([]);
 const settingsFilters = reactive({ ...settingsStore });
-const showSettings = ref(true);
 const rangeInputActive = ref(false);
 
+const filterInputs = computed(() => [
+    {
+        key: 'circleSize',
+        label: 'Circle Size',
+        component: RangeInput,
+        props: {
+            min: 25,
+            max: 125,
+            disabled: loadingGames.value || !filterToggles.circleSize,
+            showValue: true,
+            inputActive: rangeInputActive.value,
+        },
+        on: {
+            mousedown: () => (rangeInputActive.value = true),
+            mouseup: () => (rangeInputActive.value = false),
+        },
+    },
+    {
+        key: 'spawnInterval',
+        label: 'Spawn Interval',
+        component: NumberInput,
+        props: {
+            stepUpDisabled: isLoading.value || !filterToggles.spawnInterval || settingsFilters.spawnInterval >= 2,
+            stepDownDisabled: isLoading.value || !filterToggles.spawnInterval || settingsFilters.spawnInterval <= 0.25,
+        },
+        on: {
+            stepUp: () => (settingsFilters.spawnInterval += 0.25),
+            stepDown: () => (settingsFilters.spawnInterval -= 0.25),
+        },
+    },
+    {
+        key: 'shrinkTime',
+        label: 'Shrink Time',
+        component: NumberInput,
+        props: {
+            stepUpDisabled: loadingGames.value || !filterToggles.shrinkTime || settingsFilters.shrinkTime >= 2,
+            stepDownDisabled: loadingGames.value || !filterToggles.shrinkTime || settingsFilters.shrinkTime <= 0.25,
+        },
+        on: {
+            stepUp: () => (settingsFilters.shrinkTime += 0.25),
+            stepDown: () => (settingsFilters.shrinkTime -= 0.25),
+        },
+    },
+]);
+
+const visibleFilterInputs = computed(() => {
+    return addedFilters.value.map((key) => filterInputs.value.find((input) => input.key === key));
+});
+
 const filtersAdded = computed(() => {
-    return filterToggles.circleSize || filterToggles.spawnInterval || filterToggles.shrinkTime;
+    return addedFilters.value.length > 0;
 });
 
 onMounted(async () => {
@@ -57,26 +115,11 @@ async function switchPage(newOffset, pageNum) {
 
 async function getUnfilteredGames() {
     activeGames.filtered = false;
-
     loadingGames.value = true;
     const games = await authStore.getGames(10, offset.value, activeGames.sorted);
     loadingGames.value = false;
     activeGames.games.length = 0;
     activeGames.games.push(...games);
-}
-
-async function resetFilters() {
-    settingsFilters.circleSize = 100;
-    settingsFilters.spawnInterval = 1;
-    settingsFilters.shrinkTime = 1;
-
-    Object.keys(filterToggles).forEach((toggle) => {
-        filterToggles[`${toggle}`] = false;
-    });
-
-    offset.value = 0;
-    activePage.value = 1;
-    await getUnfilteredGames();
 }
 
 async function filterGamesBySettings() {
@@ -98,7 +141,10 @@ async function filterGamesBySettings() {
     const games = await authStore.getGamesBySettings(10, offset.value, filters, activeGames.sorted);
     loadingGames.value = false;
     activeGames.games.length = 0;
-    activeGames.games.push(...games);
+
+    if (games) {
+        activeGames.games.push(...games);
+    }
 }
 
 async function handleSort(by) {
@@ -116,12 +162,102 @@ async function handleSort(by) {
     }
 }
 
-function addAllFilters() {
-    Object.keys(filterToggles).forEach((filter) => {
-        filterToggles[`${filter}`] = true;
+async function toggleFilterInput(key) {
+    const targets = '.filters, .input-form-group, .filter-form-buttons, .filter-form-seperator';
+    const flipOpts = {
+        duration: 0.3,
+        ease: 'power3.out',
+        nested: true,
+    };
+
+    const state = Flip.getState(targets);
+
+    const tl = gsap.timeline();
+    if (!filterToggles[key]) {
+        const oldFiltersAdded = filtersAdded.value;
+
+        filterToggles[key] = true;
+        addedFilters.value.push(key);
+        showFilterInputs.value = filtersAdded.value;
+
+        await nextTick();
+
+        if (!oldFiltersAdded) {
+            showFilterInputsAnim({ tl });
+            enterFilterButtonsAnim({ tl });
+            enterFilterInputAnim(key, { delay: 0.1 });
+        } else {
+            enterFilterInputAnim(key, { delay: 0.2 });
+            Flip.from(state, flipOpts);
+        }
+    } else {
+        const onComplete = async () => {
+            filterToggles[key] = false;
+
+            const index = addedFilters.value.indexOf(key);
+            if (index > -1) {
+                addedFilters.value.splice(index, 1);
+            }
+
+            showFilterInputs.value = filtersAdded.value;
+
+            await nextTick();
+            Flip.from(state, flipOpts);
+        };
+
+        if (visibleFilterInputs.value.length === 1) {
+            exitFilterInputAnim(key, { tl });
+            hideFilterInputsAnim({ tl, onComplete });
+        } else {
+            exitFilterInputAnim(key, { tl, onComplete });
+        }
+    }
+}
+
+async function addAllFilters() {
+    const tl = gsap.timeline();
+
+    showFilterInputs.value = true;
+
+    const keysToAdd = Object.keys(filterToggles);
+    keysToAdd.forEach((key) => {
+        if (!filterToggles[key]) {
+            filterToggles[key] = true;
+            addedFilters.value.push(key);
+        }
     });
 
-    toggleFilterDropdwon();
+    await nextTick();
+    showFilterInputsAnim();
+    enterAllFilterInputsAnim();
+    enterFilterButtonsAnim();
+    toggleFilterDropdown();
+}
+
+async function resetFilters() {
+    const onComplete = async () => {
+        Object.keys(filterToggles).forEach((toggle) => {
+            filterToggles[toggle] = false;
+        });
+        addedFilters.value = [];
+
+        settingsFilters.circleSize = 100;
+        settingsFilters.spawnInterval = 1;
+        settingsFilters.shrinkTime = 1;
+
+        offset.value = 0;
+        activePage.value = 1;
+        await getUnfilteredGames();
+    };
+
+    const tl = gsap.timeline();
+    exitAllFilterInputsAnim({
+        onStart: () => {
+            setTimeout(() => {
+                hideFilterInputsAnim({ tl, onComplete });
+            }, 250);
+        },
+    });
 }
 
 const filterDropdownListener = async (e) => {
@@ -140,7 +276,7 @@ const filterDropdownListener = async (e) => {
     }
 };
 
-function toggleFilterDropdwon() {
+function toggleFilterDropdown() {
     if (!showFilters.value) {
         window.addEventListener('click', filterDropdownListener);
     } else {
@@ -219,13 +355,151 @@ function hideFilterDropdownAnim({ tl = gsap.timeline(), onComplete = () => {} } 
         );
 }
 
-function showFilterInputAnim(tl) {}
+function showFilterInputsAnim({ tl = gsap.timeline(), onStart = () => {} } = {}) {
+    tl.to('.filters', {
+        duration: 0.4,
+        ease: 'power3.out',
+        height: 'auto',
+        onStart,
+    });
+}
 
-function hideFilterInputAnim(tl) {}
+function hideFilterInputsAnim({ tl = gsap.timeline(), onComplete = () => {} } = {}) {
+    tl.to('.filter-form-button', {
+        duration: 0.1,
+        ease: 'linear',
+        opacity: 0,
+    }).to(
+        '.filters',
+        {
+            duration: 0.4,
+            ease: 'power3.out',
+            height: 0,
+            onComplete,
+        },
+        0.1,
+    );
+}
 
-function showSettingsColumns(tl) {}
+function enterFilterInputAnim(key, { tl = gsap.timeline(), delay = 0, onComplete = () => {} } = {}) {
+    const seperatorSelector =
+        visibleFilterInputs.value.length === 1 ? null : `.seperator-${visibleFilterInputs.value.length - 2}`;
 
-function hideSettingsColumns(tl) {}
+    if (!seperatorSelector || !showSettings.value || isMobile.value) {
+        tl.to(`.form-group-${key}`, {
+            duration: 0.3,
+            ease: 'power3.out',
+            opacity: 1,
+            delay,
+            onComplete,
+        });
+    } else {
+        tl.to(seperatorSelector, {
+            duration: 0.3,
+            ease: 'power3.out',
+            opacity: 1,
+            scale: 1,
+            delay,
+        }).to(
+            `.form-group-${key}`,
+            {
+                duration: 0.3,
+                ease: 'power3.out',
+                delay,
+                opacity: 1,
+                onComplete,
+            },
+            0,
+        );
+    }
+}
+
+function exitFilterInputAnim(key, { tl = gsap.timeline(), onComplete = () => {} } = {}) {
+    const seperatorSelector =
+        visibleFilterInputs.value.length === 1 ? null : `.seperator-${visibleFilterInputs.value.length - 2}`;
+
+    if (!seperatorSelector || !showSettings.value || isMobile.value) {
+        tl.to(`.form-group-${key}`, {
+            duration: 0.3,
+            ease: 'power3.out',
+            opacity: 0,
+            onComplete,
+        });
+    } else {
+        tl.to(seperatorSelector, {
+            duration: 0.3,
+            ease: 'linear',
+            opacity: 0,
+            scale: 0,
+        }).to(
+            `.form-group-${key}`,
+            {
+                duration: 0.3,
+                ease: 'power3.out',
+                opacity: 0,
+                onComplete,
+            },
+            0,
+        );
+    }
+}
+
+function enterAllFilterInputsAnim({ tl = gsap.timeline(), onComplete = () => {} } = {}) {
+    tl.to(
+        '.filter-form-seperator',
+        {
+            duration: 0.3,
+            ease: 'linear',
+            opacity: 1,
+            scale: 1,
+        },
+        0,
+    ).to(
+        '.input-form-group',
+        {
+            duration: 0.3,
+            ease: 'power3.out',
+            opacity: 1,
+            stagger: 0.1,
+            onComplete,
+        },
+        0,
+    );
+}
+
+function exitAllFilterInputsAnim({ tl = gsap.timeline(), onComplete = () => {}, onStart = () => {} } = {}) {
+    tl.to('.filter-form-seperator', {
+        duration: 0.3,
+        ease: 'linear',
+        opacity: 0,
+        scale: 0,
+    }).to(
+        '.input-form-group',
+        {
+            duration: 0.3,
+            ease: 'power3.out',
+            opacity: 0,
+            stagger: 0.05,
+            onStart,
+            onComplete,
+        },
+        0,
+    );
+}
+
+function enterFilterButtonsAnim({ tl = gsap.timeline() } = {}) {
+    tl.to('.filter-form-button', {
+        duration: 0.3,
+        ease: 'linear',
+        opacity: 1,
+        x: 0,
+        stagger: 0.1,
+    });
+}
+
+function showSettingsColumns({ tl = gsap.timeline() } = {}) {}
+
+function hideSettingsColumns({ tl = gsap.timeline() } = {}) {}
 </script>
 
 <template>
@@ -265,7 +539,7 @@ function hideSettingsColumns(tl) {}
                             :text="`${showSettings ? 'Hide' : 'Show'} Settings`"
                             @click="showSettings = !showSettings"
                         />
-                        <Button preset="primary-alt" text="Add Filters ▾" @click="toggleFilterDropdwon()" />
+                        <Button preset="primary-alt" text="Add Filters ▾" @click="toggleFilterDropdown()" />
                     </div>
                     <div
                         v-if="showFilters"
@@ -280,9 +554,10 @@ function hideSettingsColumns(tl) {}
                         >
                             <CheckboxInput
                                 :id="`${key}Filter`"
-                                v-model="filterToggles[`${key}`]"
                                 type="checkbox"
                                 :disabled="loadingGames"
+                                :model="filterToggles[`${key}`]"
+                                @input="toggleFilterInput(key)"
                             />
                             <label :for="`${key}Filter`">
                                 {{ settingsStore.settingsKeyVal[`${key}`] }}
@@ -296,59 +571,32 @@ function hideSettingsColumns(tl) {}
                         />
                     </div>
                 </div>
-                <div class="filters">
+                <div class="filters" v-if="showFilterInputs">
                     <form v-if="filtersAdded" @submit.prevent="filterGamesBySettings">
                         <div class="form-groups">
-                            <div v-if="filterToggles.circleSize" class="form-group">
-                                <label for="circleSize">Circle Size</label>
-                                <RangeInput
-                                    id="circleSize"
-                                    v-model="settingsFilters.circleSize"
-                                    :min="25"
-                                    :max="125"
-                                    :disabled="loadingGames || !filterToggles.circleSize"
-                                    :show-value="true"
-                                    :input-active="rangeInputActive"
-                                    @mousedown="rangeInputActive = true"
-                                    @mouseup="rangeInputActive = false"
-                                />
-                            </div>
-                            <span v-if="filterToggles.spawnInterval && showSettings" class="seperator"> | </span>
-                            <div v-if="filterToggles.spawnInterval" class="form-group">
-                                <label>Spawn Interval</label>
-                                <NumberInput
-                                    v-model="settingsFilters.spawnInterval"
-                                    :step-up-disabled="
-                                        isLoading || !filterToggles.spawnInterval || settingsFilters.spawnInterval >= 2
-                                    "
-                                    :step-down-disabled="
-                                        isLoading ||
-                                        !filterToggles.spawnInterval ||
-                                        settingsFilters.spawnInterval === 0.25
-                                    "
-                                    @step-up="settingsFilters.spawnInterval += 0.25"
-                                    @step-down="settingsFilters.spawnInterval -= 0.25"
-                                />
-                            </div>
-                            <span v-if="filterToggles.shrinkTime && showSettings" class="seperator"> | </span>
-                            <div v-if="filterToggles.shrinkTime" class="form-group">
-                                <label>Shrink Time</label>
-                                <NumberInput
-                                    v-model="settingsFilters.shrinkTime"
-                                    :step-up-disabled="
-                                        loadingGames || !filterToggles.shrinkTime || settingsFilters.shrinkTime >= 2
-                                    "
-                                    :step-down-disabled="
-                                        loadingGames || !filterToggles.shrinkTime || settingsFilters.shrinkTime === 0.25
-                                    "
-                                    @step-up="settingsFilters.shrinkTime += 0.25"
-                                    @step-down="settingsFilters.shrinkTime -= 0.25"
-                                />
-                            </div>
+                            <template v-for="(input, i) in visibleFilterInputs" :key="input.key">
+                                <div class="form-group input-form-group" :class="`form-group-${input.key}`">
+                                    <label :for="input.key">{{ input.label }}</label>
+                                    <component
+                                        :is="input.component"
+                                        :id="input.key"
+                                        v-model="settingsFilters[input.key]"
+                                        v-bind="input.props"
+                                        v-on="input.on"
+                                    />
+                                </div>
+                                <span
+                                    v-if="i < visibleFilterInputs.length - 1 && showSettings"
+                                    class="seperator filter-form-seperator"
+                                    :class="`seperator-${i}`"
+                                >
+                                    |
+                                </span>
+                            </template>
                         </div>
                         <div class="filter-form-buttons">
                             <Button
-                                v-if="filtersAdded"
+                                class="filter-form-button"
                                 preset="primary-alt"
                                 type="button"
                                 text="Reset"
@@ -356,7 +604,7 @@ function hideSettingsColumns(tl) {}
                                 @click="resetFilters"
                             />
                             <Button
-                                v-if="filtersAdded"
+                                class="filter-form-button"
                                 preset="primary-alt"
                                 type="submit"
                                 text="Save"
@@ -595,21 +843,26 @@ function hideSettingsColumns(tl) {}
                     .filters {
                         width: 49em;
 
-                        form .form-groups {
-                            gap: $size-1;
-                            width: fit-content;
+                        form {
+                            height: 100%;
 
-                            .form-group {
+                            .form-groups {
                                 width: fit-content;
-                                justify-content: center;
-                                max-width: 16em;
-                            }
+                                flex-wrap: nowrap;
 
-                            .seperator {
-                                display: block;
-                                font-size: 0.5em;
-                                color: $color-gray3;
-                                margin-right: $size-4;
+                                .form-group {
+                                    width: fit-content;
+                                    max-width: 15em;
+                                }
+
+                                .seperator {
+                                    display: block;
+                                    font-size: 0.5em;
+                                    color: $color-gray3;
+                                    margin: 0 $size-4;
+                                    transform: scale(0);
+                                    opacity: 0;
+                                }
                             }
                         }
 
@@ -670,13 +923,9 @@ function hideSettingsColumns(tl) {}
                     width: fit-content;
                     top: 3.5em;
                     right: -1em;
-
                     overflow: hidden;
                     height: 8px;
                     width: 8px;
-
-                    // width: 0;
-                    // height: 0;
 
                     @include bp-xs-phone {
                         right: $size-1;
@@ -700,7 +949,6 @@ function hideSettingsColumns(tl) {}
                         align-items: center;
                         gap: $size-1;
                         margin: 0 $size-1;
-
                         opacity: 0;
 
                         &:first-child {
@@ -734,21 +982,21 @@ function hideSettingsColumns(tl) {}
                 position: relative;
                 z-index: 2;
                 font-size: 0.7em;
-                display: flex;
-                align-items: center;
                 width: 25em;
+                height: 0;
 
                 form {
                     display: flex;
                     flex-wrap: wrap;
                     justify-content: space-between;
+                    align-items: center;
                     width: 100%;
                     padding: $size-1 $size-4;
 
                     .form-groups {
                         @include flexCenterAll;
+                        align-self: flex-start;
                         flex-wrap: wrap;
-                        gap: $size-1;
                         width: 100%;
                         padding: $size-2;
                         margin: 0 auto;
@@ -764,6 +1012,7 @@ function hideSettingsColumns(tl) {}
                             width: 200%;
                             justify-content: space-between;
                             gap: $size-2;
+                            opacity: 0;
 
                             label {
                                 font-size: 1.1em;
@@ -780,6 +1029,10 @@ function hideSettingsColumns(tl) {}
                                     font-size: 1em;
                                 }
                             }
+
+                            :deep(input[type='range']) {
+                                margin: 0.85em 0;
+                            }
                         }
                     }
 
@@ -789,6 +1042,9 @@ function hideSettingsColumns(tl) {}
 
                         :deep(button) {
                             font-size: 1.1em;
+
+                            transfrom: translateX(-20px);
+                            opacity: 0;
                         }
                     }
                 }
