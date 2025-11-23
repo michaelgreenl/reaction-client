@@ -162,7 +162,9 @@ export const useAuthStore = defineStore('auth', () => {
                 },
             );
 
-            return [...games.games];
+            if (games.games) {
+                return [...games.games];
+            }
         } catch (error) {
             if (error.message.includes('401')) {
                 await logout();
@@ -184,7 +186,9 @@ export const useAuthStore = defineStore('auth', () => {
                 },
             );
 
-            return [...games.games];
+            if (games.games) {
+                return [...games.games];
+            }
         } catch (error) {
             if (error.message.includes('401')) {
                 await logout();
