@@ -6,7 +6,7 @@ import { useBreakpoints } from '@/composables/useBreakpoints.js';
 import { gsap } from 'gsap';
 import LogoSVG from '@/components/Icons/LogoSVG.vue';
 
-const { isMobile } = useBreakpoints();
+const { isSmPhone, isMobile } = useBreakpoints();
 
 const authStore = useAuthStore();
 const route = useRoute();
@@ -14,18 +14,15 @@ const route = useRoute();
 watch(
     () => authStore.gameActive,
     (newVal) => {
-        if (newVal && isMobile.value) {
-            gsap.to('.nav-link', {
+        if (isMobile.value) {
+            const targets = `.nav-link, ${isSmPhone.value ? '.nav-logo' : undefined}`;
+            const opts = {
                 duration: 0.2,
                 ease: 'linear',
-                opacity: 0,
-            });
-        } else if (!newVal) {
-            gsap.to('.nav-link', {
-                duration: 0.2,
-                ease: 'linear',
-                opacity: 1,
-            });
+                opacity: newVal ? 0 : 1,
+            };
+
+            gsap.to(targets, opts);
         }
     },
 );

@@ -98,11 +98,7 @@ function handleGameEnd() {
 }
 
 function enterHudAnim({ tl = gsap.timeline() } = {}) {
-    tl.to('.hud', {
-        duration: 0.3,
-        ease: 'power4.out',
-        y: 0,
-    })
+    tl.to('.hud', { duration: 0.3, ease: 'power4.out', y: 0 })
         .to('.stat-wrapper', { duration: 0.3, ease: 'power4.out', width: 'auto' }, 0.3)
         .to('.hud', { duration: 0.3, ease: 'power4.out', paddingRight: '2em' }, 0.3)
         .to('.stat-wrapper', { duration: 0.3, ease: 'linear', opacity: 1, stagger: 0.05 }, 0.4);
@@ -144,6 +140,7 @@ function exitHudAnim({ tl = gsap.timeline() } = {}) {
     top: $size-1;
     left: 0;
     right: 0;
+    top: -2.8em;
     margin: 0 auto;
     width: fit-content;
     display: flex;
@@ -166,12 +163,10 @@ function exitHudAnim({ tl = gsap.timeline() } = {}) {
     @include bp-custom-min(400) {
         margin-left: auto;
         margin-right: 0.4em;
-        top: -2.8em;
     }
 
     @include bp-sm-phone {
         font-size: 1em;
-        top: -2.8em;
         margin: 0 auto;
     }
 }
