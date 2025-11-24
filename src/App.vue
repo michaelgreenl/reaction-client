@@ -54,7 +54,6 @@ body,
 
 .loader {
     @include flexCenterAll;
-    min-height: 90vh;
     color: $color-bg-secondary;
 }
 

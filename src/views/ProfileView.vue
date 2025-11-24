@@ -340,7 +340,7 @@ function toggleFilterDropdown() {
                 <span class="stat">{{ authStore.userStats.totalGames }}</span>
             </div>
         </div>
-        <div v-if="isLoading" class="loader">
+        <div v-if="isLoading" class="loader loader-games">
             <Loader text="Loading Games" />
         </div>
         <div v-else class="main-wrapper">
@@ -545,6 +545,10 @@ function toggleFilterDropdown() {
             margin: 0 0 $size-1;
         }
     }
+}
+
+.loader {
+    height: 27.5em;
 }
 
 .table-container {
