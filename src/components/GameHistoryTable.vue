@@ -7,7 +7,7 @@ import Loader from '@/components/Loader.vue';
 const props = defineProps({
     games: {
         type: Array,
-        default: () => [],
+        required: true,
     },
     loading: {
         type: Boolean,
@@ -17,12 +17,8 @@ const props = defineProps({
         type: Boolean,
         default: false,
     },
-    sortBy: {
-        type: String,
-        required: true,
-    },
-    sortOrder: {
-        type: String,
+    sorted: {
+        type: Object,
         required: true,
     },
     page: {
@@ -39,11 +35,11 @@ const props = defineProps({
     },
 });
 
-const emit = defineEmits(['sort', 'next-page', 'prev-page']);
+defineEmits(['sort', 'next-page', 'prev-page']);
 
 const getSortLabel = (field, label) => {
-    if (props.sortBy !== field) return label;
-    return props.sortOrder === 'ASC' ? `▴ ${label}` : `▾ ${label}`;
+    if (props.sorted.by !== field) return label;
+    return props.sorted.order === 'ASC' ? `▴ ${label}` : `▾ ${label}`;
 };
 </script>
 
@@ -101,10 +97,10 @@ const getSortLabel = (field, label) => {
                 }"
             >
                 <tr v-for="game in games" :key="game.createdAt">
-                    <td :class="{ sorted: sortBy === 'score' }">
+                    <td :class="{ sorted: sorted.by === 'score' }">
                         {{ game.score }}
                     </td>
-                    <td :class="{ sorted: sortBy === 'time' }">
+                    <td :class="{ sorted: sorted.by === 'time' }">
                         {{ formatTime(game.time) }}
                     </td>
                     <template v-if="showSettings">
@@ -124,7 +120,7 @@ const getSortLabel = (field, label) => {
                             }}
                         </td>
                     </template>
-                    <td class="date" :class="{ sorted: sortBy === 'createdAt' }">
+                    <td class="date" :class="{ sorted: sorted.by === 'createdAt' }">
                         <span>{{ formatDate(game.createdAt) }}</span>
                     </td>
                 </tr>
