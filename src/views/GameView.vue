@@ -47,7 +47,6 @@ const mainButtons = ref([
         type: 'submit',
         preset: 'primary',
         condition: () => showSettings.value,
-        isLoading: () => settingsRef.value?.isLoading,
         disabled: () => settingsRef.value?.isLoading || !settingsRef.value?.settingsChanged,
         click: () => settingsRef.value?.saveSettings(),
     },
