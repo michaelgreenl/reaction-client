@@ -59,7 +59,7 @@ function getCircleSizePercent() {
         :required="required"
         :disabled="disabled"
         @pointerdown="onPointerDown"
-        @input="emit('update:modelValue', Number($event.target.value))"
+        @input="$emit('update:modelValue', Number($event.target.value))"
         @blur="onGlobalPointerUp"
     />
     <span

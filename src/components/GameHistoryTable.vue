@@ -53,7 +53,7 @@ const getSortLabel = (field, label) => {
                             preset="primary-alt"
                             :text="getSortLabel('score', 'Score')"
                             :disabled="loading"
-                            @click="emit('sort', 'score')"
+                            @click="$emit('sort', 'score')"
                         />
                     </th>
                     <th>
@@ -61,7 +61,7 @@ const getSortLabel = (field, label) => {
                             preset="primary-alt"
                             :text="getSortLabel('time', 'Time')"
                             :disabled="loading"
-                            @click="emit('sort', 'time')"
+                            @click="$emit('sort', 'time')"
                         />
                     </th>
                     <th v-if="showSettings">
@@ -78,7 +78,7 @@ const getSortLabel = (field, label) => {
                             preset="primary-alt"
                             :text="getSortLabel('createdAt', 'Date')"
                             :disabled="loading"
-                            @click="emit('sort', 'createdAt')"
+                            @click="$emit('sort', 'createdAt')"
                         />
                     </th>
                 </tr>
@@ -127,11 +127,11 @@ const getSortLabel = (field, label) => {
             </tbody>
         </table>
         <div class="table-nav">
-            <Button preset="primary-alt" text="prev" :disabled="loading || disablePrev" @click="emit('prev-page')" />
+            <Button preset="primary-alt" text="prev" :disabled="loading || disablePrev" @click="$emit('prev-page')" />
             <span>
                 {{ page }}
             </span>
-            <Button preset="primary-alt" text="next" :disabled="loading || disableNext" @click="emit('next-page')" />
+            <Button preset="primary-alt" text="next" :disabled="loading || disableNext" @click="$emit('next-page')" />
         </div>
     </div>
 </template>
