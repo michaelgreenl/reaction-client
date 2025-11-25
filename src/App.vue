@@ -92,7 +92,8 @@ body,
 
 main {
     min-height: $height-minus-nav;
-    @include flexCenterAll;
+    display: flex;
+    justify-content: center;
 }
 
 h1,
