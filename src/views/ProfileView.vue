@@ -17,6 +17,8 @@ import LogoSVG from '@/components/Icons/LogoSVG.vue';
 
 gsap.registerPlugin(Flip);
 
+const isMounted = ref(false);
+
 const { isMobile, isLgDesktop, isXlDesktop } = useBreakpoints();
 
 const authStore = useAuthStore();
@@ -121,6 +123,7 @@ onMounted(async () => {
     await getUnfilteredGames().then(async () => {
         isLoading.value = false;
         loadingGames.value = false;
+        isMounted.value = false;
 
         await nextTick();
         showTableCellsAnim();
@@ -147,8 +150,11 @@ async function getUnfilteredGames() {
     const games = await authStore.getGames(10, offset.value, activeGames.sorted);
     activeGames.games.length = 0;
     activeGames.games.push(...games);
-    await nextTick();
-    showTableCellsAnim();
+
+    if (isMounted.value) {
+        await nextTick();
+        showTableCellsAnim();
+    }
 }
 
 async function filterGamesBySettings() {
@@ -688,7 +694,7 @@ function toggleFilterDropdown() {
     z-index: 2;
     font-size: 0.7em;
     width: 25em;
-    height: 0;
+    // height: 0;
 
     @include bp-sm-phone {
         .table-container.show-settings & {
