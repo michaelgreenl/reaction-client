@@ -100,7 +100,6 @@ const filtersAdded = computed(() => {
 });
 
 const {
-    initContext,
     showFilterDropdownAnim,
     hideFilterDropdownAnim,
     showFilterInputsAnim,
@@ -119,11 +118,10 @@ const {
 });
 
 onMounted(async () => {
-    initContext();
     await getUnfilteredGames().then(async () => {
         isLoading.value = false;
         loadingGames.value = false;
-        isMounted.value = false;
+        isMounted.value = true;
 
         await nextTick();
         showTableCellsAnim();
@@ -225,9 +223,9 @@ async function toggleFilterInput(key) {
         if (!oldFiltersAdded) {
             showFilterInputsAnim({ tl });
             enterFilterButtonsAnim({ tl });
-            enterFilterInputAnim(key, { delay: 0.1 });
+            enterFilterInputAnim({ key, delay: 0.1 });
         } else {
-            enterFilterInputAnim(key, { delay: 0.2 });
+            enterFilterInputAnim({ key, delay: 0.2 });
             Flip.from(state, flipOpts);
         }
     } else {
@@ -246,10 +244,10 @@ async function toggleFilterInput(key) {
         };
 
         if (visibleFilterInputs.value.length === 1) {
-            exitFilterInputAnim(key, { tl });
+            exitFilterInputAnim({ key, tl });
             hideFilterInputsAnim({ tl, onComplete });
         } else {
-            exitFilterInputAnim(key, { tl, onComplete });
+            exitFilterInputAnim({ key, tl, onComplete });
         }
     }
 }

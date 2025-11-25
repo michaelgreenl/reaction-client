@@ -66,7 +66,6 @@ const buttonList = computed(() => {
 });
 
 const {
-    initContext,
     openRecentGamesAnim,
     hideRecentGamesAnim,
     closeRecentGamesAnim,
@@ -82,7 +81,6 @@ const {
 } = useGameAnimations({ isXlDesktop, showRecentGames });
 
 onMounted(() => {
-    initContext();
     showButtonsAnim();
 
     if (authStore.isAuthenticated) {
