@@ -164,10 +164,9 @@ const handleLogin = async () => {
     }
 }
 
-.submit-button {
+button[type='submit'] {
     position: relative;
     z-index: 2;
-
     align-self: flex-end;
     margin-right: $size-4;
 
@@ -180,6 +179,7 @@ const handleLogin = async () => {
 .error-message {
     position: relative;
     z-index: 2;
+    font-family: $secondary-font-stack;
     color: $color-error;
     text-align: center;
     margin-top: $size-1;

@@ -217,6 +217,7 @@ const handleRegister = async () => {
 }
 
 .password-requirements {
+    font-family: $secondary-font-stack;
     position: relative;
     z-index: 2;
     list-style: none;
@@ -245,7 +246,7 @@ const handleRegister = async () => {
     }
 }
 
-.submit-button {
+button[type='submit'] {
     position: relative;
     z-index: 2;
     align-self: flex-end;
@@ -260,6 +261,7 @@ const handleRegister = async () => {
 .error-message {
     position: relative;
     z-index: 2;
+    font-family: $secondary-font-stack;
     color: $color-error;
     text-align: center;
     margin-top: $size-1;
