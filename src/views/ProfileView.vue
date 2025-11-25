@@ -108,6 +108,8 @@ const {
     enterAllFilterInputsAnim,
     exitAllFilterInputsAnim,
     enterFilterButtonsAnim,
+    showTableCellsAnim,
+    hideTableCellsAnim,
 } = useProfileAnimations({
     visibleFilterInputs,
     showSettings,
@@ -116,30 +118,37 @@ const {
 
 onMounted(async () => {
     initContext();
-    await getUnfilteredGames().then(() => {
+    await getUnfilteredGames().then(async () => {
         isLoading.value = false;
         loadingGames.value = false;
+
+        await nextTick();
+        showTableCellsAnim();
     });
 });
 
 async function switchPage(newOffset, pageNum) {
-    activePage.value = pageNum;
-    offset.value = newOffset;
+    hideTableCellsAnim({
+        onComplete: () => {
+            activePage.value = pageNum;
+            offset.value = newOffset;
 
-    if (!filtersAdded.value && !activeGames.filtered) {
-        getUnfilteredGames();
-    } else {
-        filterGamesBySettings();
-    }
+            if (!filtersAdded.value && !activeGames.filtered) {
+                getUnfilteredGames();
+            } else {
+                filterGamesBySettings();
+            }
+        },
+    });
 }
 
 async function getUnfilteredGames() {
     activeGames.filtered = false;
-    loadingGames.value = true;
     const games = await authStore.getGames(10, offset.value, activeGames.sorted);
-    loadingGames.value = false;
     activeGames.games.length = 0;
     activeGames.games.push(...games);
+    await nextTick();
+    showTableCellsAnim();
 }
 
 async function filterGamesBySettings() {
@@ -459,19 +468,12 @@ function toggleFilterDropdown() {
     justify-content: center;
     gap: 0.5em;
     flex-direction: column;
-    padding-top: $size-2;
-
-    @include bp-xl-desktop {
-        padding-top: 0;
-    }
 }
 
 .main-wrapper {
     @include flexCenterAll;
     flex-direction: column;
     width: 100%;
-    margin-bottom: $size-8;
-    padding-top: $size-2;
 }
 
 .user-stats {

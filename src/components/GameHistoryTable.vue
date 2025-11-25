@@ -265,7 +265,6 @@ const getSortLabel = (field, label) => {
     span {
         color: $color-text-secondary-dark;
         border-bottom: solid 1px $color-gray3;
-        width: 1ch;
         text-align: center;
     }
 }

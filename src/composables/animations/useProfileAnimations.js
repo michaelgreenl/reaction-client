@@ -118,6 +118,41 @@ export function useProfileAnimations({ visibleFilterInputs, showSettings, isMobi
         });
     }
 
+    function showTableCellsAnim({ tl = gsap.timeline() } = {}) {
+        runInContext(() => {
+            gsap.set('td', { opacity: 0 });
+
+            tl.to('td', {
+                duration: 0.2,
+                ease: 'linear',
+                opacity: 1,
+                stagger: {
+                    amount: 0.2,
+                    from: 'random',
+                    grid: 'auto',
+                },
+            });
+        });
+    }
+
+    function hideTableCellsAnim({ tl = gsap.timeline(), onComplete = () => {} } = {}) {
+        runInContext(() => {
+            gsap.set('td', { opacity: 1 });
+
+            tl.to('td', {
+                duration: 0.2,
+                ease: 'linear',
+                opacity: 0,
+                stagger: {
+                    amount: 0.2,
+                    from: 'random',
+                    grid: 'auto',
+                },
+                onComplete,
+            });
+        });
+    }
+
     function showSettingsColumns({ tl = gsap.timeline() } = {}) {
         runInContext(() => {});
     }
@@ -137,6 +172,8 @@ export function useProfileAnimations({ visibleFilterInputs, showSettings, isMobi
         enterAllFilterInputsAnim,
         exitAllFilterInputsAnim,
         enterFilterButtonsAnim,
+        showTableCellsAnim,
+        hideTableCellsAnim,
         showSettingsColumns,
         hideSettingsColumns,
     };
