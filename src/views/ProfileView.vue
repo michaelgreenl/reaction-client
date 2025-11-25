@@ -203,7 +203,7 @@ async function handleSort(by) {
 }
 
 async function toggleFilterInput(key) {
-    const targets = '.filters, .input-form-group, .filter-form-buttons, .filter-form-seperator';
+    const targets = '.filters, .filter-form-group, .filter-form-buttons, .filter-form-seperator';
     const flipOpts = {
         duration: 0.3,
         ease: 'power3.out',
@@ -255,7 +255,7 @@ async function toggleFilterInput(key) {
 }
 
 async function addAllFilters() {
-    const targets = '.filters, .input-form-group, .filter-form-buttons, .filter-form-seperator';
+    const targets = '.filters, .filter-form-group, .filter-form-buttons, .filter-form-seperator';
     const flipOpts = {
         duration: 0.3,
         ease: 'power3.out',
@@ -382,7 +382,7 @@ function toggleFilterDropdown() {
                         <div
                             v-for="key in Object.keys(settingsStore.settingsKeyVal)"
                             :key="key"
-                            class="form-group filter-form-group"
+                            class="form-group filter-toggles-form-group"
                         >
                             <CheckboxInput
                                 :id="`${key}Filter`"
@@ -407,7 +407,7 @@ function toggleFilterDropdown() {
                     <form v-if="filtersAdded" @submit.prevent="filterGamesBySettings">
                         <div class="form-groups">
                             <template v-for="(input, i) in visibleFilterInputs" :key="input.key">
-                                <div class="form-group input-form-group" :class="`form-group-${input.key}`">
+                                <div class="form-group filter-form-group" :class="`form-group-${input.key}`">
                                     <label :for="input.key">{{ input.label }}</label>
                                     <component
                                         :is="input.component"
@@ -474,6 +474,7 @@ function toggleFilterDropdown() {
     justify-content: center;
     gap: 0.5em;
     flex-direction: column;
+    padding-left: calc(100vw - 100%);
 }
 
 .main-wrapper {
@@ -636,8 +637,8 @@ function toggleFilterDropdown() {
     top: 3.5em;
     right: -1em;
     overflow: hidden;
-    height: 8px;
-    width: 8px;
+    height: 0;
+    width: 0;
 
     @include bp-xs-phone {
         right: $size-1;
@@ -694,7 +695,7 @@ function toggleFilterDropdown() {
     z-index: 2;
     font-size: 0.7em;
     width: 25em;
-    // height: 0;
+    height: 0;
 
     @include bp-sm-phone {
         .table-container.show-settings & {

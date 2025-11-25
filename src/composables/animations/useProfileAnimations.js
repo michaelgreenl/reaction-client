@@ -28,7 +28,7 @@ export function useProfileAnimations({ visibleFilterInputs, showSettings, isMobi
         runInContext(() => {
             tl.to('.filter-toggles', { duration: 0.4, ease: 'power4.out', width: 'auto' })
                 .to('.filter-toggles', { duration: 0.3, ease: 'power3.out', height: 'auto' }, 0.05)
-                .to('.filter-form-group', { duration: 0.2, ease: 'linear', opacity: 1 }, 0.1)
+                .to('.filter-toggles-form-group', { duration: 0.2, ease: 'linear', opacity: 1 }, 0.1)
                 .to('.filter-toggles-button', { duration: 0.2, ease: 'linear', opacity: 1 }, 0.15);
         });
     }
@@ -36,7 +36,7 @@ export function useProfileAnimations({ visibleFilterInputs, showSettings, isMobi
     function hideFilterDropdownAnim({ tl = gsap.timeline(), onComplete = () => {} } = {}) {
         runInContext(() => {
             tl.to('.filter-toggles-button', { duration: 0.2, ease: 'linear', opacity: 0, onComplete })
-                .to('.filter-form-group', { duration: 0.2, ease: 'linear', opacity: 0 }, 0.05)
+                .to('.filter-toggles-form-group', { duration: 0.2, ease: 'linear', opacity: 0 }, 0.05)
                 .to('.filter-toggles', { duration: 0.3, ease: 'power3.out', height: 0 }, 0.1)
                 .to('.filter-toggles', { duration: 0.4, ease: 'power4.out', width: 0 }, 0.15);
         });
@@ -95,7 +95,7 @@ export function useProfileAnimations({ visibleFilterInputs, showSettings, isMobi
     function enterAllFilterInputsAnim({ tl = gsap.timeline(), onComplete = () => {} } = {}) {
         runInContext(() => {
             tl.to('.filter-form-seperator', { duration: 0.3, ease: 'linear', opacity: 1, scale: 1 }, 0).to(
-                '.input-form-group',
+                '.filter-form-group',
                 { duration: 0.3, ease: 'power3.out', opacity: 1, stagger: 0.1, onComplete },
                 0,
             );
@@ -105,7 +105,7 @@ export function useProfileAnimations({ visibleFilterInputs, showSettings, isMobi
     function exitAllFilterInputsAnim({ tl = gsap.timeline(), onComplete = () => {}, onStart = () => {} } = {}) {
         runInContext(() => {
             tl.to('.filter-form-seperator', { duration: 0.3, ease: 'linear', opacity: 0, scale: 0 }).to(
-                '.input-form-group',
+                '.filter-form-group',
                 { duration: 0.3, ease: 'power3.out', opacity: 0, stagger: 0.05, onStart, onComplete },
                 0,
             );
