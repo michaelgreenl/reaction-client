@@ -42,6 +42,7 @@ body,
     display: flex;
     flex-direction: column;
     font-size: 0.9em !important;
+    padding-left: calc(100vw - 100%);
 
     @include bp-xs-phone {
         font-size: 1em !important;
