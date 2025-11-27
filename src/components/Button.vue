@@ -52,19 +52,23 @@ button {
     &.primary-alt {
         background: transparent;
         font-style: oblique;
+    }
+
+    &.primary {
+        text-shadow: 1px 1px 2px #00000033;
+        color: $color-bg-secondary;
 
         &:disabled {
             color: #dee2e699;
         }
     }
 
-    &.primary {
-        text-shadow: 1px 1px 2px #00000033;
-        color: $color-bg-secondary;
-    }
-
     &.primary-alt {
         color: $color-accent;
+
+        &:disabled {
+            color: $color-gray3;
+        }
     }
 
     &.secondary {
