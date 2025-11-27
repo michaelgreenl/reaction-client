@@ -82,9 +82,9 @@ export function useProfileAnimations({ visibleFilterInputs, showSettings, isMobi
     });
 
     const showTableCellsAnim = registerAnim(({ tl }) => {
-        gsap.set('td', { opacity: 0 });
+        gsap.set('.column-cell', { opacity: 0 });
 
-        tl.to('td', {
+        tl.to('.column-cell', {
             duration: 0.2,
             ease: 'linear',
             opacity: 1,
@@ -97,7 +97,7 @@ export function useProfileAnimations({ visibleFilterInputs, showSettings, isMobi
     });
 
     const hideTableCellsAnim = registerAnim(({ tl, onComplete }) => {
-        tl.to('td', {
+        tl.to('.column-cell', {
             duration: 0.2,
             ease: 'linear',
             opacity: 0,
@@ -110,9 +110,37 @@ export function useProfileAnimations({ visibleFilterInputs, showSettings, isMobi
         });
     });
 
-    function showSettingsColumns({ tl = gsap.timeline() } = {}) {}
+    const showSettingsColumnsAnim = registerAnim(({ tl }) => {
+        // tl.to('', {});
+    });
 
-    function hideSettingsColumns({ tl = gsap.timeline() } = {}) {}
+    const hideSettingsColumnsAnim = registerAnim(({ tl, onComplete }) => {
+        // TODO: switch from using table to flex and columns
+        // tl.to('.setting-cell, .column-header-setting', {
+        //     duration: 0.2,
+        //     ease: 'linear',
+        //     opacity: 0,
+        //     border: 0,
+        //     stagger: {
+        //         amount: 0.2,
+        //         from: 'random',
+        //         grid: 'auto',
+        //     },
+        // }).to(
+        //     '.setting-cell, .column-header-setting',
+        //     {
+        //         duration: 5,
+        //         ease: 'linear',
+        //         paddingLeft: 0,
+        //         paddingRight: 0,
+        //         borderWidth: 0,
+        //         width: 0,
+        //         overflow: 'hidden',
+        //         onComplete,
+        //     },
+        //     0,
+        // );
+    });
 
     return {
         showFilterDropdownAnim,
@@ -126,7 +154,7 @@ export function useProfileAnimations({ visibleFilterInputs, showSettings, isMobi
         enterFilterButtonsAnim,
         showTableCellsAnim,
         hideTableCellsAnim,
-        showSettingsColumns,
-        hideSettingsColumns,
+        showSettingsColumnsAnim,
+        hideSettingsColumnsAnim,
     };
 }

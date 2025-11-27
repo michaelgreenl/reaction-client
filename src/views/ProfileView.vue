@@ -111,6 +111,8 @@ const {
     enterFilterButtonsAnim,
     showTableCellsAnim,
     hideTableCellsAnim,
+    showSettingsColumnsAnim,
+    hideSettingsColumnsAnim,
 } = useProfileAnimations({
     visibleFilterInputs,
     showSettings,
@@ -330,11 +332,32 @@ function toggleFilterDropdown() {
         filterDropdownListener();
     }
 }
+
+function toggleSettingsColumns() {
+    // if (showSettings.value) {
+    //     hideSettingsColumnsAnim({
+    //         onComplete: async () => {
+    //             // const state = Flip.getState(targets);
+
+    //             // await nextTick();
+    //             showSettings.value = false;
+
+    //             // await nextTick();
+    //             // Flip.from(state, flipOpts);
+    //         },
+    //     });
+    // }
+
+    // hideSettingsColumnsAnim();
+
+    showSettings.value = !showSettings.value;
+}
 </script>
 
 <template>
     <div class="profile-container">
-        <div class="user-stats psuedo-border" :class="`${showSettings ? 'show-settings' : undefined}`">
+        <!-- <div class="user-stats psuedo-border" :class="`${showSettings ? 'show-settings' : undefined}`"> -->
+        <div class="user-stats psuedo-border">
             <div class="stat-wrapper">
                 <span class="label">High Score:</span>
                 <hr />
@@ -367,7 +390,7 @@ function toggleFilterDropdown() {
                         <Button
                             preset="primary-alt"
                             :text="`${showSettings ? 'Hide' : 'Show'} Settings`"
-                            @click="showSettings = !showSettings"
+                            @click="toggleSettingsColumns"
                         />
                         <Button preset="primary-alt" text="Add Filters ▾" @click="toggleFilterDropdown()" />
                     </div>
@@ -494,23 +517,19 @@ function toggleFilterDropdown() {
     }
 
     @include bp-sm-phone {
-        &.show-settings {
-            width: 34em;
-            flex-direction: row;
-            gap: $size-4;
+        // &.show-settings {
+        width: 34em;
+        flex-direction: row;
+        gap: $size-4;
 
-            .seperator {
-                display: block;
-            }
+        // .stat-wrapper {
+        //     width: fit-content;
 
-            .stat-wrapper {
-                width: fit-content;
-
-                hr {
-                    display: none;
-                }
-            }
-        }
+        //     hr {
+        //         display: none;
+        //     }
+        // }
+        // }
     }
 
     > span {
@@ -523,6 +542,10 @@ function toggleFilterDropdown() {
 
     .seperator {
         display: none;
+
+        @include bp-sm-phone {
+            display: block;
+        }
     }
 
     .stat-wrapper {
@@ -532,6 +555,10 @@ function toggleFilterDropdown() {
         justify-content: space-between;
         gap: $size-1;
         width: 100%;
+
+        @include bp-sm-phone {
+            width: fit-content;
+        }
 
         span {
             font-size: 0.95em !important;
@@ -550,12 +577,12 @@ function toggleFilterDropdown() {
             flex: 1;
             align-self: flex-end;
             margin: 0 0 $size-1;
+
+            @include bp-sm-phone {
+                display: none;
+            }
         }
     }
-}
-
-.loader {
-    height: 27.5em;
 }
 
 .table-container {
@@ -565,6 +592,7 @@ function toggleFilterDropdown() {
     padding: $size-4 $size-6;
     border: solid 1px $color-gray3;
     max-width: 19em;
+    margin-bottom: $size-4;
 
     @include bp-custom-min(450) {
         max-width: 22em;
