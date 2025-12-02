@@ -132,9 +132,8 @@ const handleRegister = async () => {
 <style lang="scss" scoped>
 .auth-container {
     font-size: 0.8em;
-    height: 100%;
-    width: 100%;
     @include flexCenterAll;
+    width: 100%;
     padding: 0 $size-4 $size-12;
 }
 

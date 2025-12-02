@@ -82,8 +82,8 @@ const handleLogin = async () => {
 .auth-container {
     font-size: 0.8em;
     @include flexCenterAll;
-    padding: 0 $size-4 $size-12;
     width: 100%;
+    padding: 0 $size-4 $size-12;
 }
 
 .auth-form {
