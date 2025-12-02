@@ -132,7 +132,7 @@ onMounted(async () => {
     });
 });
 
-async function switchPage(newOffset, pageNum) {
+function switchPage(newOffset, pageNum) {
     const onComplete = () => {
         activePage.value = pageNum;
         offset.value = newOffset;
@@ -142,6 +142,7 @@ async function switchPage(newOffset, pageNum) {
         getUnfilteredGames({ onAnimComplete: () => onComplete() });
     } else {
         filterGamesBySettings();
+        onComplete();
     }
 }
 
@@ -194,6 +195,8 @@ async function filterGamesBySettings() {
             if (games) {
                 activeGames.games.push(...games);
             }
+
+            await nextTick();
 
             showTableCellsAnim();
         },
