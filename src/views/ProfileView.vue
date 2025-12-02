@@ -32,6 +32,7 @@ const loadingGames = ref(true);
 const showFilters = ref(false);
 const showFilterInputs = ref(false);
 const showSettings = ref(true);
+const headerShowSettings = ref(true);
 
 const offset = ref(0);
 const activePage = ref(1);
@@ -109,6 +110,7 @@ const {
     enterAllFilterInputsAnim,
     exitAllFilterInputsAnim,
     enterFilterButtonsAnim,
+    exitFilterButtonsAnim,
     showTableCellsAnim,
     hideTableCellsAnim,
     showSettingsColumnsAnim,
@@ -131,29 +133,37 @@ onMounted(async () => {
 });
 
 async function switchPage(newOffset, pageNum) {
-    hideTableCellsAnim({
-        onComplete: () => {
-            activePage.value = pageNum;
-            offset.value = newOffset;
+    const onComplete = () => {
+        activePage.value = pageNum;
+        offset.value = newOffset;
+    };
 
-            if (!filtersAdded.value && !activeGames.filtered) {
-                getUnfilteredGames();
-            } else {
-                filterGamesBySettings();
-            }
-        },
-    });
+    if (!filtersAdded.value && !activeGames.filtered) {
+        getUnfilteredGames({ onAnimComplete: () => onComplete() });
+    } else {
+        filterGamesBySettings();
+    }
 }
 
-async function getUnfilteredGames() {
-    activeGames.filtered = false;
-    const games = await authStore.getGames(10, offset.value, activeGames.sorted);
-    activeGames.games.length = 0;
-    activeGames.games.push(...games);
+async function getUnfilteredGames({ onAnimComplete = () => {} } = {}) {
+    const getGamesLogic = async () => {
+        activeGames.filtered = false;
+        const games = await authStore.getGames(10, offset.value, activeGames.sorted);
+        activeGames.games.length = 0;
+        activeGames.games.push(...games);
+    };
 
     if (isMounted.value) {
-        await nextTick();
-        showTableCellsAnim();
+        await hideTableCellsAnim({
+            onComplete: async () => {
+                onAnimComplete();
+                await nextTick();
+                await getGamesLogic();
+                showTableCellsAnim();
+            },
+        });
+    } else {
+        await getGamesLogic();
     }
 }
 
@@ -174,43 +184,51 @@ async function filterGamesBySettings() {
         }
     });
 
-    loadingGames.value = true;
-    const games = await authStore.getGamesBySettings(10, offset.value, filters, activeGames.sorted);
-    loadingGames.value = false;
-    activeGames.games.length = 0;
+    hideTableCellsAnim({
+        onComplete: async () => {
+            loadingGames.value = true;
+            const games = await authStore.getGamesBySettings(10, offset.value, filters, activeGames.sorted);
+            loadingGames.value = false;
+            activeGames.games.length = 0;
 
-    if (games) {
-        activeGames.games.push(...games);
-    }
+            if (games) {
+                activeGames.games.push(...games);
+            }
+
+            showTableCellsAnim();
+        },
+    });
 }
 
 async function handleSort(by) {
-    offset.value = 0;
-    activePage.value = 1;
+    const onAnimComplete = () => {
+        offset.value = 0;
+        activePage.value = 1;
 
-    if (activeGames.sorted.by === by) {
-        activeGames.sorted.order = activeGames.sorted.order === 'DESC' ? 'ASC' : 'DESC';
-    } else {
-        activeGames.sorted.by = by;
-        activeGames.sorted.order = 'DESC';
-    }
+        if (activeGames.sorted.by === by) {
+            activeGames.sorted.order = activeGames.sorted.order === 'DESC' ? 'ASC' : 'DESC';
+        } else {
+            activeGames.sorted.by = by;
+            activeGames.sorted.order = 'DESC';
+        }
+    };
 
     if (!filtersAdded.value && !activeGames.filtered) {
-        await getUnfilteredGames();
+        await getUnfilteredGames({ onAnimComplete });
     } else {
+        onAnimComplete();
         await filterGamesBySettings();
     }
 }
 
 async function toggleFilterInput(key) {
-    const targets = '.filters, .filter-form-group, .filter-form-buttons, .filter-form-seperator';
     const flipOpts = {
         duration: 0.3,
         ease: 'power3.out',
         nested: true,
     };
 
-    const state = Flip.getState(targets);
+    const state = Flip.getState('.filters, .filter-form-group, .filter-form-buttons, .filter-form-seperator');
 
     const tl = gsap.timeline();
     if (!filterToggles[key]) {
@@ -255,14 +273,7 @@ async function toggleFilterInput(key) {
 }
 
 async function addAllFilters() {
-    const targets = '.filters, .filter-form-group, .filter-form-buttons, .filter-form-seperator';
-    const flipOpts = {
-        duration: 0.3,
-        ease: 'power3.out',
-        nested: true,
-    };
-
-    const state = Flip.getState(targets);
+    const state = Flip.getState('.filters, .filter-form-group, .filter-form-buttons, .filter-form-seperator');
     const tl = gsap.timeline();
 
     showFilterInputs.value = true;
@@ -279,24 +290,27 @@ async function addAllFilters() {
     showFilterInputsAnim();
     enterAllFilterInputsAnim();
     enterFilterButtonsAnim();
-    Flip.from(state, flipOpts);
+    Flip.from(state, { duration: 0.3, ease: 'power3.out', nested: true });
     toggleFilterDropdown();
 }
 
 async function resetFilters() {
     const onComplete = async () => {
-        Object.keys(filterToggles).forEach((toggle) => {
-            filterToggles[toggle] = false;
+        await getUnfilteredGames({
+            onAnimComplete: () => {
+                Object.keys(filterToggles).forEach((toggle) => {
+                    filterToggles[toggle] = false;
+                });
+                addedFilters.value = [];
+
+                settingsFilters.circleSize = settingsStore.circleSize;
+                settingsFilters.spawnInterval = settingsStore.spawnInterval;
+                settingsFilters.shrinkTime = settingsStore.shrinkTime;
+
+                offset.value = 0;
+                activePage.value = 1;
+            },
         });
-        addedFilters.value = [];
-
-        settingsFilters.circleSize = settingsStore.circleSize;
-        settingsFilters.spawnInterval = settingsStore.spawnInterval;
-        settingsFilters.shrinkTime = settingsStore.shrinkTime;
-
-        offset.value = 0;
-        activePage.value = 1;
-        await getUnfilteredGames();
     };
 
     const tl = gsap.timeline();
@@ -334,30 +348,68 @@ function toggleFilterDropdown() {
 }
 
 function toggleSettingsColumns() {
-    // if (showSettings.value) {
-    //     hideSettingsColumnsAnim({
-    //         onComplete: async () => {
-    //             // const state = Flip.getState(targets);
+    const enterFilters = () => {
+        enterAllFilterInputsAnim();
+        enterFilterButtonsAnim();
+    };
 
-    //             // await nextTick();
-    //             showSettings.value = false;
+    let filterState;
+    if (filtersAdded.value) {
+        filterState = Flip.getState('.filters, .filter-form-group, .filter-form-buttons, .filter-form-seperator');
 
-    //             // await nextTick();
-    //             // Flip.from(state, flipOpts);
-    //         },
-    //     });
-    // }
+        if (!isMobile.value && (visibleFilterInputs.value.length > 1 || !showSettings.value)) {
+            exitFilterButtonsAnim();
+            exitAllFilterInputsAnim();
+        }
+    }
 
-    // hideSettingsColumnsAnim();
+    if (showSettings.value) {
+        const headerState = Flip.getState('.logo, .toggle-buttons');
 
-    showSettings.value = !showSettings.value;
+        hideSettingsColumnsAnim({
+            onComplete: async () => {
+                headerShowSettings.value = false;
+
+                await nextTick();
+                Flip.from(headerState, {
+                    duration: 0.3,
+                    ease: 'power3.out',
+                    onComplete: () => (showSettings.value = !showSettings.value),
+                });
+
+                if (!isMobile.value && filtersAdded.value) {
+                    Flip.from(filterState, {
+                        duration: 0.3,
+                        ease: 'power3.out',
+                        nested: true,
+                        onComplete: () => enterFilters(),
+                    });
+                }
+            },
+        });
+    } else {
+        showSettingsColumnsAnim({
+            onComplete: async () => {
+                showSettings.value = true;
+                headerShowSettings.value = true;
+
+                if (!isMobile.value && filtersAdded.value) {
+                    await nextTick();
+                    Flip.from(filterState, {
+                        duration: 0.3,
+                        ease: 'power3.out',
+                        onComplete: () => enterFilters(),
+                    });
+                }
+            },
+        });
+    }
 }
 </script>
 
 <template>
     <div class="profile-container">
-        <!-- <div class="user-stats psuedo-border" :class="`${showSettings ? 'show-settings' : undefined}`"> -->
-        <div class="user-stats psuedo-border">
+        <div class="user-stats psuedo-border" :class="`${showSettings ? 'show-settings' : undefined}`">
             <div class="stat-wrapper">
                 <span class="label">High Score:</span>
                 <hr />
@@ -381,7 +433,7 @@ function toggleSettingsColumns() {
         </div>
         <div v-else class="main-wrapper">
             <div class="table-container psuedo-border" :class="`${showSettings ? 'show-settings' : undefined}`">
-                <div class="table-header">
+                <div class="table-header" :class="`${headerShowSettings ? 'show-settings' : undefined}`">
                     <div class="logo">
                         <LogoSVG />
                         <h1>Game History</h1>
@@ -398,7 +450,7 @@ function toggleSettingsColumns() {
                         v-if="showFilters"
                         ref="filterDropdownRef"
                         class="filter-toggles psuedo-border"
-                        :class="`${showSettings ? 'showing-settings' : undefined}`"
+                        :class="`${showSettings ? 'show-settings' : undefined}`"
                     >
                         <div
                             v-for="key in Object.keys(settingsStore.settingsKeyVal)"
@@ -424,12 +476,24 @@ function toggleSettingsColumns() {
                         />
                     </div>
                 </div>
-                <div class="filters" v-if="showFilterInputs">
+                <hr class="header-border" />
+                <div
+                    class="filters"
+                    :class="`${headerShowSettings ? 'show-settings' : undefined}`"
+                    v-if="showFilterInputs"
+                >
                     <form v-if="filtersAdded" @submit.prevent="filterGamesBySettings">
                         <div class="form-groups">
                             <template v-for="(input, i) in visibleFilterInputs" :key="input.key">
                                 <div class="form-group filter-form-group" :class="`form-group-${input.key}`">
                                     <label :for="input.key">{{ input.label }}</label>
+                                    <span
+                                        v-if="isMobile || !showSettings || !headerShowSettings"
+                                        class="seperator filter-form-seperator"
+                                        :class="`seperator-${i}`"
+                                    >
+                                        -
+                                    </span>
                                     <component
                                         :is="input.component"
                                         :id="input.key"
@@ -439,7 +503,11 @@ function toggleSettingsColumns() {
                                     />
                                 </div>
                                 <span
-                                    v-if="i < visibleFilterInputs.length - 1 && showSettings"
+                                    v-if="
+                                        !isMobile &&
+                                        i < visibleFilterInputs.length - 1 &&
+                                        (showSettings || headerShowSettings)
+                                    "
                                     class="seperator filter-form-seperator"
                                     :class="`seperator-${i}`"
                                 >
@@ -517,19 +585,23 @@ function toggleSettingsColumns() {
     }
 
     @include bp-sm-phone {
-        // &.show-settings {
-        width: 34em;
-        flex-direction: row;
-        gap: $size-4;
+        &.show-settings {
+            width: 34em;
+            flex-direction: row;
+            gap: $size-4;
 
-        // .stat-wrapper {
-        //     width: fit-content;
+            .seperator {
+                display: block;
+            }
 
-        //     hr {
-        //         display: none;
-        //     }
-        // }
-        // }
+            .stat-wrapper {
+                width: fit-content;
+
+                hr {
+                    display: none;
+                }
+            }
+        }
     }
 
     > span {
@@ -542,10 +614,6 @@ function toggleSettingsColumns() {
 
     .seperator {
         display: none;
-
-        @include bp-sm-phone {
-            display: block;
-        }
     }
 
     .stat-wrapper {
@@ -555,10 +623,6 @@ function toggleSettingsColumns() {
         justify-content: space-between;
         gap: $size-1;
         width: 100%;
-
-        @include bp-sm-phone {
-            width: fit-content;
-        }
 
         span {
             font-size: 0.95em !important;
@@ -577,10 +641,6 @@ function toggleSettingsColumns() {
             flex: 1;
             align-self: flex-end;
             margin: 0 0 $size-1;
-
-            @include bp-sm-phone {
-                display: none;
-            }
         }
     }
 }
@@ -591,18 +651,29 @@ function toggleSettingsColumns() {
     flex-direction: column;
     padding: $size-4 $size-6;
     border: solid 1px $color-gray3;
-    max-width: 19em;
+    max-width: 19em !important;
     margin-bottom: $size-4;
 
     @include bp-custom-min(450) {
-        max-width: 22em;
+        max-width: 22em !important;
     }
 
     @include bp-sm-phone {
         &.show-settings {
-            max-width: 34em;
+            max-width: 34em !important;
         }
     }
+}
+
+.header-border {
+    position: relative;
+    z-index: 2;
+    border: 0;
+    min-height: 1px;
+    max-height: 1px;
+    background-color: $color-primary-light;
+    margin: 0;
+    width: 100%;
 }
 
 .table-header {
@@ -611,13 +682,14 @@ function toggleSettingsColumns() {
     display: flex;
     flex-wrap: wrap;
     padding: $size-1 $size-1 $size-3;
-    width: 100%;
-    border-bottom: solid 1px $color-primary-light;
     justify-content: center;
+    width: 18em;
 
     @include bp-sm-phone {
-        .table-container.show-settings & {
+        &.show-settings {
             justify-content: space-between;
+            width: 100%;
+            max-width: 100%;
         }
     }
 
@@ -634,6 +706,7 @@ function toggleSettingsColumns() {
             font-size: 1.5em;
             color: $color-accent;
             margin: 0;
+            white-space: nowrap;
         }
     }
 
@@ -661,21 +734,17 @@ function toggleSettingsColumns() {
     padding-right: $size-3;
     width: fit-content;
     top: 3.5em;
-    right: -1em;
+    right: 0;
     overflow: hidden;
     height: 0;
     width: 0;
 
     @include bp-xs-phone {
-        right: $size-1;
-    }
-
-    @include bp-custom-min(450) {
-        right: $size-7;
+        right: $size-4;
     }
 
     @include bp-sm-phone {
-        &.showing-settings {
+        &.show-settings {
             top: 2em;
             right: 0;
         }
@@ -724,8 +793,26 @@ function toggleSettingsColumns() {
     height: 0;
 
     @include bp-sm-phone {
-        .table-container.show-settings & {
+        .seperator {
+            display: none;
+        }
+
+        &.show-settings {
             width: 49em;
+
+            .form-groups {
+                width: fit-content;
+                flex-wrap: nowrap;
+            }
+
+            .seperator {
+                display: block !important;
+            }
+
+            .form-group {
+                width: fit-content;
+                max-width: 15em;
+            }
 
             .filter-form-buttons {
                 padding-right: $size-5;
@@ -755,26 +842,12 @@ function toggleSettingsColumns() {
             padding: $size-2;
             margin: 0 auto;
 
-            @include bp-sm-phone {
-                .table-container.show-settings & {
-                    width: fit-content;
-                    flex-wrap: nowrap;
-                }
-            }
-
             .seperator {
-                display: none;
-
-                @include bp-sm-phone {
-                    .table-container.show-settings & {
-                        display: block;
-                        font-size: 0.5em;
-                        color: $color-gray3;
-                        margin: 0 $size-4;
-                        transform: scale(0);
-                        opacity: 0;
-                    }
-                }
+                font-size: 0.5em;
+                color: $color-gray3 !important;
+                margin: 0 $size-4;
+                transform: scale(0);
+                opacity: 0;
             }
 
             .form-group {
@@ -785,13 +858,6 @@ function toggleSettingsColumns() {
                 justify-content: space-between;
                 gap: $size-2;
                 opacity: 0;
-
-                @include bp-sm-phone {
-                    .table-container.show-settings & {
-                        width: fit-content;
-                        max-width: 15em;
-                    }
-                }
 
                 label {
                     font-size: 1.1em;

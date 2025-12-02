@@ -64,7 +64,9 @@ function getSortLabel(field, label) {
                     class="column-cell"
                     :class="{ sorted: sorted.by === 'score' }"
                 >
-                    {{ game.score }}
+                    <span>
+                        {{ game.score }}
+                    </span>
                 </div>
             </div>
             <div class="column">
@@ -82,7 +84,9 @@ function getSortLabel(field, label) {
                     class="column-cell"
                     :class="{ sorted: sorted.by === 'time' }"
                 >
-                    {{ formatTime(game.time) }}
+                    <span>
+                        {{ formatTime(game.time) }}
+                    </span>
                 </div>
             </div>
             <div v-if="showSettings" class="column column-setting">
@@ -90,7 +94,7 @@ function getSortLabel(field, label) {
                     <Button text="Circle Size" class="setting" />
                 </div>
                 <div v-for="game in games" :key="game.createdAt" class="column-cell setting-cell">
-                    {{ game.settings.circleSize }}px
+                    <span> {{ game.settings.circleSize }}px </span>
                 </div>
             </div>
             <div v-if="showSettings" class="column column-setting">
@@ -98,11 +102,13 @@ function getSortLabel(field, label) {
                     <Button text="Spawn Interval" class="setting" />
                 </div>
                 <div v-for="game in games" :key="game.createdAt" class="column-cell setting-cell">
-                    {{
-                        game.settings.spawnInterval.toString().length === 4
-                            ? game.settings.spawnInterval.toFixed(2)
-                            : game.settings.spawnInterval.toFixed(1)
-                    }}
+                    <span>
+                        {{
+                            game.settings.spawnInterval.toString().length === 4
+                                ? game.settings.spawnInterval.toFixed(2)
+                                : game.settings.spawnInterval.toFixed(1)
+                        }}
+                    </span>
                 </div>
             </div>
             <div v-if="showSettings" class="column column-setting">
@@ -110,11 +116,13 @@ function getSortLabel(field, label) {
                     <Button text="Shrink Time" class="setting" />
                 </div>
                 <div v-for="game in games" :key="game.createdAt" class="column-cell setting-cell">
-                    {{
-                        game.settings.shrinkTime.toString().length === 4
-                            ? game.settings.shrinkTime.toFixed(2)
-                            : game.settings.shrinkTime.toFixed(1)
-                    }}
+                    <span>
+                        {{
+                            game.settings.shrinkTime.toString().length === 4
+                                ? game.settings.shrinkTime.toFixed(2)
+                                : game.settings.shrinkTime.toFixed(1)
+                        }}
+                    </span>
                 </div>
             </div>
             <div class="column">
@@ -132,7 +140,9 @@ function getSortLabel(field, label) {
                     class="column-cell"
                     :class="{ sorted: sorted.by === 'createdAt' }"
                 >
-                    {{ formatDate(game.createdAt) }}
+                    <span>
+                        {{ formatDate(game.createdAt) }}
+                    </span>
                 </div>
             </div>
         </div>
@@ -211,6 +221,11 @@ function getSortLabel(field, label) {
     height: 100%;
 
     &:last-child {
+        .column-header,
+        .column-cell {
+            max-width: 9.5em !important;
+        }
+
         .column-cell {
             border-right: solid 1px $color-gray3;
             font-size: 0.5em;
@@ -218,7 +233,6 @@ function getSortLabel(field, label) {
             font-size: 0.75em;
             font-weight: 400;
             color: $color-gray6;
-            padding: 3px $size-8;
 
             span {
                 display: flex;
@@ -233,9 +247,11 @@ function getSortLabel(field, label) {
         @include flexCenterAll;
         flex: 1;
         white-space: nowrap;
+        max-width: 78px !important;
     }
 
     &-header {
+        font-size: 0.9em;
         height: 2.8em;
         padding: $size-2 0 $size-3;
         border-bottom: solid 1px $color-gray3;

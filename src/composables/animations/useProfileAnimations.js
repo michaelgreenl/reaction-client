@@ -1,6 +1,7 @@
-import { onUnmounted } from 'vue';
+import { onUnmounted, nextTick } from 'vue';
 import { gsap } from 'gsap';
 import { useGsap } from '@/composables/useGsap.js';
+import { useBreakpoints } from '@/composables/useBreakpoints.js';
 
 export function useProfileAnimations({ visibleFilterInputs, showSettings, isMobile }) {
     const { registerAnim } = useGsap();
@@ -32,10 +33,15 @@ export function useProfileAnimations({ visibleFilterInputs, showSettings, isMobi
     });
 
     const enterFilterInputAnim = registerAnim(({ key, tl, delay, onComplete }) => {
-        const seperatorSelector =
-            visibleFilterInputs.value.length === 1 ? null : `.seperator-${visibleFilterInputs.value.length - 2}`;
+        let seperatorSelector;
+        if (isMobile.value) {
+            seperatorSelector = `.seperator-${visibleFilterInputs.value.length - 1}`;
+        } else {
+            seperatorSelector =
+                visibleFilterInputs.value.length === 1 ? null : `.seperator-${visibleFilterInputs.value.length - 2}`;
+        }
 
-        if (!seperatorSelector || !showSettings.value || isMobile.value) {
+        if (!seperatorSelector) {
             tl.to(`.form-group-${key}`, { duration: 0.3, ease: 'power3.out', opacity: 1, delay, onComplete });
         } else {
             tl.to(seperatorSelector, { duration: 0.3, ease: 'linear', opacity: 1, scale: 1, delay }).to(
@@ -47,10 +53,15 @@ export function useProfileAnimations({ visibleFilterInputs, showSettings, isMobi
     });
 
     const exitFilterInputAnim = registerAnim(({ key, tl, onComplete }) => {
-        const seperatorSelector =
-            visibleFilterInputs.value.length === 1 ? null : `.seperator-${visibleFilterInputs.value.length - 2}`;
+        let seperatorSelector;
+        if (isMobile.value) {
+            seperatorSelector = `.seperator-${visibleFilterInputs.value.length - 2}`;
+        } else {
+            seperatorSelector =
+                visibleFilterInputs.value.length === 1 ? null : `.seperator-${visibleFilterInputs.value.length - 2}`;
+        }
 
-        if (!seperatorSelector || !showSettings.value || isMobile.value) {
+        if (!seperatorSelector) {
             tl.to(`.form-group-${key}`, { duration: 0.3, ease: 'power3.out', opacity: 0, onComplete });
         } else {
             tl.to(seperatorSelector, { duration: 0.3, ease: 'linear', opacity: 0, scale: 0 }).to(
@@ -81,65 +92,118 @@ export function useProfileAnimations({ visibleFilterInputs, showSettings, isMobi
         tl.to('.filter-form-button', { duration: 0.3, ease: 'linear', opacity: 1, x: 0, stagger: 0.1, onComplete });
     });
 
-    const showTableCellsAnim = registerAnim(({ tl }) => {
-        gsap.set('.column-cell', { opacity: 0 });
+    const exitFilterButtonsAnim = registerAnim(({ tl, onComplete }) => {
+        tl.to('.filter-form-button', { duration: 0.3, ease: 'linear', opacity: 0, x: 0, stagger: 0.1, onComplete });
+    });
 
-        tl.to('.column-cell', {
+    const showTableCellsAnim = registerAnim(({ tl }) => {
+        gsap.set('.column-cell span', { opacity: 0 });
+
+        tl.to('.column-cell span', {
             duration: 0.2,
             ease: 'linear',
             opacity: 1,
-            stagger: {
-                amount: 0.2,
-                from: 'random',
-                grid: 'auto',
-            },
+            stagger: { amount: 0.2, from: 'random', grid: 'auto' },
         });
     });
 
     const hideTableCellsAnim = registerAnim(({ tl, onComplete }) => {
-        tl.to('.column-cell', {
+        tl.to('.column-cell span', {
             duration: 0.2,
             ease: 'linear',
             opacity: 0,
-            stagger: {
-                amount: 0.2,
-                from: 'random',
-                grid: 'auto',
-            },
+            stagger: { amount: 0.2, from: 'random', grid: 'auto' },
             onComplete,
         });
     });
 
-    const showSettingsColumnsAnim = registerAnim(({ tl }) => {
-        // tl.to('', {});
+    const showSettingsColumnsAnim = registerAnim(({ tl, onComplete }) => {
+        tl.to('.toggle-buttons button', {
+            duration: 0.2,
+            ease: 'linear',
+            opacity: 0,
+            stagger: 0.1,
+            onComplete: async () => {
+                // showSettings is toggled
+                onComplete();
+                await nextTick();
+
+                gsap.set('.setting-cell, .column-header-setting', { width: 0, borderWidth: 0, padding: 0 });
+                gsap.set('.setting-cell, .setting-cell span, .column-header-setting', { opacity: 0 });
+
+                const tl2 = gsap.timeline();
+                tl2.to('.setting-cell', {
+                    duration: 0.3,
+                    ease: 'power3.out',
+                    width: 'auto',
+                    minWidth: '68px',
+                    borderWidth: 1,
+                    padding: '3px 1em',
+                    opacity: 1,
+                })
+                    .to(
+                        '.column-header-setting',
+                        {
+                            duration: 0.3,
+                            ease: 'power3.out',
+                            width: 'auto',
+                            minWidth: '68px',
+                            borderWidth: 1,
+                            padding: '0.5em 0 0.75em',
+                        },
+                        0,
+                    )
+                    .to(
+                        '.setting-cell span, .column-header-setting',
+                        {
+                            duration: 0.2,
+                            ease: 'linear',
+                            opacity: 1,
+                            stagger: { amount: 0.2, from: 'random', grid: 'auto' },
+                        },
+                        0.2,
+                    );
+            },
+        })
+            .to('.table-container', { duration: 0.3, ease: 'power3.out', width: '34em', maxWidth: '34em' })
+            .to(
+                '.table-header',
+                { duration: 0.3, ease: 'power3.out', height: !isMobile.value ? '2.9em' : undefined },
+                0.3,
+            )
+            .to(
+                '.toggle-buttons button',
+                {
+                    duration: 0.2,
+                    ease: 'linear',
+                    opacity: 1,
+                    stagger: 0.1,
+                    onComplete: () => {
+                        gsap.set('.table-container', { width: 'auto' });
+                        gsap.set('.table-header', { height: 'auto' });
+                    },
+                },
+                0.6,
+            );
     });
 
     const hideSettingsColumnsAnim = registerAnim(({ tl, onComplete }) => {
-        // TODO: switch from using table to flex and columns
-        // tl.to('.setting-cell, .column-header-setting', {
-        //     duration: 0.2,
-        //     ease: 'linear',
-        //     opacity: 0,
-        //     border: 0,
-        //     stagger: {
-        //         amount: 0.2,
-        //         from: 'random',
-        //         grid: 'auto',
-        //     },
-        // }).to(
-        //     '.setting-cell, .column-header-setting',
-        //     {
-        //         duration: 5,
-        //         ease: 'linear',
-        //         paddingLeft: 0,
-        //         paddingRight: 0,
-        //         borderWidth: 0,
-        //         width: 0,
-        //         overflow: 'hidden',
-        //         onComplete,
-        //     },
-        //     0,
-        // );
+        tl.to('.setting-cell, .column-header-setting', {
+            duration: 0.2,
+            ease: 'linear',
+            opacity: 0,
+            stagger: { amount: 0.2, from: 'random', grid: 'auto' },
+            onComplete,
+        })
+            .to('.toggle-buttons button', { duration: 0.2, ease: 'power3.out', opacity: 0, stagger: 0.1 }, 0)
+            .to(
+                '.setting-cell, .column-header-setting',
+                { duration: 0.3, ease: 'power3.out', width: 0, minWidth: 0, borderWidth: 0, padding: 0 },
+                0.4,
+            )
+            .to('.table-header', { duration: 0.3, ease: 'linear', height: '4.3em' }, 0.3)
+            .to('.table-container', { duration: 0.3, ease: 'power3.out', width: '22em' }, 0.4)
+            .to('.toggle-buttons button', { duration: 0.2, ease: 'linear', opacity: 1, stagger: 0.1 }, 0.7);
     });
 
     return {
@@ -152,6 +216,7 @@ export function useProfileAnimations({ visibleFilterInputs, showSettings, isMobi
         enterAllFilterInputsAnim,
         exitAllFilterInputsAnim,
         enterFilterButtonsAnim,
+        exitFilterButtonsAnim,
         showTableCellsAnim,
         hideTableCellsAnim,
         showSettingsColumnsAnim,
