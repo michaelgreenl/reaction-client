@@ -44,6 +44,7 @@ const activeGames = reactive({
 
 const filterToggles = reactive({ circleSize: false, spawnInterval: false, shrinkTime: false });
 const addedFilters = ref([]);
+const savedFilters = ref([]);
 const settingsFilters = reactive({ ...settingsStore });
 const rangeInputActive = ref(false);
 
@@ -168,7 +169,17 @@ async function getUnfilteredGames({ onAnimComplete = () => {} } = {}) {
     }
 }
 
+function saveSettingFilters() {
+    Object.keys(filterToggles).forEach((toggle) => {
+        if (filterToggles[`${toggle}`]) {
+            savedFilters.value.push({ filter: toggle, value: settingsFilters[`${toggle}`] });
+        }
+    });
+    filterGamesBySettings();
+}
+
 async function filterGamesBySettings() {
+    console.log(addedFilters.value);
     if (!filtersAdded.value && activeGames.filtered) {
         await resetFilters();
         return;
@@ -178,17 +189,10 @@ async function filterGamesBySettings() {
         activeGames.filtered = true;
     }
 
-    let filters = [];
-    Object.keys(filterToggles).forEach((toggle) => {
-        if (filterToggles[`${toggle}`]) {
-            filters.push({ filter: toggle, value: settingsFilters[`${toggle}`] });
-        }
-    });
-
     hideTableCellsAnim({
         onComplete: async () => {
             loadingGames.value = true;
-            const games = await authStore.getGamesBySettings(10, offset.value, filters, activeGames.sorted);
+            const games = await authStore.getGamesBySettings(10, offset.value, savedFilters.value, activeGames.sorted);
             loadingGames.value = false;
             activeGames.games.length = 0;
 
@@ -197,7 +201,6 @@ async function filterGamesBySettings() {
             }
 
             await nextTick();
-
             showTableCellsAnim();
         },
     });
@@ -485,7 +488,8 @@ function toggleSettingsColumns() {
                     :class="`${headerShowSettings ? 'show-settings' : undefined}`"
                     v-if="showFilterInputs"
                 >
-                    <form v-if="filtersAdded" @submit.prevent="filterGamesBySettings">
+                    <!-- <form v-if="filtersAdded" @submit.prevent="filterGamesBySettings"> -->
+                    <form v-if="filtersAdded" @submit.prevent="saveSettingFilters">
                         <div class="form-groups">
                             <template v-for="(input, i) in visibleFilterInputs" :key="input.key">
                                 <div class="form-group filter-form-group" :class="`form-group-${input.key}`">
