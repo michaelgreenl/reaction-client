@@ -17,7 +17,7 @@ export function useGameAnimations({ isXlDesktop, showRecentGames }) {
         if (showRecentGames.value) {
             tl.to('.recent-games-list', { duration: 0.2, ease: 'expo', opacity: 0, onComplete }).to(
                 '.recent-games',
-                { duration: 0.2, ease: 'expo', width: '11em', height: '3em', opacity: 0, x: -250 },
+                { duration: 0.2, ease: 'expo', width: '11.5em', height: '3.25em', opacity: 0, x: -250 },
                 0.1,
             );
         } else {
@@ -36,13 +36,13 @@ export function useGameAnimations({ isXlDesktop, showRecentGames }) {
     const closeRecentGamesAnim = registerAnim(({ tl, onStart }) => {
         tl.to('.recent-games-list', { duration: 0.2, ease: 'expo', opacity: 0 }).to(
             '.recent-games',
-            { duration: 0.2, ease: 'expo', width: '11em', height: '3em', opacity: 1, x: 0, onStart },
+            { duration: 0.2, ease: 'expo', width: '11.5em', height: '3.25em', opacity: 1, x: 0, onStart },
             0.1,
         );
     });
 
     const showRecentGamesAnim = registerAnim(({ tl }) => {
-        tl.to('.recent-games', { duration: 0.2, ease: 'expo', width: '11em', height: '3em', opacity: 1, x: 0 });
+        tl.to('.recent-games', { duration: 0.2, ease: 'expo', width: '11.5em', height: '3.25em', opacity: 1, x: 0 });
     });
 
     const enterButtonAnim = registerAnim(({ tl }) => {

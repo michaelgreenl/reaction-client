@@ -265,7 +265,7 @@ async function toggleRecentGames() {
 <template>
     <div class="game-container" :class="`${showSettings ? 'showing-settings' : undefined}`">
         <div v-if="!gameActive" class="game-start">
-            <div v-if="authStore.recentUserGames.length" key="recentGames" class="recent-games">
+            <div v-if="authStore.recentUserGames.length" key="recentGames" class="recent-games psuedo-border">
                 <div class="recent-games-header">
                     <h2>Recent Scores</h2>
                     <Button
@@ -281,7 +281,7 @@ async function toggleRecentGames() {
                         @click="toggleRecentGames"
                     />
                 </div>
-                <hr :style="{ width: `${!showRecentGames ? '96%' : '98%'}` }" />
+                <hr :style="{ width: `${!showRecentGames ? '94%' : '96%'}` }" />
                 <ul v-if="showRecentGames && (!showSettings || isLgDesktop)" class="recent-games-list">
                     <li v-for="game in authStore.recentUserGames" :key="game.createdAt">
                         <GameStats :score="game.score" :time="game.time" />
@@ -351,30 +351,40 @@ async function toggleRecentGames() {
     flex-direction: column;
     background: $color-bg-secondary;
     box-shadow: $box-shadow;
-    border-radius: $border-radius-md;
+    border-radius: $border-radius-lg;
     border: solid 1px $color-gray3;
     overflow: hidden;
     transform: translateX(-250px);
-    padding: $size-2 $size-1 0.2em $size-3;
+    padding: $size-3 $size-2 0.4em $size-4;
 
     @include bp-xxl-desktop {
         margin: $size-2 $size-3 0;
     }
 
     hr {
+        position: relative;
+        z-index: 2;
         border: 0;
-        min-height: 2px;
-        max-height: 2px;
+        min-height: 1px;
+        max-height: 1px;
         background-color: $color-primary-light;
-        margin: 0 0 $size-1;
+        margin: 0;
+        transform: translateY(-0.2em);
+
+        @include bp-xs-phone {
+            transform: translateY(-0.1em);
+        }
 
         @include bp-xxl-desktop {
             margin: $size-1 0;
+            transform: translateY(0.1em);
         }
     }
 }
 
 .recent-games-header {
+    position: relative;
+    z-index: 2;
     display: flex;
     justify-content: space-between;
     gap: 2px;
@@ -415,8 +425,9 @@ async function toggleRecentGames() {
 }
 
 .recent-games-list {
+    position: relative;
+    z-index: 2;
     font-size: 0.85em;
-
     display: flex;
     flex-direction: column;
     list-style: none;
