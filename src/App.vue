@@ -11,6 +11,7 @@ const authStore = useAuthStore();
         <Navbar :class="`${authStore.gameActive ? 'game-active' : undefined}`" />
 
         <div v-if="authStore.initLoading" class="loader">
+            <!-- <div v-if="true" class="loader"> -->
             <Loader />
         </div>
         <main v-else>
@@ -55,6 +56,7 @@ body,
 .loader {
     @include flexCenterAll;
     color: $color-bg-secondary;
+    height: 85vh;
 }
 
 .psuedo-border {
