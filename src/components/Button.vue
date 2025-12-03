@@ -90,5 +90,11 @@ button {
         background: $color-bg-secondary;
         transition: background 0.1s ease;
     }
+
+    :deep(.loading-wrapper) {
+        span {
+            width: 5.2ch;
+        }
+    }
 }
 </style>
