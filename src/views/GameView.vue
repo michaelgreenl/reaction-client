@@ -4,6 +4,7 @@ import { useAuthStore } from '@/stores/authStore.js';
 import { useSettingsStore } from '@/stores/settingsStore.js';
 import { useBreakpoints } from '@/composables/useBreakpoints.js';
 import { useGameAnimations } from '@/composables/animations/useGameAnimations.js';
+import { useUtilAnimations } from '@/composables/animations/useUtilAnimations.js';
 import { getTimePassed } from '@/util/time.js';
 import { gsap } from 'gsap';
 import Settings from '@/components/Settings.vue';
@@ -65,6 +66,7 @@ const buttonList = computed(() => {
     });
 });
 
+const { fadeOut } = useUtilAnimations();
 const {
     openRecentGamesAnim,
     hideRecentGamesAnim,
@@ -116,6 +118,17 @@ function stopTimer() {
 }
 
 async function startGame() {
+    const tl = gsap.timeline();
+    hideButtonsAnim();
+
+    if (showSettings.value) {
+        settingsRef.value?.closeSettingsAnim({ tl });
+    }
+
+    if (authStore.isAuthenticated) {
+        hideRecentGamesAnim({ tl });
+    }
+
     const onComplete = async () => {
         elapsedMs.value = 0;
         score.value = 0;
@@ -126,32 +139,17 @@ async function startGame() {
         authStore.gameActive = true;
     };
 
-    const tl = gsap.timeline();
-    hideButtonsAnim();
-
-    if (gamePlayed.value && !showSettings.value) {
-        hideEndScreenAnim({ tl, onComplete });
-    }
-
-    if (showSettings.value) {
-        settingsRef.value?.closeSettingsAnim({ tl });
-    }
-
-    if (authStore.isAuthenticated) {
-        hideRecentGamesAnim({ tl });
-    }
-
     if (!gamePlayed.value || showSettings.value) {
-        gsap.to('.settings-circle', {
-            duration: 0.2,
-            ease: 'power3.in',
-            scale: 0,
-            opacity: 0,
+        fadeOut({
+            selector: '.settings-circle',
+            opts: {
+                ease: 'power3.in',
+                scale: 0,
+            },
+            onComplete,
         });
-
-        setTimeout(async () => {
-            onComplete();
-        }, 500);
+    } else {
+        hideEndScreenAnim({ tl, onComplete });
     }
 }
 
@@ -184,30 +182,28 @@ async function toggleSettings() {
             growButtonDivAnim();
         }
 
+        const setSettings = async (setTo, { tl = gsap.timeline() } = {}) => {
+            showSettings.value = setTo;
+            await nextTick();
+            enterButtonAnim(tl);
+        };
+
         const tl = gsap.timeline();
         if (!showSettings.value && showRecentGames.value && authStore.isAuthenticated) {
-            const onStart = async () => {
+            const toggleValues = () => {
                 showRecentGames.value = false;
-                showSettings.value = true;
-                await nextTick();
-                enterButtonAnim({ tl });
+                setSettings(true, { tl });
             };
 
-            const tl2 = gsap.timeline();
-
             if (!isMobile.value && !isLgDesktop.value) {
-                closeRecentGamesAnim({ onStart });
+                closeRecentGamesAnim({ onStart: toggleValues });
             } else if (isMobile.value) {
-                hideRecentGamesAnim({ onComplete: onStart });
+                hideRecentGamesAnim({ onComplete: toggleValues });
             } else {
-                showSettings.value = true;
-                await nextTick();
-                enterButtonAnim();
+                setSettings(true);
             }
         } else if (!showSettings.value && !showRecentGames.value) {
-            showSettings.value = true;
-            await nextTick();
-            enterButtonAnim({ tl });
+            setSettings(true, { tl });
 
             if (isMobile.value && authStore.isAuthenticated) {
                 hideRecentGamesAnim();
@@ -217,14 +213,10 @@ async function toggleSettings() {
                 showRecentGamesAnim();
             }
 
-            showSettings.value = false;
-            await nextTick();
-
+            setSettings(false, { tl });
             if (gamePlayed.value) {
                 showEndScreenAnim();
             }
-
-            enterButtonAnim({ tl });
         }
     };
 
@@ -241,21 +233,19 @@ async function toggleSettings() {
 }
 
 async function toggleRecentGames() {
+    const onComplete = async () => {
+        showRecentGames.value = true;
+        await nextTick();
+        openRecentGamesAnim();
+    };
+
     if (showSettings.value && !showRecentGames.value && !isLgDesktop.value) {
         settingsRef.value?.closeSettings();
         shrinkButtonDivAnim();
 
-        exitButtonAnim({
-            onComplete: async () => {
-                showRecentGames.value = true;
-                await nextTick();
-                openRecentGamesAnim();
-            },
-        });
+        exitButtonAnim({ onComplete });
     } else if (!showRecentGames.value) {
-        showRecentGames.value = true;
-        await nextTick();
-        openRecentGamesAnim();
+        onComplete();
     } else {
         closeRecentGamesAnim({ onStart: () => (showRecentGames.value = false) });
     }
