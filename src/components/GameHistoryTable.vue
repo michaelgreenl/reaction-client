@@ -3,6 +3,7 @@ import { computed } from 'vue';
 import { formatDate, formatTime } from '@/util/time.js';
 import Button from '@/components/Button.vue';
 import Loader from '@/components/Loader.vue';
+import ChangingSpan from '@/components/ChangingSpan.vue';
 
 const props = defineProps({
     games: {
@@ -40,6 +41,10 @@ defineEmits(['sort', 'next-page', 'prev-page']);
 function getSortLabel(field, label) {
     if (props.sorted.by !== field) return label;
     return props.sorted.order === 'ASC' ? `▴ ${label}` : `▾ ${label}`;
+}
+
+function formatFloat(float) {
+    return float.toString().length === 4 ? float.toFixed(2) : float.toFixed(1);
 }
 </script>
 
@@ -103,11 +108,7 @@ function getSortLabel(field, label) {
                 </div>
                 <div v-for="game in games" :key="game.createdAt" class="column-cell setting-cell">
                     <span>
-                        {{
-                            game.settings.spawnInterval.toString().length === 4
-                                ? game.settings.spawnInterval.toFixed(2)
-                                : game.settings.spawnInterval.toFixed(1)
-                        }}
+                        {{ formatFloat(game.settings.spawnInterval) }}
                     </span>
                 </div>
             </div>
@@ -117,11 +118,7 @@ function getSortLabel(field, label) {
                 </div>
                 <div v-for="game in games" :key="game.createdAt" class="column-cell setting-cell">
                     <span>
-                        {{
-                            game.settings.shrinkTime.toString().length === 4
-                                ? game.settings.shrinkTime.toFixed(2)
-                                : game.settings.shrinkTime.toFixed(1)
-                        }}
+                        {{ formatFloat(game.settings.shrinkTime) }}
                     </span>
                 </div>
             </div>
@@ -149,9 +146,7 @@ function getSortLabel(field, label) {
     </div>
     <div class="table-nav">
         <Button preset="primary-alt" text="prev" :disabled="loading || disablePrev" @click="$emit('prev-page')" />
-        <span>
-            {{ page }}
-        </span>
+        <ChangingSpan class="page-number" :text="page" />
         <Button preset="primary-alt" text="next" :disabled="loading || disableNext" @click="$emit('next-page')" />
     </div>
 </template>
