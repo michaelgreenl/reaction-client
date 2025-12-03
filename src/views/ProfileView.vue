@@ -4,6 +4,7 @@ import { useAuthStore } from '@/stores/authStore.js';
 import { useSettingsStore } from '@/stores/settingsStore.js';
 import { useBreakpoints } from '@/composables/useBreakpoints.js';
 import { useProfileAnimations } from '@/composables/animations/useProfileAnimations.js';
+import { useUtilAnimations } from '@/composables/animations/useUtilAnimations.js';
 import { formatDate, formatTime } from '@/util/time.js';
 import { gsap } from 'gsap';
 import Flip from 'gsap/Flip';
@@ -101,6 +102,7 @@ const filtersAdded = computed(() => {
     return addedFilters.value.length > 0;
 });
 
+const { flipFrom } = useUtilAnimations();
 const {
     showFilterDropdownAnim,
     hideFilterDropdownAnim,
@@ -133,20 +135,6 @@ onMounted(async () => {
     });
 });
 
-function switchPage(newOffset, pageNum) {
-    const onComplete = () => {
-        activePage.value = pageNum;
-        offset.value = newOffset;
-    };
-
-    if (!filtersAdded.value && !activeGames.filtered) {
-        getUnfilteredGames({ onAnimComplete: () => onComplete() });
-    } else {
-        filterGamesBySettings();
-        onComplete();
-    }
-}
-
 async function getUnfilteredGames({ onAnimComplete = () => {} } = {}) {
     const getGamesLogic = async () => {
         activeGames.filtered = false;
@@ -169,17 +157,7 @@ async function getUnfilteredGames({ onAnimComplete = () => {} } = {}) {
     }
 }
 
-function saveSettingFilters() {
-    Object.keys(filterToggles).forEach((toggle) => {
-        if (filterToggles[`${toggle}`]) {
-            savedFilters.value.push({ filter: toggle, value: settingsFilters[`${toggle}`] });
-        }
-    });
-    filterGamesBySettings();
-}
-
 async function filterGamesBySettings() {
-    console.log(addedFilters.value);
     if (!filtersAdded.value && activeGames.filtered) {
         await resetFilters();
         return;
@@ -206,6 +184,15 @@ async function filterGamesBySettings() {
     });
 }
 
+async function getGames({ onAnimComplete = () => {} } = {}) {
+    if (!savedFilters.value.length) {
+        await getUnfilteredGames({ onAnimComplete });
+    } else {
+        onAnimComplete();
+        await filterGamesBySettings();
+    }
+}
+
 async function handleSort(by) {
     const onAnimComplete = () => {
         offset.value = 0;
@@ -219,63 +206,27 @@ async function handleSort(by) {
         }
     };
 
-    if (!filtersAdded.value && !activeGames.filtered) {
-        await getUnfilteredGames({ onAnimComplete });
-    } else {
-        onAnimComplete();
-        await filterGamesBySettings();
-    }
+    await getGames({ onAnimComplete });
 }
 
-async function toggleFilterInput(key) {
-    const flipOpts = {
-        duration: 0.3,
-        ease: 'power3.out',
-        nested: true,
+async function saveSettingFilters() {
+    savedFilters.value.length = 0;
+    Object.keys(filterToggles).forEach((toggle) => {
+        if (filterToggles[`${toggle}`]) {
+            savedFilters.value.push({ filter: toggle, value: settingsFilters[`${toggle}`] });
+        }
+    });
+
+    await getGames();
+}
+
+async function switchPage(newOffset, pageNum) {
+    const onAnimComplete = () => {
+        activePage.value = pageNum;
+        offset.value = newOffset;
     };
 
-    const state = Flip.getState('.filters, .filter-form-group, .filter-form-buttons, .filter-form-seperator');
-
-    const tl = gsap.timeline();
-    if (!filterToggles[key]) {
-        const oldFiltersAdded = filtersAdded.value;
-
-        filterToggles[key] = true;
-        addedFilters.value.push(key);
-        showFilterInputs.value = filtersAdded.value;
-
-        await nextTick();
-
-        if (!oldFiltersAdded) {
-            showFilterInputsAnim({ tl });
-            enterFilterButtonsAnim({ tl });
-            enterFilterInputAnim({ key, delay: 0.1 });
-        } else {
-            enterFilterInputAnim({ key, delay: 0.2 });
-            Flip.from(state, flipOpts);
-        }
-    } else {
-        const onComplete = async () => {
-            filterToggles[key] = false;
-
-            const index = addedFilters.value.indexOf(key);
-            if (index > -1) {
-                addedFilters.value.splice(index, 1);
-            }
-
-            showFilterInputs.value = filtersAdded.value;
-
-            await nextTick();
-            Flip.from(state, flipOpts);
-        };
-
-        if (visibleFilterInputs.value.length === 1) {
-            exitFilterInputAnim({ key, tl });
-            hideFilterInputsAnim({ tl, onComplete });
-        } else {
-            exitFilterInputAnim({ key, tl, onComplete });
-        }
-    }
+    await getGames({ onAnimComplete });
 }
 
 async function addAllFilters() {
@@ -296,27 +247,38 @@ async function addAllFilters() {
     showFilterInputsAnim();
     enterAllFilterInputsAnim();
     enterFilterButtonsAnim();
-    Flip.from(state, { duration: 0.3, ease: 'power3.out', nested: true });
+    flipFrom({ state, opts: { nested: true } });
     toggleFilterDropdown();
 }
 
 async function resetFilters() {
-    const onComplete = async () => {
-        await getUnfilteredGames({
-            onAnimComplete: () => {
-                Object.keys(filterToggles).forEach((toggle) => {
-                    filterToggles[toggle] = false;
-                });
-                addedFilters.value = [];
-
-                settingsFilters.circleSize = settingsStore.circleSize;
-                settingsFilters.spawnInterval = settingsStore.spawnInterval;
-                settingsFilters.shrinkTime = settingsStore.shrinkTime;
-
-                offset.value = 0;
-                activePage.value = 1;
-            },
+    const resetValues = () => {
+        Object.keys(filterToggles).forEach((toggle) => {
+            filterToggles[toggle] = false;
         });
+        addedFilters.value = [];
+        savedFilters.value = [];
+
+        settingsFilters.circleSize = settingsStore.circleSize;
+        settingsFilters.spawnInterval = settingsStore.spawnInterval;
+        settingsFilters.shrinkTime = settingsStore.shrinkTime;
+
+        activeGames.filtered = false;
+    };
+
+    const onComplete = async () => {
+        await nextTick();
+        if (!savedFilters.value.length) {
+            resetValues();
+        } else {
+            await getGames({
+                onAnimComplete: () => {
+                    resetValues();
+                    offset.value = 0;
+                    activePage.value = 1;
+                },
+            });
+        }
     };
 
     const tl = gsap.timeline();
@@ -327,6 +289,52 @@ async function resetFilters() {
             }, 250);
         },
     });
+}
+
+async function toggleFilterInput(key) {
+    const state = Flip.getState('.filters, .filter-form-group, .filter-form-buttons, .filter-form-seperator');
+
+    const tl = gsap.timeline();
+    if (!filterToggles[key]) {
+        const oldFiltersAdded = filtersAdded.value;
+
+        filterToggles[key] = true;
+        addedFilters.value.push(key);
+        showFilterInputs.value = filtersAdded.value;
+
+        await nextTick();
+
+        if (!oldFiltersAdded) {
+            showFilterInputsAnim({ tl });
+            enterFilterButtonsAnim({ tl });
+            enterFilterInputAnim({ key, delay: 0.1 });
+        } else {
+            enterFilterInputAnim({ key, delay: 0.2 });
+            flipFrom({ state, opts: { nested: true } });
+        }
+    } else {
+        const onComplete = async () => {
+            filterToggles[key] = false;
+
+            const index = addedFilters.value.indexOf(key);
+            if (index > -1) {
+                addedFilters.value.splice(index, 1);
+            }
+
+            saveSettingFilters();
+            showFilterInputs.value = filtersAdded.value;
+
+            await nextTick();
+            flipFrom({ state, opts: { nested: true } });
+        };
+
+        if (visibleFilterInputs.value.length === 1) {
+            exitFilterInputAnim({ key, tl });
+            hideFilterInputsAnim({ tl, onComplete });
+        } else {
+            exitFilterInputAnim({ key, tl, onComplete });
+        }
+    }
 }
 
 const filterDropdownListener = async (e) => {
@@ -354,11 +362,6 @@ function toggleFilterDropdown() {
 }
 
 function toggleSettingsColumns() {
-    const enterFilters = () => {
-        enterAllFilterInputsAnim();
-        enterFilterButtonsAnim();
-    };
-
     let filterState;
     if (filtersAdded.value) {
         filterState = Flip.getState('.filters, .filter-form-group, .filter-form-buttons, .filter-form-seperator');
@@ -377,18 +380,15 @@ function toggleSettingsColumns() {
                 headerShowSettings.value = false;
 
                 await nextTick();
-                Flip.from(headerState, {
-                    duration: 0.3,
-                    ease: 'power3.out',
-                    onComplete: () => (showSettings.value = !showSettings.value),
-                });
+                flipFrom({ state: headerState, onComplete: () => (showSettings.value = !showSettings.value) });
 
                 if (!isMobile.value && filtersAdded.value) {
-                    Flip.from(filterState, {
-                        duration: 0.3,
-                        ease: 'power3.out',
-                        nested: true,
-                        onComplete: () => enterFilters(),
+                    flipFrom({
+                        state: filterState,
+                        onComplete: () => {
+                            enterAllFilterInputsAnim();
+                            enterFilterButtonsAnim();
+                        },
                     });
                 }
             },
@@ -401,10 +401,12 @@ function toggleSettingsColumns() {
 
                 if (!isMobile.value && filtersAdded.value) {
                     await nextTick();
-                    Flip.from(filterState, {
-                        duration: 0.3,
-                        ease: 'power3.out',
-                        onComplete: () => enterFilters(),
+                    flipFrom({
+                        state: filterState,
+                        onComplete: () => {
+                            enterAllFilterInputsAnim();
+                            enterFilterButtonsAnim();
+                        },
                     });
                 }
             },
@@ -488,7 +490,6 @@ function toggleSettingsColumns() {
                     :class="`${headerShowSettings ? 'show-settings' : undefined}`"
                     v-if="showFilterInputs"
                 >
-                    <!-- <form v-if="filtersAdded" @submit.prevent="filterGamesBySettings"> -->
                     <form v-if="filtersAdded" @submit.prevent="saveSettingFilters">
                         <div class="form-groups">
                             <template v-for="(input, i) in visibleFilterInputs" :key="input.key">
