@@ -1,5 +1,6 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue';
+import ChangingSpan from '@/components/ChangingSpan.vue';
 
 const props = defineProps({
     text: { type: String, default: 'Loading' },
@@ -22,9 +23,7 @@ onUnmounted(() => {
 
 <template>
     <div class="loading-wrapper">
-        <span>
-            {{ loadingText }}
-        </span>
+        <ChangingSpan :text="loadingText" :enter-only="true" />
     </div>
 </template>
 
@@ -33,7 +32,7 @@ onUnmounted(() => {
     @include flexCenterAll;
 
     span {
-        width: 5.2ch;
+        width: 7.5ch;
         text-wrap: nowrap;
         text-align: left;
         text-shadow: 1px 1px 2px #00000033;

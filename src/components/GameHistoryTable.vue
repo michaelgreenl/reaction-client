@@ -51,7 +51,7 @@ function formatFloat(float) {
 <template>
     <div class="table-wrapper">
         <div v-if="games.length === 0 && !loading" class="loader">
-            <span>No Games Found.</span>
+            <ChangingSpan text="No Games Found." />
         </div>
         <div v-else class="table">
             <div class="column">

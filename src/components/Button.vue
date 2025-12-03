@@ -1,5 +1,6 @@
 <script setup>
 import Loader from '@/components/Loader.vue';
+import ChangingSpan from '@/components/ChangingSpan.vue';
 
 defineProps({
     text: { type: String, default: null },
@@ -16,7 +17,7 @@ defineEmits(['click']);
 <template>
     <button :class="preset" @click="$emit('click')">
         <component :is="iconLeft" class="icon icon-left" />
-        <span v-if="showText && !isLoading">{{ text }}</span>
+        <ChangingSpan v-if="showText && !isLoading" :text="text" />
         <Loader v-if="isLoading" />
         <component :is="iconRight" class="icon icon-right" />
     </button>
