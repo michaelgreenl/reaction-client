@@ -1,7 +1,6 @@
-import { onUnmounted, nextTick } from 'vue';
+import { nextTick } from 'vue';
 import { gsap } from 'gsap';
 import { useGsap } from '@/composables/useGsap.js';
-import { useBreakpoints } from '@/composables/useBreakpoints.js';
 
 export function useProfileAnimations({ visibleFilterInputs, showSettings, isMobile }) {
     const { registerAnim } = useGsap();
