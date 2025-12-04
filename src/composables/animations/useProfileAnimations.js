@@ -1,8 +1,10 @@
 import { nextTick } from 'vue';
 import { gsap } from 'gsap';
+import Flip from 'gsap/Flip';
 import { useGsap } from '@/composables/useGsap.js';
 
 export function useProfileAnimations({ visibleFilterInputs, showSettings, isMobile }) {
+    gsap.registerPlugin(Flip);
     const { registerAnim } = useGsap();
 
     const showFilterDropdownAnim = registerAnim(({ tl }) => {
@@ -116,11 +118,37 @@ export function useProfileAnimations({ visibleFilterInputs, showSettings, isMobi
         });
     });
 
+    // const growUserStats = registerAnim(({ tl }) => {
+    //     gsap.set('.user-stats', { width: '22em' });
+
+    //     tl.to('.user-stats-seperator', { duration: 0.3, ease: 'linear', opacity: 1, scale: 1 }).to('.user-stats', {
+    //         duration: 0.3,
+    //         ease: 'power3.out',
+    //         width: '34em',
+    //         height: '48px',
+    //     });
+    // });
+
+    // const shrinkUserStats = registerAnim(({ tl }) => {
+    //     gsap.set('.user-stats', { width: '34em' });
+
+    //     tl.to('.user-stats-seperator', { duration: 0.3, ease: 'linear', opacity: 0, scale: 0 }, 0.1).to('.user-stats', {
+    //         duration: 0.3,
+    //         ease: 'power3.out',
+    //         width: '22em',
+    //         height: '101px',
+    //     });
+    // });
+
     const showSettingsColumnsAnim = registerAnim(({ tl, onComplete }) => {
+        // if (!isMobile.value) {
+        //     growUserStats();
+        // }
+
         tl.to('.toggle-buttons button', {
             duration: 0.2,
             ease: 'linear',
-            opacity: 0,
+            opacity: !isMobile.value ? 0 : 1,
             stagger: 0.1,
             onComplete: async () => {
                 // showSettings is toggled
@@ -164,7 +192,7 @@ export function useProfileAnimations({ visibleFilterInputs, showSettings, isMobi
                     );
             },
         })
-            .to('.table-container', { duration: 0.3, ease: 'power3.out', width: '34em', maxWidth: '34em' })
+            .to('.table-container', { duration: 0.3, ease: 'power3.out', width: '33.25em', maxWidth: '33.25em' })
             .to(
                 '.table-header',
                 { duration: 0.3, ease: 'power3.out', height: !isMobile.value ? '2.9em' : undefined },
@@ -187,6 +215,10 @@ export function useProfileAnimations({ visibleFilterInputs, showSettings, isMobi
     });
 
     const hideSettingsColumnsAnim = registerAnim(({ tl, onComplete }) => {
+        // if (!isMobile.value) {
+        //     shrinkUserStats();
+        // }
+
         tl.to('.setting-cell, .column-header-setting', {
             duration: 0.2,
             ease: 'linear',
@@ -194,15 +226,15 @@ export function useProfileAnimations({ visibleFilterInputs, showSettings, isMobi
             stagger: { amount: 0.2, from: 'random', grid: 'auto' },
             onComplete,
         })
-            .to('.toggle-buttons button', { duration: 0.2, ease: 'power3.out', opacity: 0, stagger: 0.1 }, 0)
+            // .to('.toggle-buttons button', { duration: 0.2, ease: 'power3.out', opacity: 0, stagger: 0.1 }, 0)
             .to(
                 '.setting-cell, .column-header-setting',
                 { duration: 0.3, ease: 'power3.out', width: 0, minWidth: 0, borderWidth: 0, padding: 0 },
                 0.4,
             )
             .to('.table-header', { duration: 0.3, ease: 'linear', height: '4.3em' }, 0.3)
-            .to('.table-container', { duration: 0.3, ease: 'power3.out', width: '22em' }, 0.4)
-            .to('.toggle-buttons button', { duration: 0.2, ease: 'linear', opacity: 1, stagger: 0.1 }, 0.7);
+            .to('.table-container', { duration: 0.3, ease: 'power3.out', width: '22em' }, 0.4);
+        // .to('.toggle-buttons button', { duration: 0.2, ease: 'linear', opacity: 1, stagger: 0.1 }, 0.7);
     });
 
     return {
