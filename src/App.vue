@@ -11,7 +11,6 @@ const authStore = useAuthStore();
         <Navbar :class="`${authStore.gameActive ? 'game-active' : undefined}`" />
 
         <div v-if="authStore.initLoading" class="loader">
-            <!-- <div v-if="true" class="loader"> -->
             <Loader />
         </div>
         <main v-else>
