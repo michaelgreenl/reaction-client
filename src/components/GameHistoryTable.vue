@@ -60,6 +60,7 @@ function formatFloat(float) {
                         preset="primary-alt"
                         :text="getSortLabel('score', 'Score')"
                         :disabled="loading"
+                        animate-span
                         @click="$emit('sort', 'score')"
                     />
                 </div>
@@ -80,6 +81,7 @@ function formatFloat(float) {
                         preset="primary-alt"
                         :text="getSortLabel('time', 'Time')"
                         :disabled="loading"
+                        animate-span
                         @click="$emit('sort', 'time')"
                     />
                 </div>
@@ -128,6 +130,7 @@ function formatFloat(float) {
                         preset="primary-alt"
                         :text="getSortLabel('createdAt', 'Date')"
                         :disabled="loading"
+                        animate-span
                         @click="$emit('sort', 'createdAt')"
                     />
                 </div>
@@ -146,7 +149,7 @@ function formatFloat(float) {
     </div>
     <div class="table-nav">
         <Button preset="primary-alt" text="prev" :disabled="loading || disablePrev" @click="$emit('prev-page')" />
-        <ChangingSpan class="page-number" :text="page" />
+        <ChangingSpan class="page-number" :text="page" simple />
         <Button preset="primary-alt" text="next" :disabled="loading || disableNext" @click="$emit('next-page')" />
     </div>
 </template>
@@ -165,7 +168,7 @@ function formatFloat(float) {
 
     @include bp-sm-phone {
         overflow-x: hidden;
-        max-width: 34em;
+        max-width: 33.25em;
     }
 
     &::-webkit-scrollbar {
@@ -200,7 +203,7 @@ function formatFloat(float) {
 }
 
 .table {
-    font-size: 0.9em;
+    font-size: 0.95em;
     display: flex;
     height: 100%;
 
@@ -242,7 +245,7 @@ function formatFloat(float) {
         @include flexCenterAll;
         flex: 1;
         white-space: nowrap;
-        max-width: 78px !important;
+        max-width: 72px !important;
     }
 
     &-header {
