@@ -1,9 +1,9 @@
 <script setup>
 import { formatTime } from '@/util/time.js';
 
-const props = defineProps({
-    score: { required: true },
-    time: { required: true },
+defineProps({
+    score: { type: Number, required: true },
+    time: { type: Number, required: true },
     adjustTimeSize: { type: Boolean, default: false },
 });
 
@@ -14,11 +14,9 @@ function timeValueSize(timeMs) {
         return '1.8ch';
     } else if (seconds >= 20) {
         return '2.8ch';
-    } else if (seconds >= 10) {
+    } else {
         return '2.4ch';
     }
-
-    return '2.2ch';
 }
 </script>
 
@@ -43,12 +41,16 @@ function timeValueSize(timeMs) {
 
 <style lang="scss" scoped>
 span {
+    position: relative;
+    z-index: 2;
     font-size: 0.5em;
     font-weight: 500;
     color: $color-gray3;
 }
 
 .stat-wrapper {
+    position: relative;
+    z-index: 2;
     display: flex;
     gap: $size-1;
 

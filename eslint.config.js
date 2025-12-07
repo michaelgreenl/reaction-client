@@ -18,12 +18,20 @@ export default defineConfig([
         languageOptions: {
             globals: {
                 ...globals.browser,
+                defineProps: 'readonly',
+                defineEmits: 'readonly',
             },
         },
     },
 
     js.configs.recommended,
-    ...pluginVue.configs['flat/essential'],
+    ...pluginVue.configs['flat/recommended'],
+
+    {
+        rules: {
+            'vue/multi-word-component-names': 'off',
+        },
+    },
 
     {
         ...pluginVitest.configs.recommended,

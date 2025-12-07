@@ -1,20 +1,39 @@
 <script setup>
-import { computed, ref, reactive, onMounted } from 'vue';
+import { computed, ref, reactive, onMounted, nextTick } from 'vue';
 import { useAuthStore } from '@/stores/authStore.js';
 import { useSettingsStore } from '@/stores/settingsStore.js';
+import { useBreakpoints } from '@/composables/useBreakpoints.js';
+import { useProfileAnimations } from '@/composables/animations/useProfileAnimations.js';
+import { useUtilAnimations } from '@/composables/animations/useUtilAnimations.js';
 import { formatDate, formatTime } from '@/util/time.js';
+import { gsap } from 'gsap';
+import Flip from 'gsap/Flip';
 import Button from '@/components/Button.vue';
+import GameHistoryTable from '@/components/GameHistoryTable.vue';
 import Loader from '@/components/Loader.vue';
 import RangeInput from '@/components/Inputs/Range.vue';
 import NumberInput from '@/components/Inputs/Number.vue';
 import CheckboxInput from '@/components/Inputs/Checkbox.vue';
 import LogoSVG from '@/components/Icons/LogoSVG.vue';
 
+gsap.registerPlugin(Flip);
+
+const isMounted = ref(false);
+
+const { isMobile, isLgDesktop, isXlDesktop } = useBreakpoints();
+
 const authStore = useAuthStore();
 const settingsStore = useSettingsStore();
 
+const filterDropdownRef = ref(null);
+
 const isLoading = ref(true);
 const loadingGames = ref(true);
+
+const showFilters = ref(false);
+const showFilterInputs = ref(false);
+const showSettings = ref(true);
+const headerShowSettings = ref(true);
 
 const offset = ref(0);
 const activePage = ref(1);
@@ -24,58 +43,118 @@ const activeGames = reactive({
     games: [],
 });
 
-const filterDropdownRef = ref(null);
-const showFilters = ref(false);
 const filterToggles = reactive({ circleSize: false, spawnInterval: false, shrinkTime: false });
-
+const addedFilters = ref([]);
+const savedFilters = ref([]);
 const settingsFilters = reactive({ ...settingsStore });
-const showSettings = ref(true);
 const rangeInputActive = ref(false);
 
+const filterInputs = computed(() => [
+    {
+        key: 'circleSize',
+        label: 'Circle Size',
+        component: RangeInput,
+        props: {
+            min: 25,
+            max: 125,
+            disabled: loadingGames.value || !filterToggles.circleSize,
+            showValue: true,
+            inputActive: rangeInputActive.value,
+        },
+        on: {
+            mousedown: () => (rangeInputActive.value = true),
+            mouseup: () => (rangeInputActive.value = false),
+        },
+    },
+    {
+        key: 'spawnInterval',
+        label: 'Spawn Interval',
+        component: NumberInput,
+        props: {
+            stepUpDisabled: isLoading.value || !filterToggles.spawnInterval || settingsFilters.spawnInterval >= 2,
+            stepDownDisabled: isLoading.value || !filterToggles.spawnInterval || settingsFilters.spawnInterval <= 0.25,
+        },
+        on: {
+            stepUp: () => (settingsFilters.spawnInterval += 0.25),
+            stepDown: () => (settingsFilters.spawnInterval -= 0.25),
+        },
+    },
+    {
+        key: 'shrinkTime',
+        label: 'Shrink Time',
+        component: NumberInput,
+        props: {
+            stepUpDisabled: loadingGames.value || !filterToggles.shrinkTime || settingsFilters.shrinkTime >= 2,
+            stepDownDisabled: loadingGames.value || !filterToggles.shrinkTime || settingsFilters.shrinkTime <= 0.25,
+        },
+        on: {
+            stepUp: () => (settingsFilters.shrinkTime += 0.25),
+            stepDown: () => (settingsFilters.shrinkTime -= 0.25),
+        },
+    },
+]);
+
+const visibleFilterInputs = computed(() => {
+    return addedFilters.value.map((key) => filterInputs.value.find((input) => input.key === key));
+});
+
 const filtersAdded = computed(() => {
-    return filterToggles.circleSize || filterToggles.spawnInterval || filterToggles.shrinkTime;
+    return addedFilters.value.length > 0;
+});
+
+const { flipFrom } = useUtilAnimations();
+const {
+    showFilterDropdownAnim,
+    hideFilterDropdownAnim,
+    showFilterInputsAnim,
+    hideFilterInputsAnim,
+    enterFilterInputAnim,
+    exitFilterInputAnim,
+    enterAllFilterInputsAnim,
+    exitAllFilterInputsAnim,
+    enterFilterButtonsAnim,
+    exitFilterButtonsAnim,
+    showTableCellsAnim,
+    hideTableCellsAnim,
+    showSettingsColumnsAnim,
+    hideSettingsColumnsAnim,
+} = useProfileAnimations({
+    visibleFilterInputs,
+    showSettings,
+    isMobile,
 });
 
 onMounted(async () => {
-    await getUnfilteredGames().then(() => {
+    await getUnfilteredGames().then(async () => {
         isLoading.value = false;
         loadingGames.value = false;
+        isMounted.value = true;
+
+        await nextTick();
+        showTableCellsAnim();
     });
 });
 
-async function switchPage(newOffset, pageNum) {
-    activePage.value = pageNum;
-    offset.value = newOffset;
+async function getUnfilteredGames({ onAnimComplete = () => {} } = {}) {
+    const getGamesLogic = async () => {
+        activeGames.filtered = false;
+        const games = await authStore.getGames(10, offset.value, activeGames.sorted);
+        activeGames.games.length = 0;
+        activeGames.games.push(...games);
+    };
 
-    if (!filtersAdded.value && !activeGames.filtered) {
-        getUnfilteredGames();
+    if (isMounted.value) {
+        await hideTableCellsAnim({
+            onComplete: async () => {
+                onAnimComplete();
+                await nextTick();
+                await getGamesLogic();
+                showTableCellsAnim();
+            },
+        });
     } else {
-        filterGamesBySettings();
+        await getGamesLogic();
     }
-}
-
-async function getUnfilteredGames() {
-    activeGames.filtered = false;
-
-    loadingGames.value = true;
-    const games = await authStore.getGames(10, offset.value, activeGames.sorted);
-    loadingGames.value = false;
-    activeGames.games.length = 0;
-    activeGames.games.push(...games);
-}
-
-async function resetFilters() {
-    settingsFilters.circleSize = 100;
-    settingsFilters.spawnInterval = 1;
-    settingsFilters.shrinkTime = 1;
-
-    Object.keys(filterToggles).forEach((toggle) => {
-        filterToggles[`${toggle}`] = false;
-    });
-
-    offset.value = 0;
-    activePage.value = 1;
-    await getUnfilteredGames();
 }
 
 async function filterGamesBySettings() {
@@ -83,77 +162,291 @@ async function filterGamesBySettings() {
         await resetFilters();
         return;
     } else if (!activeGames.filtered) {
+        offset.value = 0;
+        activePage.value = 1;
         activeGames.filtered = true;
     }
 
-    let filters = [];
-    Object.keys(filterToggles).forEach((toggle) => {
-        if (filterToggles[`${toggle}`]) {
-            filters.push({ filter: toggle, value: settingsFilters[`${toggle}`] });
-        }
-    });
+    hideTableCellsAnim({
+        onComplete: async () => {
+            loadingGames.value = true;
+            const games = await authStore.getGamesBySettings(10, offset.value, savedFilters.value, activeGames.sorted);
+            loadingGames.value = false;
+            activeGames.games.length = 0;
 
-    loadingGames.value = true;
-    const games = await authStore.getGamesBySettings(10, offset.value, filters, activeGames.sorted);
-    loadingGames.value = false;
-    activeGames.games.length = 0;
-    activeGames.games.push(...games);
+            if (games) {
+                activeGames.games.push(...games);
+            }
+
+            await nextTick();
+            showTableCellsAnim();
+        },
+    });
 }
 
-async function handleSort(by) {
-    if (activeGames.sorted.by === by) {
-        activeGames.sorted.order = activeGames.sorted.order === 'DESC' ? 'ASC' : 'DESC';
+async function getGames({ onAnimComplete = () => {} } = {}) {
+    if (!savedFilters.value.length) {
+        await getUnfilteredGames({ onAnimComplete });
     } else {
-        activeGames.sorted.by = by;
-        activeGames.sorted.order = 'DESC';
-    }
-
-    if (!filtersAdded.value && !activeGames.filtered) {
-        await getUnfilteredGames();
-    } else {
+        onAnimComplete();
         await filterGamesBySettings();
     }
 }
 
-function addAllFilters() {
-    Object.keys(filterToggles).forEach((filter) => {
-        filterToggles[`${filter}`] = true;
-    });
+async function handleSort(by) {
+    const onAnimComplete = () => {
+        offset.value = 0;
+        activePage.value = 1;
 
-    toggleDropdown();
+        if (activeGames.sorted.by === by) {
+            activeGames.sorted.order = activeGames.sorted.order === 'DESC' ? 'ASC' : 'DESC';
+        } else {
+            activeGames.sorted.by = by;
+            activeGames.sorted.order = 'DESC';
+        }
+    };
+
+    await getGames({ onAnimComplete });
 }
 
-const dropdownListener = (e) => {
-    if (!showFilters.value) {
-        showFilters.value = true;
-    } else if (e) {
-        if (e.target !== filterDropdownRef.value && !e.composedPath().includes(filterDropdownRef.value)) {
-            showFilters.value = false;
-            window.removeEventListener('click', dropdownListener);
+async function saveSettingFilters() {
+    savedFilters.value.length = 0;
+    Object.keys(filterToggles).forEach((toggle) => {
+        if (filterToggles[`${toggle}`]) {
+            savedFilters.value.push({ filter: toggle, value: settingsFilters[`${toggle}`] });
+        }
+    });
+
+    await getGames();
+}
+
+async function switchPage(newOffset, pageNum) {
+    const onAnimComplete = () => {
+        activePage.value = pageNum;
+        offset.value = newOffset;
+    };
+
+    await getGames({ onAnimComplete });
+}
+
+async function addAllFilters() {
+    const state = Flip.getState('.filters, .filter-form-group, .filter-form-buttons, .filter-form-seperator');
+    const tl = gsap.timeline();
+
+    showFilterInputs.value = true;
+
+    const keysToAdd = Object.keys(filterToggles);
+    keysToAdd.forEach((key) => {
+        if (!filterToggles[key]) {
+            filterToggles[key] = true;
+            addedFilters.value.push(key);
+        }
+    });
+
+    await nextTick();
+    showFilterInputsAnim();
+    enterAllFilterInputsAnim();
+    enterFilterButtonsAnim();
+    flipFrom({ state, opts: { nested: true } });
+    toggleFilterDropdown();
+}
+
+async function resetFilters() {
+    const resetValues = () => {
+        Object.keys(filterToggles).forEach((toggle) => {
+            filterToggles[toggle] = false;
+        });
+        addedFilters.value = [];
+        savedFilters.value = [];
+
+        settingsFilters.circleSize = settingsStore.circleSize;
+        settingsFilters.spawnInterval = settingsStore.spawnInterval;
+        settingsFilters.shrinkTime = settingsStore.shrinkTime;
+
+        activeGames.filtered = false;
+    };
+
+    const onComplete = async () => {
+        await nextTick();
+        if (!savedFilters.value.length) {
+            resetValues();
+        } else {
+            await getGames({
+                onAnimComplete: () => {
+                    resetValues();
+                    offset.value = 0;
+                    activePage.value = 1;
+                },
+            });
+        }
+    };
+
+    const tl = gsap.timeline();
+    exitAllFilterInputsAnim({
+        onStart: () => {
+            setTimeout(() => {
+                hideFilterInputsAnim({ tl, onComplete });
+            }, 250);
+        },
+    });
+}
+
+async function toggleFilterInput(key) {
+    const state = Flip.getState('.filters, .filter-form-group, .filter-form-buttons, .filter-form-seperator');
+
+    const tl = gsap.timeline();
+    if (!filterToggles[key]) {
+        const oldFiltersAdded = filtersAdded.value;
+
+        filterToggles[key] = true;
+        addedFilters.value.push(key);
+        showFilterInputs.value = filtersAdded.value;
+
+        await nextTick();
+
+        if (!oldFiltersAdded) {
+            showFilterInputsAnim({ tl });
+            enterFilterButtonsAnim({ tl });
+            enterFilterInputAnim({ key, delay: 0.1 });
+        } else {
+            enterFilterInputAnim({ key, delay: 0.2 });
+            flipFrom({ state, opts: { nested: true } });
         }
     } else {
-        showFilters.value = false;
-        window.removeEventListener('click', dropdownListener);
+        const onComplete = async () => {
+            filterToggles[key] = false;
+
+            const index = addedFilters.value.indexOf(key);
+            if (index > -1) {
+                addedFilters.value.splice(index, 1);
+            }
+
+            saveSettingFilters();
+            showFilterInputs.value = filtersAdded.value;
+
+            await nextTick();
+            flipFrom({ state, opts: { nested: true } });
+        };
+
+        if (visibleFilterInputs.value.length === 1) {
+            exitFilterInputAnim({ key, tl });
+            hideFilterInputsAnim({ tl, onComplete });
+        } else {
+            exitFilterInputAnim({ key, tl, onComplete });
+        }
+    }
+}
+
+const filterDropdownListener = async (e) => {
+    if (!showFilters.value) {
+        showFilters.value = true;
+        await nextTick();
+        showFilterDropdownAnim();
+    } else if (e) {
+        if (e.target !== filterDropdownRef.value && !e.composedPath().includes(filterDropdownRef.value)) {
+            hideFilterDropdownAnim({ onComplete: () => (showFilters.value = false) });
+            window.removeEventListener('click', filterDropdownListener);
+        }
+    } else {
+        hideFilterDropdownAnim({ onComplete: () => (showFilters.value = false) });
+        window.removeEventListener('click', filterDropdownListener);
     }
 };
 
-function toggleDropdown() {
+function toggleFilterDropdown() {
     if (!showFilters.value) {
-        window.addEventListener('click', dropdownListener);
+        window.addEventListener('click', filterDropdownListener);
     } else {
-        dropdownListener();
+        filterDropdownListener();
+    }
+}
+
+function toggleSettingsColumns() {
+    let filterState;
+    if (filtersAdded.value) {
+        filterState = Flip.getState('.filters, .filter-form-group, .filter-form-buttons, .filter-form-seperator');
+
+        if (!isMobile.value && (visibleFilterInputs.value.length > 1 || !showSettings.value)) {
+            exitFilterButtonsAnim();
+            exitAllFilterInputsAnim();
+        }
+    }
+
+    const statsState = Flip.getState('.stat-wrapper');
+    const headerState = Flip.getState('.logo, .toggle-buttons');
+
+    if (showSettings.value) {
+        hideSettingsColumnsAnim({
+            onComplete: async () => {
+                headerShowSettings.value = false;
+
+                await nextTick();
+                flipFrom({ state: statsState, opts: { duration: 0.2, ease: 'power2.out' } });
+                flipFrom({ state: headerState, onComplete: () => (showSettings.value = !showSettings.value) });
+
+                if (!isMobile.value && filtersAdded.value) {
+                    flipFrom({
+                        state: filterState,
+                        onComplete: () => {
+                            enterAllFilterInputsAnim();
+                            enterFilterButtonsAnim();
+                        },
+                    });
+                }
+            },
+        });
+    } else {
+        showSettingsColumnsAnim({
+            onComplete: async () => {
+                showSettings.value = true;
+                headerShowSettings.value = true;
+
+                await nextTick();
+                flipFrom({ state: statsState, opts: { duration: 0.2, ease: 'power2.out', nested: true } });
+
+                if (!isMobile.value && filtersAdded.value) {
+                    await nextTick();
+                    flipFrom({
+                        state: filterState,
+                        onComplete: () => {
+                            enterAllFilterInputsAnim();
+                            enterFilterButtonsAnim();
+                        },
+                    });
+                }
+            },
+        });
     }
 }
 </script>
 
 <template>
     <div class="profile-container">
-        <div class="loader" v-if="isLoading">
+        <div class="user-stats psuedo-border" :class="`${headerShowSettings ? 'show-settings' : undefined}`">
+            <div class="stat-wrapper">
+                <span class="label">High Score:</span>
+                <hr />
+                <span class="stat">{{ authStore.userStats.highScore }}</span>
+            </div>
+            <span class="seperator user-stats-seperator"> | </span>
+            <div class="stat-wrapper">
+                <span class="label">Longest Time:</span>
+                <hr />
+                <span class="stat">{{ formatTime(authStore.userStats.highTime) }}</span>
+            </div>
+            <span class="seperator user-stats-seperator"> | </span>
+            <div class="stat-wrapper">
+                <span class="label">Games Played:</span>
+                <hr />
+                <span class="stat">{{ authStore.userStats.totalGames }}</span>
+            </div>
+        </div>
+        <div v-if="isLoading" class="loader loader-games">
             <Loader text="Loading Games" />
         </div>
         <div v-else class="main-wrapper">
             <div class="table-container psuedo-border" :class="`${showSettings ? 'show-settings' : undefined}`">
-                <div class="table-header">
+                <div class="table-header" :class="`${headerShowSettings ? 'show-settings' : undefined}`">
                     <div class="logo">
                         <LogoSVG />
                         <h1>Game History</h1>
@@ -161,84 +454,84 @@ function toggleDropdown() {
                     <div class="toggle-buttons">
                         <Button
                             preset="primary-alt"
-                            :text="`${showSettings ? 'Hide' : 'Show'} Settings`"
-                            @click="showSettings = !showSettings"
+                            :text="`${headerShowSettings ? 'Hide' : 'Show'} Settings`"
+                            animate-span
+                            @click="toggleSettingsColumns"
                         />
-                        <Button preset="primary-alt" text="Add Filters ▾" @click="toggleDropdown()" />
+                        <Button preset="primary-alt" text="Add Filters ▾" @click="toggleFilterDropdown()" />
                     </div>
                     <div
                         v-if="showFilters"
                         ref="filterDropdownRef"
                         class="filter-toggles psuedo-border"
-                        :class="`${showSettings ? 'showing-settings' : undefined}`"
+                        :class="`${showSettings ? 'show-settings' : undefined}`"
                     >
-                        <div v-for="key in Object.keys(settingsStore.settingsKeyVal)" :key="key" class="form-group">
+                        <div
+                            v-for="key in Object.keys(settingsStore.settingsKeyVal)"
+                            :key="key"
+                            class="form-group filter-toggles-form-group"
+                        >
                             <CheckboxInput
                                 :id="`${key}Filter`"
                                 type="checkbox"
-                                v-model="filterToggles[`${key}`]"
                                 :disabled="loadingGames"
+                                :model="filterToggles[`${key}`]"
+                                @input="toggleFilterInput(key)"
                             />
                             <label :for="`${key}Filter`">
                                 {{ settingsStore.settingsKeyVal[`${key}`] }}
                             </label>
                         </div>
-                        <Button preset="primary-alt" text="+All" @click="addAllFilters()" />
+                        <Button
+                            class="filter-toggles-button"
+                            preset="primary-alt"
+                            text="+All"
+                            @click="addAllFilters()"
+                        />
                     </div>
                 </div>
-                <div class="filters">
-                    <form v-if="filtersAdded" @submit.prevent="filterGamesBySettings">
+                <hr class="header-border" />
+                <div
+                    class="filters"
+                    :class="`${headerShowSettings ? 'show-settings' : undefined}`"
+                    v-if="showFilterInputs"
+                >
+                    <form v-if="filtersAdded" @submit.prevent="saveSettingFilters">
                         <div class="form-groups">
-                            <div class="form-group" v-if="filterToggles.circleSize">
-                                <label for="circleSize">Circle Size</label>
-                                <RangeInput
-                                    id="circleSize"
-                                    v-model="settingsFilters.circleSize"
-                                    :min="25"
-                                    :max="125"
-                                    :disabled="loadingGames || !filterToggles.circleSize"
-                                    :showValue="true"
-                                    :inputActive="rangeInputActive"
-                                    @mousedown="rangeInputActive = true"
-                                    @mouseup="rangeInputActive = false"
-                                />
-                            </div>
-                            <span v-if="filterToggles.spawnInterval && showSettings" class="seperator"> | </span>
-                            <div class="form-group" v-if="filterToggles.spawnInterval">
-                                <label>Spawn Interval</label>
-                                <NumberInput
-                                    v-model="settingsFilters.spawnInterval"
-                                    :stepUpDisabled="
-                                        isLoading || !filterToggles.spawnInterval || settingsFilters.spawnInterval >= 2
+                            <template v-for="(input, i) in visibleFilterInputs" :key="input.key">
+                                <div class="form-group filter-form-group" :class="`form-group-${input.key}`">
+                                    <label :for="input.key">{{ input.label }}</label>
+                                    <span
+                                        v-if="isMobile || !showSettings || !headerShowSettings"
+                                        class="seperator filter-form-seperator"
+                                        :class="`seperator-${i}`"
+                                    >
+                                        -
+                                    </span>
+                                    <component
+                                        :is="input.component"
+                                        :id="input.key"
+                                        v-model="settingsFilters[input.key]"
+                                        v-bind="input.props"
+                                        v-on="input.on"
+                                    />
+                                </div>
+                                <span
+                                    v-if="
+                                        !isMobile &&
+                                        i < visibleFilterInputs.length - 1 &&
+                                        (showSettings || headerShowSettings)
                                     "
-                                    :stepDownDisabled="
-                                        isLoading ||
-                                        !filterToggles.spawnInterval ||
-                                        settingsFilters.spawnInterval === 0.25
-                                    "
-                                    @stepUp="settingsFilters.spawnInterval += 0.25"
-                                    @stepDown="settingsFilters.spawnInterval -= 0.25"
-                                />
-                            </div>
-                            <span v-if="filterToggles.shrinkTime && showSettings" class="seperator"> | </span>
-                            <div class="form-group" v-if="filterToggles.shrinkTime">
-                                <label>Shrink Time</label>
-                                <NumberInput
-                                    v-model="settingsFilters.shrinkTime"
-                                    :stepUpDisabled="
-                                        loadingGames || !filterToggles.shrinkTime || settingsFilters.shrinkTime >= 2
-                                    "
-                                    :stepDownDisabled="
-                                        loadingGames || !filterToggles.shrinkTime || settingsFilters.shrinkTime === 0.25
-                                    "
-                                    @stepUp="settingsFilters.shrinkTime += 0.25"
-                                    @stepDown="settingsFilters.shrinkTime -= 0.25"
-                                />
-                            </div>
+                                    class="seperator filter-form-seperator"
+                                    :class="`seperator-${i}`"
+                                >
+                                    |
+                                </span>
+                            </template>
                         </div>
                         <div class="filter-form-buttons">
                             <Button
-                                v-if="filtersAdded"
+                                class="filter-form-button"
                                 preset="primary-alt"
                                 type="button"
                                 text="Reset"
@@ -246,7 +539,7 @@ function toggleDropdown() {
                                 @click="resetFilters"
                             />
                             <Button
-                                v-if="filtersAdded"
+                                class="filter-form-button"
                                 preset="primary-alt"
                                 type="submit"
                                 text="Save"
@@ -255,114 +548,18 @@ function toggleDropdown() {
                         </div>
                     </form>
                 </div>
-                <div class="table-wrapper">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>
-                                    <Button
-                                        preset="primary-alt"
-                                        :text="`${activeGames.sorted.by !== 'score' ? 'Score' : activeGames.sorted.order === 'ASC' ? '▴ Score' : '▾ Score'}`"
-                                        :disabled="loadingGames"
-                                        @click="handleSort('score')"
-                                    />
-                                </th>
-                                <th>
-                                    <Button
-                                        preset="primary-alt"
-                                        :text="`${activeGames.sorted.by !== 'time' ? 'Time' : activeGames.sorted.order === 'ASC' ? '▴ Time' : '▾ Time'}`"
-                                        :disabled="loadingGames"
-                                        @click="handleSort('time')"
-                                    />
-                                </th>
-                                <th v-if="showSettings">
-                                    <Button text="Circle Size" class="setting" />
-                                </th>
-                                <th v-if="showSettings">
-                                    <Button text="Spawn Interval" class="setting" />
-                                </th>
-                                <th v-if="showSettings">
-                                    <Button text="Shrink Time" class="setting" />
-                                </th>
-                                <th>
-                                    <Button
-                                        preset="primary-alt"
-                                        :text="`${activeGames.sorted.by !== 'createdAt' ? 'Date' : activeGames.sorted.order === 'ASC' ? '▴ Date' : '▾ Date'}`"
-                                        :disabled="loadingGames"
-                                        @click="handleSort('createdAt')"
-                                    />
-                                </th>
-                            </tr>
-                        </thead>
-                        <div v-if="loadingGames" class="loader">
-                            <Loader text="Loading" />
-                        </div>
-                        <div v-if="activeGames.games.length === 0 && !loadingGames" class="loader">
-                            <span>No Games Found.</span>
-                        </div>
-                        <tbody
-                            :style="{
-                                // hiding element so the height can still affect the table size
-                                visibility: `${loadingGames ? 'hidden' : 'visible'}`,
-                                height: `${activeGames.games.length > 0 ? activeGames.games.length * 26 : 260}px`,
-                            }"
-                        >
-                            <tr v-for="(game, i) in activeGames.games">
-                                <td :class="`${activeGames.sorted.by === 'score' ? 'sorted' : undefined}`">
-                                    {{ game.score }}
-                                </td>
-                                <td :class="`${activeGames.sorted.by === 'time' ? 'sorted' : undefined}`">
-                                    {{ formatTime(game.time) }}
-                                </td>
-                                <td v-if="showSettings">{{ game.settings.circleSize }}px</td>
-                                <td v-if="showSettings">
-                                    {{
-                                        game.settings.spawnInterval.toString().length === 4
-                                            ? game.settings.spawnInterval.toFixed(2)
-                                            : game.settings.spawnInterval.toFixed(1)
-                                    }}
-                                </td>
-                                <td v-if="showSettings">
-                                    {{
-                                        game.settings.shrinkTime.toString().length === 4
-                                            ? game.settings.shrinkTime.toFixed(2)
-                                            : game.settings.shrinkTime.toFixed(1)
-                                    }}
-                                </td>
-                                <td
-                                    class="date"
-                                    :class="`${activeGames.sorted.by === 'createdAt' ? 'sorted' : undefined}`"
-                                >
-                                    <span>
-                                        {{ formatDate(game.createdAt) }}
-                                    </span>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-                <div class="table-nav">
-                    <Button
-                        preset="primary-alt"
-                        text="prev"
-                        :disabled="loadingGames || offset === 0"
-                        @click="switchPage((offset -= 10), activePage - 1)"
-                    />
-                    <span>
-                        {{ activePage }}
-                    </span>
-                    <Button
-                        preset="primary-alt"
-                        text="next"
-                        :disabled="
-                            loadingGames ||
-                            authStore.userStats?.totalGames < 10 ||
-                            activeGames.games.length === 0 ||
-                            offset + 10 >= authStore.userStats?.totalGames
-                        "
-                        @click="switchPage((offset += 10), activePage + 1)"
-                    />
-                </div>
+                <GameHistoryTable
+                    :games="activeGames.games"
+                    :loading="loadingGames"
+                    :show-settings="showSettings"
+                    :sorted="activeGames.sorted"
+                    :page="activePage"
+                    :disable-prev="offset === 0"
+                    :disable-next="activeGames.games.length < 10"
+                    @sort="handleSort"
+                    @prev-page="switchPage(offset - 10, activePage - 1)"
+                    @next-page="switchPage(offset + 10, activePage + 1)"
+                />
             </div>
         </div>
     </div>
@@ -374,320 +571,337 @@ function toggleDropdown() {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 1em;
+    gap: 0.5em;
     flex-direction: column;
+    padding-left: calc(100vw - 100%); // prevent's layout shift when the page become's scrollable
+}
 
-    .main-wrapper {
-        @include flexCenterAll;
-        flex-direction: column;
+.main-wrapper {
+    @include flexCenterAll;
+    flex-direction: column;
+    width: 100%;
+}
+
+.user-stats {
+    position: relative;
+    @include flexCenterAll;
+    gap: $size-1;
+    flex-direction: column;
+    padding: $size-3 $size-4;
+    width: 19em;
+
+    @include bp-custom-min(450) {
+        width: 22em;
+    }
+
+    @include bp-sm-phone {
+        &.show-settings {
+            width: 33.25em;
+            flex-direction: row;
+            gap: $size-3;
+
+            .seperator {
+                display: block;
+            }
+
+            .stat-wrapper {
+                width: fit-content;
+
+                hr {
+                    display: none;
+                    transform: scaleX(0);
+                }
+            }
+        }
+    }
+
+    > span {
+        position: relative;
+        z-index: 2;
+        font-size: 0.5em;
+        font-weight: 500;
+        color: $color-gray3;
+    }
+
+    .seperator {
+        display: none;
+    }
+
+    .stat-wrapper {
+        position: relative;
+        z-index: 2;
+        display: flex;
+        justify-content: space-between;
+        gap: $size-1;
         width: 100%;
-        margin-bottom: $size-8;
-        padding-top: $size-2;
 
-        .table-container {
-            position: relative;
+        span {
+            font-size: 0.95em !important;
+            color: $color-text-secondary-dark;
+            line-height: 1.6ch;
+            white-space: nowrap;
+
+            &.label {
+                color: $color-accent;
+                line-height: 1.6ch;
+            }
+        }
+
+        hr {
+            transform: scaleX(1);
+            border: 0;
+            border-bottom: dotted 2px $color-gray4;
+            flex: 1;
+            align-self: flex-end;
+            margin: 0 0 $size-1;
+        }
+    }
+}
+
+.table-container {
+    position: relative;
+    @include flexCenterAll;
+    flex-direction: column;
+    padding: $size-4 $size-6;
+    border: solid 1px $color-gray3;
+    max-width: 19em !important;
+    margin-bottom: $size-4;
+
+    @include bp-custom-min(450) {
+        max-width: 22em !important;
+    }
+
+    @include bp-sm-phone {
+        &.show-settings {
+            width: 33.25em;
+            max-width: 33.25em !important;
+        }
+    }
+}
+
+.header-border {
+    position: relative;
+    z-index: 2;
+    border: 0;
+    min-height: 1px;
+    max-height: 1px;
+    background-color: $color-primary-light;
+    margin: 0;
+    width: 100%;
+}
+
+.table-header {
+    position: relative;
+    z-index: 3;
+    display: flex;
+    flex-wrap: wrap;
+    padding: $size-1 $size-1 $size-3;
+    justify-content: center;
+    width: 18em;
+
+    @include bp-sm-phone {
+        &.show-settings {
+            justify-content: space-between;
+            width: 100%;
+            max-width: 100%;
+        }
+    }
+
+    .logo {
+        @include flexCenterAll;
+
+        svg {
+            height: 1.7em;
+            width: 1.7em;
+        }
+
+        h1 {
+            margin-left: -2px;
+            font-size: 1.5em;
+            color: $color-accent;
+            margin: 0;
+            white-space: nowrap;
+        }
+    }
+
+    .toggle-buttons {
+        display: flex;
+        margin-top: $size-1;
+        padding-left: $size-1;
+
+        @include bp-xl-desktop {
+            :deep(button) {
+                font-size: 0.9em;
+            }
+        }
+    }
+}
+
+.filter-toggles {
+    position: absolute;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    gap: $size-1;
+    margin: $size-1 $size-2;
+    padding: 0.5em;
+    padding-right: $size-3;
+    width: fit-content;
+    top: 3.5em;
+    right: 0;
+    overflow: hidden;
+    height: 0;
+    width: 0;
+
+    @include bp-xs-phone {
+        right: $size-4;
+    }
+
+    @include bp-sm-phone {
+        &.show-settings {
+            top: 2em;
+            right: 0;
+        }
+    }
+
+    .form-group {
+        position: relative;
+        z-index: 2;
+        display: flex;
+        align-items: center;
+        gap: $size-1;
+        margin: 0 $size-1;
+        opacity: 0;
+
+        &:first-child {
+            margin-top: $size-1;
+        }
+
+        input {
+            cursor: pointer;
+        }
+
+        label {
+            font-size: 0.8em;
+            color: $color-text-primary-dark;
+            white-space: nowrap;
+        }
+    }
+
+    :deep(button) {
+        position: relative;
+        z-index: 2;
+        align-self: flex-end;
+        font-size: 0.75em;
+        padding-right: 0;
+        margin: 0 $size-1;
+        opacity: 0;
+    }
+}
+
+.filters {
+    position: relative;
+    z-index: 2;
+    font-size: 0.7em;
+    width: 25em;
+    height: 0;
+
+    @include bp-sm-phone {
+        .seperator {
+            display: none;
+        }
+
+        &.show-settings {
+            width: 49em;
+
+            .form-groups {
+                width: fit-content;
+                flex-wrap: nowrap;
+            }
+
+            .seperator {
+                display: block !important;
+            }
+
+            .form-group {
+                width: fit-content;
+                max-width: 15em;
+            }
+
+            .filter-form-buttons {
+                padding-right: $size-5;
+            }
+        }
+    }
+
+    form {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+        padding: $size-1 $size-4;
+
+        @include bp-sm-phone {
+            .table-container.show-settings & {
+                height: 100%;
+            }
+        }
+
+        .form-groups {
             @include flexCenterAll;
-            flex-direction: column;
-            background: $color-bg-secondary;
-            border-radius: $border-radius-md;
-            box-shadow: $box-shadow;
-            padding: $size-2 $size-4;
-            border: solid 1px $color-gray3;
-            max-width: 19em;
+            align-self: flex-start;
+            flex-wrap: wrap;
+            width: 100%;
+            padding: $size-2;
+            margin: 0 auto;
 
-            @include bp-custom-min(450) {
-                max-width: 22em;
+            .seperator {
+                font-size: 0.5em;
+                color: $color-gray3 !important;
+                margin: 0 $size-4;
+                transform: scale(0);
+                opacity: 0;
             }
 
-            @include bp-sm-phone {
-                &.show-settings {
-                    max-width: 34em;
-
-                    .table-header {
-                        justify-content: space-between;
-                    }
-
-                    .filters {
-                        width: 49em;
-
-                        form .form-groups {
-                            gap: $size-1;
-                            width: fit-content;
-
-                            .form-group {
-                                width: fit-content;
-                                justify-content: center;
-                                max-width: 16em;
-                            }
-
-                            .seperator {
-                                display: block;
-                                font-size: 0.5em;
-                                color: $color-gray3;
-                                margin-right: $size-4;
-                            }
-                        }
-
-                        .filter-form-buttons {
-                            padding-right: $size-5;
-                        }
-                    }
-                }
-            }
-
-            .table-header {
+            .form-group {
                 position: relative;
-                z-index: 2;
-                display: flex;
-                flex-wrap: wrap;
-                padding: $size-1 $size-1 $size-3;
-                width: 100%;
-                border-bottom: solid 1px $color-primary-light;
-                justify-content: center;
-
-                .logo {
-                    @include flexCenterAll;
-
-                    svg {
-                        height: 1.7em;
-                        width: 1.7em;
-                    }
-
-                    h1 {
-                        margin-left: -2px;
-                        font-size: 1.5em;
-                        color: $color-accent;
-                        margin: 0;
-                    }
-                }
-
-                .toggle-buttons {
-                    display: flex;
-                    margin-top: $size-1;
-                    padding-left: $size-1;
-                }
-
-                .filter-toggles {
-                    position: absolute;
-                    display: flex;
-                    flex-direction: column;
-                    gap: $size-1;
-                    margin: $size-1 $size-2;
-                    padding: 0.5em;
-                    padding-right: $size-3;
-                    background: $color-bg-secondary;
-                    box-shadow: $box-shadow;
-                    border-radius: $border-radius-xs;
-                    width: fit-content;
-                    border: solid 1px $color-gray3;
-                    top: 3.5em;
-                    right: 2em;
-
-                    @include bp-sm-phone {
-                        &.showing-settings {
-                            top: 2em;
-                            right: 0;
-                        }
-                    }
-
-                    .form-group {
-                        position: relative;
-                        z-index: 2;
-                        display: flex;
-                        align-items: center;
-                        gap: $size-1;
-
-                        input {
-                            cursor: pointer;
-                        }
-
-                        label {
-                            font-size: 0.8em;
-                            color: $color-text-primary-dark;
-                        }
-                    }
-
-                    :deep(button) {
-                        position: relative;
-                        z-index: 2;
-                        align-self: flex-end;
-                        font-size: 0.75em;
-                        padding-right: 0;
-                    }
-                }
-            }
-
-            .filters {
-                position: relative;
-                z-index: 1;
-                font-size: 0.7em;
                 display: flex;
                 align-items: center;
-                width: 25em;
+                width: 200%;
+                justify-content: space-between;
+                gap: $size-2;
+                opacity: 0;
 
-                form {
-                    display: flex;
-                    flex-wrap: wrap;
-                    justify-content: space-between;
-                    width: 100%;
-                    padding: $size-1 $size-4;
-
-                    .form-groups {
-                        @include flexCenterAll;
-                        flex-wrap: wrap;
-                        gap: $size-1;
-                        width: 100%;
-                        padding: $size-2;
-                        margin: 0 auto;
-
-                        .seperator {
-                            display: none;
-                        }
-
-                        .form-group {
-                            position: relative;
-                            display: flex;
-                            align-items: center;
-                            width: 200%;
-                            justify-content: space-between;
-                            gap: $size-2;
-
-                            label {
-                                font-size: 1.1em;
-                            }
-
-                            label,
-                            span {
-                                color: $color-text-secondary-dark;
-                                white-space: nowrap;
-                            }
-
-                            :deep(.number-input) {
-                                span {
-                                    font-size: 1em;
-                                }
-                            }
-                        }
-                    }
-
-                    .filter-form-buttons {
-                        @include flexCenterAll;
-                        margin-left: auto;
-
-                        :deep(button) {
-                            font-size: 1.1em;
-                        }
-                    }
-                }
-            }
-
-            .table-wrapper {
-                position: relative;
-                z-index: 1;
-                padding: $size-1 $size-2;
-                max-width: 17em;
-                overflow-x: scroll;
-
-                @include bp-custom-min(450) {
-                    max-width: 20em;
+                label {
+                    font-size: 1.1em;
                 }
 
-                @include bp-sm-phone {
-                    overflow-x: hidden;
-                    max-width: 34em;
-                }
-
-                table {
-                    border-bottom: solid 1px $color-gray3;
-                    border-collapse: collapse;
-
-                    .loader {
-                        min-height: auto;
-                        position: absolute;
-                        top: 0;
-                        left: 0;
-                        right: 0;
-                        bottom: 0;
-                        color: $color-text-secondary-dark;
-                        margin: $size-4 auto 0;
-
-                        span {
-                            font-size: 0.9em;
-                            text-shadow: 1px 1px 2px #00000033;
-                        }
-                    }
-
-                    :deep(button) {
-                        font-size: 1.2em;
-
-                        &.setting {
-                            font-size: 0.8em;
-                            color: $color-text-secondary-dark;
-                            cursor: auto;
-
-                            span {
-                                white-space: wrap;
-                            }
-
-                            &:hover {
-                                transform: scale(1); // reverting the button preset's hover transform properties
-                            }
-                        }
-                    }
-
-                    th,
-                    td {
-                        text-align: center;
-                    }
-
-                    th {
-                        padding: $size-1;
-                        padding-bottom: $size-1;
-                    }
-
-                    td {
-                        font-size: 0.85em;
-                        color: $color-text-secondary-dark;
-                        font-weight: 500;
-                        border: solid 1px $color-gray3;
-
-                        &.date {
-                            font-family: $secondary-font-stack;
-                            font-size: 0.75em;
-                            font-weight: 400;
-                            color: $color-gray6;
-                            padding: 0 $size-2;
-
-                            span {
-                                display: flex;
-                                justify-content: center;
-                                width: 8em;
-                            }
-                        }
-
-                        &.sorted {
-                            background: darken-color($color-gray1, 2%);
-                        }
-                    }
-                }
-            }
-
-            .table-nav {
-                position: relative;
-                z-index: 1;
-                @include flexCenterAll;
-                padding-top: $size-1;
-
-                :deep(button) {
-                    font-size: 1em;
-                }
-
+                label,
                 span {
                     color: $color-text-secondary-dark;
-                    border-bottom: solid 1px $color-gray3;
-                    width: 1ch;
-                    text-align: center;
+                    white-space: nowrap;
                 }
+
+                :deep(.number-input) {
+                    span {
+                        font-size: 1em;
+                    }
+                }
+
+                :deep(input[type='range']) {
+                    margin: 0.85em 0;
+                }
+            }
+        }
+
+        .filter-form-buttons {
+            @include flexCenterAll;
+            margin-left: auto;
+
+            :deep(button) {
+                font-size: 1.1em;
+                opacity: 0;
             }
         }
     }

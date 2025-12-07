@@ -1,11 +1,11 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, onBeforeUnmount } from 'vue';
 
 const props = defineProps({
     id: { type: String, required: true },
-    modelValue: { required: true },
-    min: { required: true },
-    max: { required: true },
+    modelValue: { type: Number, required: true },
+    min: { type: Number, required: true },
+    max: { type: Number, required: true },
     required: { type: Boolean, default: false },
     disabled: { type: Boolean, default: false },
     showValue: { type: Boolean, default: false },
@@ -16,29 +16,51 @@ const emit = defineEmits(['update:modelValue', 'mousedown', 'mouseup']);
 
 const rangeInput = ref(null);
 
+const isActive = ref(false);
+
+function onPointerDown(e) {
+    isActive.value = true;
+    emit('mousedown', e);
+    window.addEventListener('pointerup', onGlobalPointerUp, { once: true });
+    window.addEventListener('mouseup', onGlobalPointerUp, { once: true });
+    window.addEventListener('touchend', onGlobalPointerUp, { once: true });
+}
+
+function onGlobalPointerUp(e) {
+    if (isActive.value) {
+        isActive.value = false;
+        emit('mouseup', e);
+    }
+}
+
+onBeforeUnmount(() => {
+    window.removeEventListener('pointerup', onGlobalPointerUp);
+    window.removeEventListener('mouseup', onGlobalPointerUp);
+    window.removeEventListener('touchend', onGlobalPointerUp);
+});
+
 function getCircleSizePercent() {
-    const percent = (props.modelValue - 25) / 100;
-
-    const outerLeft = rangeInput?.value.offsetWidth - rangeInput?.value.offsetWidth * 0.167;
-    const outerRight = rangeInput?.value.offsetWidth - rangeInput?.value.offsetWidth * 0.056;
-
+    const percent = (props.modelValue - props.min) / (props.max - props.min);
+    const width = rangeInput?.value?.offsetWidth || 0;
+    const outerLeft = width - width * 0.167;
+    const outerRight = width - width * 0.056;
     return `${outerLeft - percent * outerRight}px`;
 }
 </script>
 
 <template>
     <input
+        :id="id"
         ref="rangeInput"
         type="range"
         :value="modelValue"
         :min="min"
         :max="max"
-        :id="id"
         :required="required"
         :disabled="disabled"
-        @mousedown="emit('mousedown')"
-        @mouseup="emit('mouseup')"
-        @input="emit('update:modelValue', $event.target.value)"
+        @pointerdown="onPointerDown"
+        @input="$emit('update:modelValue', Number($event.target.value))"
+        @blur="onGlobalPointerUp"
     />
     <span
         v-if="showValue && inputActive"

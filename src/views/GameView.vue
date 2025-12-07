@@ -1,8 +1,12 @@
 <script setup>
-import { ref, onBeforeUnmount } from 'vue';
+import { ref, computed, onMounted, onBeforeUnmount, nextTick } from 'vue';
 import { useAuthStore } from '@/stores/authStore.js';
 import { useSettingsStore } from '@/stores/settingsStore.js';
-import { formatTime, getTimePassed } from '@/util/time.js';
+import { useBreakpoints } from '@/composables/useBreakpoints.js';
+import { useGameAnimations } from '@/composables/animations/useGameAnimations.js';
+import { useUtilAnimations } from '@/composables/animations/useUtilAnimations.js';
+import { getTimePassed } from '@/util/time.js';
+import { gsap } from 'gsap';
 import Settings from '@/components/Settings.vue';
 import Canvas from '@/components/Canvas.vue';
 import Button from '@/components/Button.vue';
@@ -10,8 +14,14 @@ import GameStats from '@/components/GameStats.vue';
 import ArrowSVG from '@/components/Icons/ArrowSVG.vue';
 import CloseSVG from '@/components/Icons/CloseSVG.vue';
 
+const isMounted = ref(false);
+
+const { isMobile, isLgDesktop, isXlDesktop } = useBreakpoints();
+
 const authStore = useAuthStore();
 const settingsStore = useSettingsStore();
+
+const settingsRef = ref(null);
 
 const gameActive = ref(false);
 const showSettings = ref(false);
@@ -23,22 +33,74 @@ const elapsedMs = ref(0);
 let timerId;
 let startTimestamp = 0;
 
-const count = ref(3);
-const showCount = ref(false);
+const mainButtons = ref([
+    {
+        key: 'cancel',
+        text: 'Cancel',
+        preset: 'primary',
+        condition: () => showSettings.value,
+        disabled: () => !settingsRef.value?.settingsChanged,
+        click: () => settingsRef.value?.resetLocalSettings(),
+    },
+    {
+        key: 'save',
+        text: 'Save',
+        type: 'submit',
+        preset: 'primary',
+        condition: () => showSettings.value,
+        disabled: () => settingsRef.value?.isLoading || !settingsRef.value?.settingsChanged,
+        click: () => settingsRef.value?.saveSettings(),
+    },
+    {
+        key: 'settings',
+        text: 'Settings',
+        preset: 'primary',
+        condition: () => !showSettings.value,
+        click: () => toggleSettings(),
+    },
+]);
 
-function countdown(n) {
-    count.value = n;
-    return new Promise((resolve) => {
-        if (n === 0) {
-            showCount.value = false;
-            resolve(true);
-            return;
-        }
-        setTimeout(() => {
-            countdown(n - 1).then(resolve);
-        }, 1000);
+const buttonList = computed(() => {
+    return mainButtons.value.filter((button) => {
+        return button.condition ? button.condition() : true;
     });
-}
+});
+
+const { fadeOut } = useUtilAnimations();
+const {
+    openRecentGamesAnim,
+    hideRecentGamesAnim,
+    closeRecentGamesAnim,
+    showRecentGamesAnim,
+    enterButtonAnim,
+    exitButtonAnim,
+    showButtonsAnim,
+    hideButtonsAnim,
+    showEndScreenAnim,
+    hideEndScreenAnim,
+    shrinkButtonDivAnim,
+    growButtonDivAnim,
+} = useGameAnimations({ isXlDesktop, showRecentGames });
+
+onMounted(() => {
+    showButtonsAnim();
+
+    if (authStore.isAuthenticated) {
+        showRecentGamesAnim();
+    }
+
+    window.addEventListener('resize', () => {
+        isMobile.value = window.innerWidth < 682;
+        isXlDesktop.value = window.innerWidth > 1600;
+    });
+
+    isMounted.value = true;
+});
+
+onBeforeUnmount(() => {
+    stopTimer();
+    window.removeEventListener('resize', () => {});
+});
 
 function startTimer() {
     elapsedMs.value = 0;
@@ -56,21 +118,54 @@ function stopTimer() {
 }
 
 async function startGame() {
-    count.value = 3;
-    score.value = 0;
-    showSettings.value = false;
-    gamePlayed.value = true;
-    gameActive.value = true;
-    authStore.gameActive = true;
-    showCount.value = true;
-    await countdown(3);
-    startTimer();
+    const tl = gsap.timeline();
+    hideButtonsAnim();
+
+    if (showSettings.value) {
+        settingsRef.value?.closeSettingsAnim({ tl });
+    }
+
+    if (authStore.isAuthenticated) {
+        hideRecentGamesAnim({ tl });
+    }
+
+    const onComplete = async () => {
+        elapsedMs.value = 0;
+        score.value = 0;
+        showSettings.value = false;
+        showRecentGames.value = false;
+        gamePlayed.value = true;
+        gameActive.value = true;
+        authStore.gameActive = true;
+    };
+
+    if (!gamePlayed.value || showSettings.value) {
+        fadeOut({
+            selector: '.settings-circle',
+            opts: {
+                ease: 'power3.in',
+                scale: 0,
+            },
+            onComplete,
+        });
+    } else {
+        hideEndScreenAnim({ tl, onComplete });
+    }
 }
 
-function handleEndGame() {
+async function handleEndGame() {
     stopTimer();
     authStore.gameActive = false;
     gameActive.value = false;
+    await nextTick();
+
+    if (authStore.isAuthenticated) {
+        showRecentGamesAnim();
+    }
+
+    showEndScreenAnim();
+    showButtonsAnim();
+
     authStore.setGame(
         { score: score.value, time: elapsedMs.value },
         {
@@ -81,53 +176,104 @@ function handleEndGame() {
     );
 }
 
-function handleScoreIncrement() {
-    score.value += 1;
-}
+async function toggleSettings() {
+    const onComplete = async () => {
+        if (!showSettings.value) {
+            growButtonDivAnim();
+        }
 
-function toggleSettings() {
-    showRecentGames.value = false;
-    showSettings.value = true;
-}
+        const setSettings = async (setTo, { tl = gsap.timeline() } = {}) => {
+            showSettings.value = setTo;
+            await nextTick();
+            enterButtonAnim(tl);
+        };
 
-function toggleRecentGames() {
-    showRecentGames.value = !showRecentGames.value;
+        const tl = gsap.timeline();
+        if (!showSettings.value && showRecentGames.value && authStore.isAuthenticated) {
+            const toggleValues = () => {
+                showRecentGames.value = false;
+                setSettings(true, { tl });
+            };
 
-    if (showRecentGames.value && showSettings.value) {
-        showSettings.value = false;
+            if (!isMobile.value && !isLgDesktop.value) {
+                closeRecentGamesAnim({ onStart: toggleValues });
+            } else if (isMobile.value) {
+                hideRecentGamesAnim({ onComplete: toggleValues });
+            } else {
+                setSettings(true);
+            }
+        } else if (!showSettings.value && !showRecentGames.value) {
+            setSettings(true, { tl });
+
+            if (isMobile.value && authStore.isAuthenticated) {
+                hideRecentGamesAnim();
+            }
+        } else {
+            if (isMobile.value && authStore.isAuthenticated) {
+                showRecentGamesAnim();
+            }
+
+            setSettings(false, { tl });
+            if (gamePlayed.value) {
+                await nextTick();
+                showEndScreenAnim();
+            }
+        }
+    };
+
+    const tl = gsap.timeline();
+    exitButtonAnim({ tl, onComplete: (tl) => onComplete(tl) });
+
+    if (gamePlayed.value && !showSettings.value) {
+        hideEndScreenAnim({ tl });
+    }
+
+    if (showSettings.value) {
+        shrinkButtonDivAnim({ delay: 0.2 });
     }
 }
 
-onBeforeUnmount(() => {
-    stopTimer();
-});
+async function toggleRecentGames() {
+    const onComplete = async () => {
+        showRecentGames.value = true;
+        await nextTick();
+        openRecentGamesAnim();
+    };
+
+    if (showSettings.value && !showRecentGames.value && !isLgDesktop.value) {
+        settingsRef.value?.closeSettings();
+        shrinkButtonDivAnim();
+
+        exitButtonAnim({ onComplete });
+    } else if (!showRecentGames.value) {
+        onComplete();
+    } else {
+        closeRecentGamesAnim({ onStart: () => (showRecentGames.value = false) });
+    }
+}
 </script>
 
 <template>
-    <div class="game-container">
+    <div class="game-container" :class="`${showSettings ? 'showing-settings' : undefined}`">
         <div v-if="!gameActive" class="game-start">
-            <div
-                v-if="authStore.recentUserGames.length"
-                class="recent-games"
-                :class="`${showSettings ? 'showing-settings' : undefined}`"
-            >
+            <div v-if="authStore.recentUserGames.length" key="recentGames" class="recent-games psuedo-border">
                 <div class="recent-games-header">
                     <h2>Recent Scores</h2>
                     <Button
-                        v-if="!showRecentGames || showSettings"
+                        v-if="!showRecentGames"
                         preset="icon-only"
-                        :iconLeft="ArrowSVG"
-                        @click="toggleRecentGames()"
+                        :icon-left="ArrowSVG"
+                        @click="toggleRecentGames"
                     />
                     <Button
-                        v-if="showRecentGames && !showSettings"
+                        v-if="showRecentGames"
                         preset="icon-only"
-                        :iconLeft="CloseSVG"
-                        @click="toggleRecentGames()"
+                        :icon-left="CloseSVG"
+                        @click="toggleRecentGames"
                     />
                 </div>
-                <hr />
-                <ul class="recent-games-list" v-if="showRecentGames && !showSettings">
+                <hr :style="{ width: `${!showRecentGames ? '94%' : '96%'}` }" />
+                <ul v-if="showRecentGames && (!showSettings || isLgDesktop)" class="recent-games-list">
                     <li v-for="game in authStore.recentUserGames" :key="game.createdAt">
                         <GameStats :score="game.score" :time="game.time" />
                         <span class="separator"> - </span>
@@ -135,41 +281,44 @@ onBeforeUnmount(() => {
                     </li>
                 </ul>
             </div>
-            <div v-if="gamePlayed && !showSettings" class="end-screen-wrapper">
-                <div class="end-screen psuedo-border">
-                    <h1>Game Over!</h1>
-                    <hr />
-                    <div class="stats">
-                        <GameStats :score="score" :time="elapsedMs" />
-                    </div>
-                </div>
-                <div class="buttons">
-                    <Button @click="showSettings = !showSettings" text="Settings" />
-                    <Button @click="startGame" text="Play Again" />
+            <div v-if="gamePlayed && !showSettings" class="end-screen psuedo-border">
+                <h1 class="end-screen-child">Game Over</h1>
+                <hr class="end-screen-child" />
+                <div class="stats end-screen-child">
+                    <GameStats :score="score" :time="elapsedMs" />
                 </div>
             </div>
-            <div v-else>
-                <Settings class="settings" :showSettings="showSettings" @closeSettings="showSettings = false">
-                    <template #startButton>
-                        <Button @click="startGame" text="Start" />
-                    </template>
-                </Settings>
-                <div v-if="!showSettings" class="buttons">
-                    <Button @click="showSettings = !showSettings" text="Settings" />
-                    <Button @click="startGame" text="Start" />
-                </div>
+            <Settings
+                ref="settingsRef"
+                class="settings"
+                :show-settings="showSettings"
+                :game-played="gamePlayed"
+                @starting-close-settings="exitButtonAnim(gsap.timeline())"
+                @close-settings="toggleSettings"
+            />
+            <div class="main-buttons">
+                <Button
+                    v-for="button in buttonList"
+                    :key="button.key"
+                    :class="['main-button', button.class]"
+                    :preset="button.preset"
+                    :text="button.text"
+                    :type="button.type"
+                    :is-loading="button.isLoading && button.isLoading()"
+                    :disabled="button.disabled && button.disabled()"
+                    @click="button.click"
+                />
+                <Button class="start-button" preset="primary animated" text="Start" @click="startGame" />
             </div>
-        </div>
-        <div class="countdown" v-if="showCount">
-            <span>{{ count }}</span>
         </div>
         <Canvas
-            v-if="gameActive && count === 0"
-            :gameActive="gameActive"
+            v-if="gameActive"
+            :game-active="gameActive"
             :score="score"
             :time="elapsedMs"
-            @endGame="handleEndGame"
-            @incrementScore="handleScoreIncrement"
+            @end-game="handleEndGame"
+            @increment-score="score += 1"
+            @start-timer="startTimer"
         />
     </div>
 </template>
@@ -181,197 +330,200 @@ onBeforeUnmount(() => {
     @include flexCenterAll;
     height: $height-minus-nav;
     width: 100%;
+}
 
-    .game-start {
-        .recent-games {
-            font-size: 1.1em;
-            position: absolute;
-            z-index: 3;
-            top: $size-1;
-            left: $size-3;
-            display: flex;
-            flex-direction: column;
-            padding: $size-2 $size-1 $size-1 $size-3;
-            background: $color-bg-secondary;
-            border-radius: $border-radius-xs;
-            box-shadow: $box-shadow;
-            border: solid 1px $color-gray3;
+.recent-games {
+    font-size: 1.1em;
+    position: absolute;
+    z-index: 3;
+    top: $size-1;
+    left: $size-3;
+    display: flex;
+    flex-direction: column;
+    background: $color-bg-secondary;
+    box-shadow: $box-shadow;
+    border-radius: $border-radius-lg;
+    border: solid 1px $color-gray3;
+    overflow: hidden;
+    transform: translateX(-250px);
+    padding: $size-3 $size-2 0.4em $size-4;
 
-            @include bp-xxl-desktop {
-                padding: $size-2 $size-3 $size-1;
-            }
+    @include bp-xxl-desktop {
+        margin: $size-2 $size-3 0;
+    }
 
-            &.showing-settings {
-                // TODO: In the futrue this class needs to trigger a leave animation
-                display: none;
+    hr {
+        position: relative;
+        z-index: 2;
+        border: 0;
+        min-height: 1px;
+        max-height: 1px;
+        background-color: $color-primary-light;
+        margin: 0;
+        transform: translateY(-0.2em);
 
-                @include bp-sm-phone {
-                    display: flex;
-                }
-            }
-
-            &-header {
-                display: flex;
-                justify-content: space-between;
-                gap: 2px;
-
-                h2 {
-                    font-size: 1em;
-                    color: $color-accent;
-                    margin: 0;
-                    line-height: 1.6ch;
-
-                    @include bp-xs-phone {
-                        line-height: normal;
-                    }
-                }
-
-                button {
-                    padding: 0.6em;
-                    margin-top: 1px;
-                    transform: scale(0.75) translate(-5px, -4px);
-
-                    @include bp-xxl-desktop {
-                        transform: none;
-                    }
-
-                    &:hover {
-                        background: #ec6e9e22;
-                    }
-
-                    :deep(.icon) {
-                        height: 1em;
-                        width: 1em;
-                        stroke: $color-accent;
-                    }
-                }
-            }
-
-            hr {
-                border: 0;
-                height: 2px;
-                background-color: $color-primary-light;
-                margin: 0 0 $size-1;
-                width: 95%;
-
-                @include bp-xxl-desktop {
-                    margin: $size-1 0 $size-1;
-                    width: 100%;
-                }
-            }
-
-            &-list {
-                font-size: 0.85em;
-                display: flex;
-                flex-direction: column;
-                list-style: none;
-                padding: 0 $size-4 $size-1 $size-1;
-                margin: 0;
-                width: 18em;
-
-                li {
-                    display: flex;
-                    justify-content: space-evenly;
-                    align-items: center;
-                    border-bottom: solid 1px $color-gray2;
-                    padding: 0.3em 0.15em;
-
-                    &:last-child {
-                        border: 0;
-                    }
-
-                    span {
-                        font-size: 1em;
-
-                        &:last-child,
-                        &.separator {
-                            font-family: $secondary-font-stack;
-                            color: $color-text-muted;
-                        }
-
-                        &:last-child {
-                            font-size: 0.65em;
-                        }
-
-                        &.separator {
-                            font-size: 0.7em;
-                            margin: 0 $size-2;
-                        }
-                    }
-                }
-            }
+        @include bp-xs-phone {
+            transform: translateY(-0.1em);
         }
 
-        .buttons {
-            display: flex;
-            gap: $size-2;
-            margin-top: $size-8;
-
-            :deep(button) {
-                font-size: 1.4em;
-            }
+        @include bp-md-tablet {
+            transform: translateY(0.25em);
+            margin-bottom: $size-2;
         }
 
-        .end-screen-wrapper {
-            @include flexCenterAll;
-            flex-direction: column;
+        @include bp-xxl-desktop {
+            margin: $size-1 0;
+            transform: translateY(0.1em);
+        }
+    }
+}
 
-            .end-screen {
-                position: relative;
-                @include flexCenterAll;
-                flex-direction: column;
-                background: $color-bg-secondary;
-                padding: $size-3 $size-5 $size-3;
-                border-radius: $border-radius-md;
-                border: solid 1px $color-gray3;
-                box-shadow: $box-shadow;
+.recent-games-header {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    justify-content: space-between;
+    gap: 2px;
 
-                h1 {
-                    position: relative;
-                    z-index: 2;
-                    margin: 0;
-                    color: $color-accent;
-                }
+    h2 {
+        font-size: 1em;
+        color: $color-accent;
+        margin: 0;
+        line-height: 1.6ch;
+        white-space: nowrap;
 
-                hr {
-                    position: relative;
-                    z-index: 2;
-                    width: 100%;
-                    border: 0;
-                    height: 1px;
-                    background-color: $color-primary-light;
-                    margin: $size-1 0 $size-2;
-                }
-
-                .stats {
-                    position: relative;
-                    z-index: 2;
-                    font-size: 1.1em;
-                    display: flex;
-                    align-items: center;
-                    gap: $size-2;
-                }
-            }
+        @include bp-xs-phone {
+            line-height: normal;
         }
     }
 
-    @keyframes shrink {
-        from {
-            font-size: 3.5em;
+    button {
+        padding: 0.6em;
+        margin-top: 1px;
+        transform: scale(0.75) translate(-5px, -4px);
+        border-radius: 100%;
+
+        @include bp-md-tablet {
+            transform: scale(0.9) translate(-8px, -1px);
         }
 
-        to {
-            font-size: 1.5em;
+        @include bp-xxl-desktop {
+            transform: scale(0.9) translate(-8px, 1px);
+        }
+
+        &:hover {
+            background: #ec6e9e22;
+        }
+
+        :deep(.icon) {
+            height: 1em;
+            width: 1em;
+            stroke: $color-accent;
         }
     }
+}
 
-    .countdown {
-        color: $color-text-primary-light;
-        font-weight: 600;
-        font-size: 3.5em;
-        text-shadow: 1px 1px 2px #00000033;
-        animation: shrink 1s ease-in-out;
-        animation-iteration-count: 3;
+.recent-games-list {
+    position: relative;
+    z-index: 2;
+    font-size: 0.85em;
+    display: flex;
+    flex-direction: column;
+    list-style: none;
+    padding: 0 $size-4 $size-1 $size-1;
+    margin: 0 $size-2 0.2em $size-4;
+    margin: 0;
+    width: 20em;
+    overflow: hidden;
+    opacity: 0;
+
+    li {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: solid 1px $color-gray2;
+        padding: 0.3em 0.15em;
+
+        &:last-child {
+            border: 0;
+        }
+
+        span {
+            font-size: 1em;
+
+            &:last-child,
+            &.separator {
+                font-family: $secondary-font-stack;
+                color: $color-text-muted;
+            }
+
+            &:last-child {
+                font-size: 0.65em;
+            }
+
+            &.separator {
+                font-size: 0.7em;
+                margin: 0 $size-2;
+            }
+        }
+    }
+}
+
+.end-screen {
+    position: relative;
+    @include flexCenterAll;
+    flex-direction: column;
+    background: $color-bg-secondary;
+    border-radius: $border-radius-md;
+    border: solid 1px $color-gray3;
+    box-shadow: $box-shadow;
+    overflow: hidden;
+    height: 0;
+    width: 0;
+    padding: $size-2;
+
+    h1 {
+        position: relative;
+        z-index: 2;
+        margin: 0;
+        color: $color-accent;
+        white-space: nowrap;
+        opacity: 0;
+    }
+
+    hr {
+        position: relative;
+        z-index: 2;
+        width: 86%;
+        border: 0;
+        min-height: 1px;
+        background-color: $color-primary-light;
+        margin-top: $size-1;
+        opacity: 0;
+    }
+
+    .stats {
+        position: relative;
+        z-index: 2;
+        font-size: 1.1em;
+        display: flex;
+        align-items: center;
+        gap: $size-2;
+        opacity: 0;
+    }
+}
+
+.main-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: $size-2;
+    width: 13.9em;
+    margin: 0 auto;
+
+    :deep(button) {
+        font-size: 1.4em;
+        opacity: 0;
+        will-change: transform, opacity;
     }
 }
 </style>

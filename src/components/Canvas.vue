@@ -1,25 +1,35 @@
 <script setup>
 import { ref, onMounted, onBeforeUnmount } from 'vue';
+import { gsap } from 'gsap';
 import { useSettingsStore } from '@/stores/settingsStore';
 import Circle from '@/components/Circle.vue';
 import GameStats from '@/components/GameStats.vue';
 
-const props = defineProps({
+defineProps({
     gameActive: { type: Boolean, default: false },
     score: { type: Number, default: 0 },
     time: { type: Number, default: 0 },
 });
 
-const emit = defineEmits(['endGame', 'incrementScore']);
+const emit = defineEmits(['startTimer', 'endGame', 'incrementScore']);
 
-const canvas = ref(null);
+const canvasRef = ref(null);
 
 const settingsStore = useSettingsStore();
 
 const circles = ref([]);
 let spawnTimer;
 
-onMounted(() => {
+const count = ref(3);
+const showCount = ref(false);
+
+const localGameActive = ref(true);
+
+onMounted(async () => {
+    showCount.value = true;
+    await startCountdown(3);
+    emit('startTimer');
+
     spawnCircle();
     spawnTimer = setInterval(spawnCircle, 1000 * settingsStore.spawnInterval);
 });
@@ -27,6 +37,26 @@ onMounted(() => {
 onBeforeUnmount(() => {
     if (spawnTimer) clearInterval(spawnTimer);
 });
+
+function startCountdown(n) {
+    count.value = n;
+
+    if (n === 2) {
+        enterHudAnim();
+    }
+
+    return new Promise((resolve) => {
+        if (n === 0) {
+            showCount.value = false;
+            resolve(true);
+            return;
+        }
+
+        setTimeout(() => {
+            startCountdown(n - 1).then(resolve);
+        }, 1000);
+    });
+}
 
 function getRandomInt(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -36,8 +66,8 @@ function spawnCircle() {
     const circleSize = settingsStore.circleSize;
 
     // minus 30 to be safe
-    const vw = canvas.value.offsetWidth - 30;
-    const vh = canvas.value.offsetHeight - 30;
+    const vw = canvasRef.value.offsetWidth - 30;
+    const vh = canvasRef.value.offsetHeight - 30;
 
     const maxX = Math.max(0, vw - circleSize);
     const maxY = Math.max(0, vh - circleSize);
@@ -57,26 +87,42 @@ function handleCircleClick(id) {
     circles.value = circles.value.filter((c) => c.id !== id);
 }
 
-const localGameActive = ref(true);
-
 function handleGameEnd() {
+    exitHudAnim();
     localGameActive.value = false;
 
-    // Timeout for the circle's fade-out transitions
+    // Timeout for the hud exit animation & all of the circle's fade-out transitions
     setTimeout(() => {
         emit('endGame');
-    }, 400);
+    }, 900);
+}
+
+function enterHudAnim({ tl = gsap.timeline() } = {}) {
+    tl.to('.hud', { duration: 0.3, ease: 'power4.out', y: 0 })
+        .to('.stat-wrapper', { duration: 0.3, ease: 'power4.out', width: 'auto' }, 0.3)
+        .to('.hud', { duration: 0.3, ease: 'power4.out', paddingRight: '2em' }, 0.3)
+        .to('.stat-wrapper', { duration: 0.3, ease: 'linear', opacity: 1, stagger: 0.05 }, 0.4);
+}
+
+function exitHudAnim({ tl = gsap.timeline() } = {}) {
+    tl.to('.stat-wrapper', { duration: 0.3, ease: 'linear', opacity: 0, stagger: 0.05 })
+        .to('.stat-wrapper', { duration: 0.3, ease: 'power4.out', width: 0 }, 0.3)
+        .to('.hud', { duration: 0.3, ease: 'power4.out', paddingRight: '1em' }, 0.3)
+        .to('.hud', { duration: 0.3, ease: 'power4.out', y: '-60px' }, 0.6);
 }
 </script>
 
 <template>
-    <div ref="canvas" class="game-container">
+    <div ref="canvasRef" class="game-container">
         <div class="hud">
-            <GameStats :score="score" :time="time" :adjustTimeSize="true" />
+            <GameStats :adjust-time-size="true" :score="score" :time="time" />
         </div>
-        <div class="canvas">
+        <div v-if="showCount" class="countdown">
+            <span>{{ count }}</span>
+        </div>
+        <div v-else class="canvas">
             <div v-for="c in circles" :key="c.id" class="circle-wrapper" :style="{ left: c.x + 'px', top: c.y + 'px' }">
-                <Circle @click="handleCircleClick(c.id)" @endGame="handleGameEnd()" :gameActive="localGameActive" />
+                <Circle :game-active="localGameActive" @click="handleCircleClick(c.id)" @end-game="handleGameEnd()" />
             </div>
         </div>
     </div>
@@ -87,52 +133,77 @@ function handleGameEnd() {
     position: relative;
     height: 100%;
     width: 100%;
+}
 
-    .hud {
-        position: absolute;
-        top: $size-1;
-        left: 0;
-        right: 0;
+.hud {
+    position: absolute;
+    top: $size-1;
+    left: 0;
+    right: 0;
+    top: -2.8em;
+    margin: 0 auto;
+    width: fit-content;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    background: $color-bg-secondary;
+    padding: $size-2 $size-4 $size-2 $size-4;
+    border-radius: $border-radius-sm;
+    gap: $size-2;
+    border: solid 1px $color-gray3;
+    box-shadow: $box-shadow;
+    transform: translateY(-60px);
+    overflow: hidden;
+
+    :deep(.stat-wrapper) {
+        opacity: 0;
+        width: 0;
+    }
+
+    @include bp-custom-min(400) {
+        margin-left: auto;
+        margin-right: 0.4em;
+    }
+
+    @include bp-sm-phone {
+        font-size: 1em;
         margin: 0 auto;
-        width: fit-content;
-        display: flex;
-        align-items: center;
-        justify-content: space-around;
-        background: $color-bg-secondary;
-        padding: $size-2 $size-8 $size-2 $size-4;
-        border-radius: $border-radius-sm;
-        gap: $size-2;
-        border: solid 1px $color-gray3;
-        box-shadow: $box-shadow;
+    }
+}
 
-        @include bp-custom-min(400) {
-            margin-left: auto;
-            margin-right: 0.4em;
-            top: -2.8em;
-        }
+.canvas {
+    position: relative;
+    height: 100%;
+    width: 100%;
+}
 
-        @include bp-sm-phone {
-            font-size: 1em;
-            top: -2.8em;
-            margin: 0 auto;
-        }
+.circle-wrapper {
+    position: absolute;
+    height: 100px;
+    width: 100px;
+    pointer-events: none;
+
+    :deep(button) {
+        pointer-events: auto;
+    }
+}
+
+.countdown {
+    color: $color-text-primary-light;
+    font-weight: 600;
+    font-size: 3.5em;
+    text-shadow: 1px 1px 2px #00000033;
+    animation: shrink 1s ease-in-out;
+    animation-iteration-count: 3;
+}
+
+@keyframes shrink {
+    from {
+        font-size: 3.5em;
     }
 
-    .canvas {
-        position: relative;
-        height: 100%;
-        width: 100%;
-    }
-
-    .circle-wrapper {
-        position: absolute;
-        height: 100px;
-        width: 100px;
-        pointer-events: none;
-
-        :deep(button) {
-            pointer-events: auto;
-        }
+    to {
+        font-size: 1.5em;
     }
 }
 </style>

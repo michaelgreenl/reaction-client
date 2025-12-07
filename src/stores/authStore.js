@@ -76,9 +76,6 @@ export const useAuthStore = defineStore('auth', () => {
 
     async function logout() {
         await apiFetch('/users/logout', { method: 'POST' });
-        user.value = null;
-        userStats.value = null;
-        userGames.value = [];
         localStorage.setItem('AUTHORIZED', false);
         router.push({ name: 'Login' });
     }
@@ -162,7 +159,9 @@ export const useAuthStore = defineStore('auth', () => {
                 },
             );
 
-            return [...games.games];
+            if (games.games) {
+                return [...games.games];
+            }
         } catch (error) {
             if (error.message.includes('401')) {
                 await logout();
@@ -184,7 +183,9 @@ export const useAuthStore = defineStore('auth', () => {
                 },
             );
 
-            return [...games.games];
+            if (games.games) {
+                return [...games.games];
+            }
         } catch (error) {
             if (error.message.includes('401')) {
                 await logout();

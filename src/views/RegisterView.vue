@@ -48,6 +48,7 @@ const handleRegister = async () => {
         }
     } catch (error) {
         errorMessage.value = 'An unexpected error occurred.';
+        console.error(error);
     } finally {
         isLoading.value = false;
     }
@@ -56,7 +57,7 @@ const handleRegister = async () => {
 
 <template>
     <div class="auth-container">
-        <form @submit.prevent="handleRegister" class="auth-form psuedo-border">
+        <form class="auth-form psuedo-border" @submit.prevent="handleRegister">
             <div class="auth-header">
                 <LogoSVG />
                 <h2>Register</h2>
@@ -75,9 +76,9 @@ const handleRegister = async () => {
                             v-model="password"
                             required
                             :disabled="isLoading"
-                            :showPassword="showPassword"
-                            :passwordHideButton="passwordHideButton"
-                            @toggleHideButton="showPassword = !showPassword"
+                            :show-password="showPassword"
+                            :password-hide-button="passwordHideButton"
+                            @toggle-hide-button="showPassword = !showPassword"
                             @focus="passwordHideButton = true"
                             @blur="passwordHideButton = false"
                         />
@@ -91,9 +92,9 @@ const handleRegister = async () => {
                             v-model="retypePassword"
                             required
                             :disabled="isLoading"
-                            :showPassword="showPassword"
-                            :passwordHideButton="rePasswordHideButton"
-                            @toggleHideButton="showPassword = !showPassword"
+                            :show-password="showPassword"
+                            :password-hide-button="rePasswordHideButton"
+                            @toggle-hide-button="showPassword = !showPassword"
                             @focus="rePasswordHideButton = true"
                             @blur="rePasswordHideButton = false"
                         />
@@ -120,7 +121,7 @@ const handleRegister = async () => {
                 </li>
             </ul>
 
-            <Button type="submit" text="Register" preset="secondary" :isLoading="isLoading" :disabled="isLoading" />
+            <Button type="submit" text="Register" preset="secondary" :is-loading="isLoading" :disabled="isLoading" />
             <hr class="bottom-border" />
             <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
             <p class="form-link">Already have an account? <router-link to="/login">Login</router-link></p>
@@ -131,151 +132,154 @@ const handleRegister = async () => {
 <style lang="scss" scoped>
 .auth-container {
     font-size: 0.8em;
-    height: 100%;
-    width: 100%;
     @include flexCenterAll;
+    width: 100%;
     padding: 0 $size-4 $size-12;
+}
 
-    .auth-form {
-        position: relative;
+.auth-form {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: $size-1;
+    padding: $size-6 $size-7 0;
+    width: 90%;
+    max-width: 30em;
+}
+
+.auth-header {
+    position: relative;
+    z-index: 2;
+    align-self: flex-start;
+    @include flexCenterAll;
+
+    svg {
+        height: $size-9;
+        width: $size-9;
+    }
+
+    h2 {
+        font-size: 2.2em;
+        color: $color-accent;
+        margin: 0;
+    }
+}
+
+.header-border {
+    position: relative;
+    z-index: 2;
+    border: 0;
+    height: 2px;
+    background-color: $color-primary-light;
+    margin: 0 0 $size-2;
+}
+
+.bottom-border {
+    position: relative;
+    z-index: 2;
+    border: 0;
+    height: 1px;
+    width: 90%;
+    background-color: $color-gray4;
+    margin: $size-2 auto 0;
+}
+
+.form-groups {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    gap: $size-3;
+    padding: $size-1 $size-2;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: $size-1;
+
+    label {
+        font-size: 0.9em;
+        color: $color-text-secondary-dark;
+    }
+}
+
+.password-input-wrapper {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+
+    :deep(input) {
+        padding-right: 60px;
+    }
+}
+
+.password-requirements {
+    font-family: $secondary-font-stack;
+    position: relative;
+    z-index: 2;
+    list-style: none;
+    padding: 0 1em;
+    font-size: 0.9em;
+    margin: $size-2 0 0;
+    color: $color-text-secondary-dark;
+
+    li {
         display: flex;
-        flex-direction: column;
-        gap: $size-1;
-        padding: $size-4 $size-6 0;
-        background: $color-bg-secondary;
-        border-radius: $border-radius-md;
-        box-shadow: $box-shadow;
-        width: 90%;
-        max-width: 30em;
+        align-items: center;
+        gap: $size-2;
+        margin-bottom: $size-1;
 
-        .auth-header {
-            position: relative;
-            z-index: 2;
-            align-self: flex-start;
-            @include flexCenterAll;
-
-            svg {
-                height: $size-9;
-                width: $size-9;
-            }
-
-            h2 {
-                font-size: 2.2em;
-                color: $color-accent;
-                margin: 0;
-            }
+        .icon {
+            line-height: 1;
         }
 
-        .header-border {
-            position: relative;
-            z-index: 2;
-            border: 0;
-            height: 2px;
-            background-color: $color-primary-light;
-            margin: 0 0 $size-2;
+        &.valid {
+            color: $color-success;
         }
 
-        .form-groups {
-            position: relative;
-            z-index: 2;
-            display: flex;
-            flex-direction: column;
-            gap: $size-3;
-            padding: $size-1 $size-2;
-
-            .form-group {
-                display: flex;
-                flex-direction: column;
-                gap: $size-1;
-
-                label {
-                    font-size: 0.9em;
-                    color: $color-text-secondary-dark;
-                }
-            }
-        }
-
-        .password-input-wrapper {
-            position: relative;
-            z-index: 2;
-            display: flex;
-            align-items: center;
-
-            :deep(input) {
-                padding-right: 60px;
-            }
-        }
-
-        .password-requirements {
-            position: relative;
-            z-index: 2;
-            list-style: none;
-            padding: 0 1em;
-            font-size: 0.9em;
-            margin: $size-2 0 0;
-            color: $color-text-secondary-dark;
-
-            li {
-                display: flex;
-                align-items: center;
-                gap: $size-2;
-                margin-bottom: $size-1;
-
-                .icon {
-                    line-height: 1;
-                }
-
-                &.valid {
-                    color: $color-success;
-                }
-
-                &.invalid {
-                    color: $color-error;
-                }
-            }
-        }
-
-        button[type='submit'] {
-            position: relative;
-            z-index: 2;
-            align-self: flex-end;
-            margin-right: $size-4;
-        }
-
-        .bottom-border {
-            position: relative;
-            z-index: 2;
-            border: 0;
-            height: 1px;
-            width: 90%;
-            background-color: $color-gray4;
-            margin: $size-2 auto 0;
-        }
-
-        .error-message {
-            position: relative;
-            z-index: 2;
+        &.invalid {
             color: $color-error;
-            text-align: center;
-            margin-top: $size-1;
         }
+    }
+}
 
-        .form-link {
-            position: relative;
-            z-index: 2;
-            font-size: 0.9em;
-            font-family: $secondary-font-stack;
-            text-align: center;
-            margin-top: $size-2;
-            color: $color-text-secondary-dark;
+button[type='submit'] {
+    position: relative;
+    z-index: 2;
+    align-self: flex-end;
+    margin-right: $size-4;
 
-            a {
-                color: $color-primary;
+    :deep(span) {
+        text-shadow: none;
+        color: $color-white;
+    }
+}
 
-                &:hover {
-                    text-decoration: underline;
-                }
-            }
+.error-message {
+    position: relative;
+    z-index: 2;
+    font-family: $secondary-font-stack;
+    color: $color-error;
+    text-align: center;
+    margin-top: $size-1;
+}
+
+.form-link {
+    position: relative;
+    z-index: 2;
+    font-size: 0.9em;
+    font-family: $secondary-font-stack;
+    text-align: center;
+    margin-top: $size-2;
+    color: $color-text-secondary-dark;
+
+    a {
+        color: $color-primary;
+
+        &:hover {
+            text-decoration: underline;
         }
     }
 }

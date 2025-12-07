@@ -1,30 +1,32 @@
 <script setup>
 import Loader from '@/components/Loader.vue';
+import ChangingSpan from '@/components/ChangingSpan.vue';
 
-const props = defineProps({
-    text: { type: String },
+defineProps({
+    text: { type: String, default: null },
     showText: { type: Boolean, default: true },
     preset: { type: String, default: 'primary' },
-    iconLeft: { type: Object },
-    iconRight: { type: Object },
+    iconLeft: { type: Object, default: null },
+    iconRight: { type: Object, default: null },
     isLoading: { type: Boolean, default: false },
+    animateSpan: { type: Boolean, default: false },
 });
 
-const emit = defineEmits(['click']);
+defineEmits(['click']);
 </script>
 
 <template>
     <button :class="preset" @click="$emit('click')">
-        <component class="icon icon-left" :is="iconLeft" />
-        <span v-if="showText && !isLoading">{{ text }}</span>
+        <component :is="iconLeft" class="icon icon-left" />
+        <span v-if="showText && !isLoading && !animateSpan">{{ text }}</span>
+        <ChangingSpan v-if="showText && !isLoading && animateSpan" :text="text" />
         <Loader v-if="isLoading" />
-        <component class="icon icon-right" :is="iconRight" />
+        <component :is="iconRight" class="icon icon-right" />
     </button>
 </template>
 
 <style lang="scss" scoped>
 button {
-    position: relative;
     cursor: pointer;
     border: 0;
 
@@ -53,19 +55,23 @@ button {
     &.primary-alt {
         background: transparent;
         font-style: oblique;
-
-        &:disabled {
-            opacity: 0.5;
-        }
     }
 
     &.primary {
         text-shadow: 1px 1px 2px #00000033;
         color: $color-bg-secondary;
+
+        &:disabled {
+            color: #dee2e699;
+        }
     }
 
     &.primary-alt {
         color: $color-accent;
+
+        &:disabled {
+            color: $color-gray3;
+        }
     }
 
     &.secondary {
@@ -85,6 +91,12 @@ button {
         padding: 0.6em;
         background: $color-bg-secondary;
         transition: background 0.1s ease;
+    }
+
+    :deep(.loading-wrapper) {
+        span {
+            width: 5.2ch;
+        }
     }
 }
 </style>

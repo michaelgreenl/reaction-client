@@ -1,10 +1,31 @@
 <script setup>
+import { watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { useAuthStore } from '@/stores/authStore.js';
+import { useBreakpoints } from '@/composables/useBreakpoints.js';
+import { gsap } from 'gsap';
 import LogoSVG from '@/components/Icons/LogoSVG.vue';
+
+const { isSmPhone, isMobile } = useBreakpoints();
 
 const authStore = useAuthStore();
 const route = useRoute();
+
+watch(
+    () => authStore.gameActive,
+    (newVal) => {
+        if (isMobile.value) {
+            const targets = `.nav-link, ${isSmPhone.value ? '.nav-logo' : undefined}`;
+            const opts = {
+                duration: 0.2,
+                ease: 'linear',
+                opacity: newVal ? 0 : 1,
+            };
+
+            gsap.to(targets, opts);
+        }
+    },
+);
 </script>
 
 <template>
@@ -14,18 +35,18 @@ const route = useRoute();
             <h2>Reaction</h2>
         </router-link>
         <router-link
-            class="nav-link"
             v-if="!authStore.isAuthenticated && route.fullPath !== '/login' && route.fullPath !== '/register'"
+            class="nav-link"
             to="/login"
         >
             Login
         </router-link>
-        <router-link class="nav-link" v-if="authStore.isAuthenticated && route.fullPath !== '/profile'" to="/profile"
+        <router-link v-if="authStore.isAuthenticated && route.fullPath !== '/profile'" class="nav-link" to="/profile"
             >Profile</router-link
         >
         <button
-            class="nav-link"
             v-if="authStore.isAuthenticated && route.fullPath === '/profile'"
+            class="nav-link"
             @click="authStore.logout"
         >
             Logout
@@ -43,72 +64,65 @@ const route = useRoute();
     padding-left: $size-3;
     padding-right: $size-4;
 
-    &.game-active {
-        display: none;
-
-        @include bp-custom-min(400) {
-            display: flex;
-        }
-    }
-
-    &-logo {
-        @include flexCenterAll;
-        transition: transform 0.2s ease;
-
-        svg {
-            height: $size-8;
-            width: $size-8;
-        }
-
-        h2 {
-            color: $color-gray1;
-            font-style: italic;
-            font-weight: 300;
-            margin: 0;
-            text-shadow: 1px 1px 2px #00000033;
-        }
-
-        a {
-            margin-left: $size-4;
-        }
-
-        &:hover {
-            transform: scale(1.02);
-        }
-    }
-
-    &-link {
-        position: relative;
-        font-size: 0.9em;
-        font-family: $primary-font-stack;
-        color: $color-gray1;
-        font-weight: 300;
-        background: transparent;
-        border: 0;
-        padding: 0;
-
-        &::after {
-            content: '';
-            position: absolute;
-            bottom: -5px;
-            left: -10%;
-            right: 110%;
-            height: 2px;
-            background: $color-bg-secondary;
-            transition: all 0.2s ease;
-            border-radius: 2px;
-        }
-
-        &:hover {
-            &::after {
-                right: -10%;
-            }
-        }
-    }
-
     @include bp-sm-phone {
         padding-left: $size-4;
         padding-right: $size-5;
+    }
+}
+
+.nav-logo {
+    @include flexCenterAll;
+    transition: transform 0.2s ease;
+
+    svg {
+        height: $size-8;
+        width: $size-8;
+    }
+
+    h2 {
+        color: $color-gray1;
+        font-style: italic;
+        font-weight: 300;
+        margin: 0;
+        text-shadow: 1px 1px 2px #00000033;
+    }
+
+    a {
+        margin-left: $size-4;
+    }
+
+    &:hover {
+        transform: scale(1.02);
+    }
+}
+
+.nav-link {
+    position: relative;
+    font-size: 0.9em;
+    font-family: $primary-font-stack;
+    color: $color-gray1;
+    font-weight: 300;
+    background: transparent;
+    border: 0;
+    padding: 0;
+    opacity: 1;
+
+    &::after {
+        content: '';
+        position: absolute;
+        bottom: -5px;
+        left: -10%;
+        right: 110%;
+        height: 2px;
+        background: $color-bg-secondary;
+        transition: all 0.2s ease;
+        border-radius: 2px;
+    }
+
+    &:hover {
+        &::after {
+            right: -10%;
+        }
     }
 }
 </style>

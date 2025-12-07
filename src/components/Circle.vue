@@ -1,11 +1,12 @@
 <script setup>
 import { ref, onMounted } from 'vue';
+import { gsap } from 'gsap';
 import { useSettingsStore } from '@/stores/settingsStore';
 
 const props = defineProps({
     gameActive: { type: Boolean },
-    animation: { type: Boolean, default: true },
-    localSize: { required: false },
+    gameCircle: { type: Boolean, default: true },
+    localSize: { type: [String, Number], default: null },
     inputActive: { type: Boolean },
 });
 
@@ -17,8 +18,10 @@ const animating = ref(false);
 const paused = ref(false);
 
 onMounted(() => {
-    if (props.animation) {
+    if (props.gameCircle) {
         animating.value = true;
+    } else {
+        openCircle();
     }
 });
 
@@ -26,10 +29,32 @@ function circleClick() {
     paused.value = true;
     emit('click');
 }
+
+function openCircle({ tl = gsap.timeline() } = {}) {
+    tl.to('.circle', {
+        duration: 0.3,
+        ease: 'power3.out',
+        scale: 1,
+        opacity: 1,
+    });
+}
+
+function closeCircle({ tl = gsap.timeline() } = {}) {
+    tl.to('.circle', {
+        duration: 0.2,
+        ease: 'power3.in',
+        scale: 0,
+        opacity: 0,
+    });
+}
+
+defineExpose({ openCircle, closeCircle });
 </script>
 
 <template>
     <div
+        class="circle"
+        :class="`${!gameCircle ? 'start-circle' : undefined}`"
         :style="{
             height: `${localSize ? localSize : settingsStore.circleSize}px`,
             width: `${localSize ? localSize : settingsStore.circleSize}px`,
@@ -42,7 +67,7 @@ function circleClick() {
                 height: `${localSize ? localSize : settingsStore.circleSize}px`,
                 width: `${localSize ? localSize : settingsStore.circleSize}px`,
             }"
-            @mousedown="animation ? circleClick() : null"
+            @mousedown="gameCircle ? circleClick() : null"
             @animationend="$emit('endGame')"
         >
             <span v-if="inputActive && localSize >= 50">{{ localSize }}px</span>
@@ -52,9 +77,14 @@ function circleClick() {
 </template>
 
 <style lang="scss" scoped>
-div {
+.circle {
     position: relative;
     @include flexCenterAll;
+
+    &.start-circle {
+        transform: scale(0);
+        opacity: 0;
+    }
 
     span {
         font-family: $primary-font-stack;
