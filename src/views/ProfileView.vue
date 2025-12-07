@@ -372,14 +372,16 @@ function toggleSettingsColumns() {
         }
     }
 
-    if (showSettings.value) {
-        const headerState = Flip.getState('.logo, .toggle-buttons');
+    const statsState = Flip.getState('.stat-wrapper');
+    const headerState = Flip.getState('.logo, .toggle-buttons');
 
+    if (showSettings.value) {
         hideSettingsColumnsAnim({
             onComplete: async () => {
                 headerShowSettings.value = false;
 
                 await nextTick();
+                flipFrom({ state: statsState, opts: { duration: 0.2, ease: 'power2.out' } });
                 flipFrom({ state: headerState, onComplete: () => (showSettings.value = !showSettings.value) });
 
                 if (!isMobile.value && filtersAdded.value) {
@@ -399,6 +401,9 @@ function toggleSettingsColumns() {
                 showSettings.value = true;
                 headerShowSettings.value = true;
 
+                await nextTick();
+                flipFrom({ state: statsState, opts: { duration: 0.2, ease: 'power2.out', nested: true } });
+
                 if (!isMobile.value && filtersAdded.value) {
                     await nextTick();
                     flipFrom({
@@ -417,19 +422,19 @@ function toggleSettingsColumns() {
 
 <template>
     <div class="profile-container">
-        <div class="user-stats psuedo-border" :class="`${showSettings ? 'show-settings' : undefined}`">
+        <div class="user-stats psuedo-border" :class="`${headerShowSettings ? 'show-settings' : undefined}`">
             <div class="stat-wrapper">
                 <span class="label">High Score:</span>
                 <hr />
                 <span class="stat">{{ authStore.userStats.highScore }}</span>
             </div>
-            <span class="seperator"> | </span>
+            <span class="seperator user-stats-seperator"> | </span>
             <div class="stat-wrapper">
                 <span class="label">Longest Time:</span>
                 <hr />
                 <span class="stat">{{ formatTime(authStore.userStats.highTime) }}</span>
             </div>
-            <span class="seperator"> | </span>
+            <span class="seperator user-stats-seperator"> | </span>
             <div class="stat-wrapper">
                 <span class="label">Games Played:</span>
                 <hr />
@@ -449,7 +454,8 @@ function toggleSettingsColumns() {
                     <div class="toggle-buttons">
                         <Button
                             preset="primary-alt"
-                            :text="`${showSettings ? 'Hide' : 'Show'} Settings`"
+                            :text="`${headerShowSettings ? 'Hide' : 'Show'} Settings`"
+                            animate-span
                             @click="toggleSettingsColumns"
                         />
                         <Button preset="primary-alt" text="Add Filters ▾" @click="toggleFilterDropdown()" />
@@ -551,8 +557,8 @@ function toggleSettingsColumns() {
                     :disable-prev="offset === 0"
                     :disable-next="activeGames.games.length < 10"
                     @sort="handleSort"
-                    @prev-page="switchPage((offset -= 10), activePage - 1)"
-                    @next-page="switchPage((offset += 10), activePage + 1)"
+                    @prev-page="switchPage(offset - 10, activePage - 1)"
+                    @next-page="switchPage(offset + 10, activePage + 1)"
                 />
             </div>
         </div>
@@ -567,7 +573,7 @@ function toggleSettingsColumns() {
     justify-content: center;
     gap: 0.5em;
     flex-direction: column;
-    padding-left: calc(100vw - 100%);
+    padding-left: calc(100vw - 100%); // prevent's layout shift when the page become's scrollable
 }
 
 .main-wrapper {
@@ -590,9 +596,9 @@ function toggleSettingsColumns() {
 
     @include bp-sm-phone {
         &.show-settings {
-            width: 34em;
+            width: 33.25em;
             flex-direction: row;
-            gap: $size-4;
+            gap: $size-3;
 
             .seperator {
                 display: block;
@@ -603,6 +609,7 @@ function toggleSettingsColumns() {
 
                 hr {
                     display: none;
+                    transform: scaleX(0);
                 }
             }
         }
@@ -632,6 +639,7 @@ function toggleSettingsColumns() {
             font-size: 0.95em !important;
             color: $color-text-secondary-dark;
             line-height: 1.6ch;
+            white-space: nowrap;
 
             &.label {
                 color: $color-accent;
@@ -640,6 +648,7 @@ function toggleSettingsColumns() {
         }
 
         hr {
+            transform: scaleX(1);
             border: 0;
             border-bottom: dotted 2px $color-gray4;
             flex: 1;
@@ -664,7 +673,8 @@ function toggleSettingsColumns() {
 
     @include bp-sm-phone {
         &.show-settings {
-            max-width: 34em !important;
+            width: 33.25em;
+            max-width: 33.25em !important;
         }
     }
 }

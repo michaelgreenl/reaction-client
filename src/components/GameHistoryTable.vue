@@ -217,8 +217,11 @@ function formatFloat(float) {
     flex-direction: column;
     justify-content: space-evenly;
     height: 100%;
+    max-width: 4.5em;
 
     &:last-child {
+        max-width: 9.5em !important;
+
         .column-header,
         .column-cell {
             max-width: 9.5em !important;
@@ -245,7 +248,7 @@ function formatFloat(float) {
         @include flexCenterAll;
         flex: 1;
         white-space: nowrap;
-        max-width: 72px !important;
+        width: 100%;
     }
 
     &-header {
