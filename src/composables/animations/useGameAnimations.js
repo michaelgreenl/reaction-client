@@ -65,8 +65,8 @@ export function useGameAnimations({ isXlDesktop, showRecentGames }) {
         tl.to('.end-screen', {
             duration: 0.3,
             ease: 'expo',
-            width: !isXlDesktop.value ? '265px' : '328px',
-            height: !isXlDesktop.value ? '114px' : '146px',
+            width: !isXlDesktop.value ? '16.6em' : '20.5em',
+            height: !isXlDesktop.value ? '7.125' : '9.125em',
         }).to('.end-screen-child', { duration: 0.3, ease: 'linear', opacity: 1, stagger: 0.05 }, 0.1);
     });
 
@@ -79,11 +79,20 @@ export function useGameAnimations({ isXlDesktop, showRecentGames }) {
     });
 
     const shrinkButtonDivAnim = registerAnim(({ tl, delay }) => {
-        tl.to('.buttons', { duration: 0.5, ease: 'expo', width: !isXlDesktop.value ? '222px' : '280px', delay });
+        gsap.set('.main-buttons', { width: !isXlDesktop.value ? '17.9em' : '20em' });
+
+        tl.to('.main-buttons', {
+            duration: 0.5,
+            ease: 'power3.out',
+            width: !isXlDesktop.value ? '13.9em' : '17.5em',
+            delay,
+        });
     });
 
     const growButtonDivAnim = registerAnim(({ tl }) => {
-        tl.to('.buttons', { duration: 0.4, ease: 'expo', width: !isXlDesktop.value ? '287px' : '400px' });
+        gsap.set('.main-buttons', { width: !isXlDesktop.value ? '13.9em' : '17.5em' });
+
+        tl.to('.main-buttons', { duration: 0.3, ease: 'power3.out', width: !isXlDesktop.value ? '17.9em' : '20em' });
     });
 
     return {

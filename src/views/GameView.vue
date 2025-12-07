@@ -215,6 +215,7 @@ async function toggleSettings() {
 
             setSettings(false, { tl });
             if (gamePlayed.value) {
+                await nextTick();
                 showEndScreenAnim();
             }
         }
@@ -295,7 +296,7 @@ async function toggleRecentGames() {
                 @starting-close-settings="exitButtonAnim(gsap.timeline())"
                 @close-settings="toggleSettings"
             />
-            <div class="buttons">
+            <div class="main-buttons">
                 <Button
                     v-for="button in buttonList"
                     :key="button.key"
@@ -365,6 +366,11 @@ async function toggleRecentGames() {
             transform: translateY(-0.1em);
         }
 
+        @include bp-md-tablet {
+            transform: translateY(0.25em);
+            margin-bottom: $size-2;
+        }
+
         @include bp-xxl-desktop {
             margin: $size-1 0;
             transform: translateY(0.1em);
@@ -397,8 +403,11 @@ async function toggleRecentGames() {
         transform: scale(0.75) translate(-5px, -4px);
         border-radius: 100%;
 
+        @include bp-md-tablet {
+            transform: scale(0.9) translate(-8px, -1px);
+        }
+
         @include bp-xxl-desktop {
-            transform: none;
             transform: scale(0.9) translate(-8px, 1px);
         }
 
@@ -504,16 +513,12 @@ async function toggleRecentGames() {
     }
 }
 
-.buttons {
+.main-buttons {
     display: flex;
     justify-content: flex-end;
     gap: $size-2;
-    width: 222px;
+    width: 13.9em;
     margin: 0 auto;
-
-    @include bp-xxl-desktop {
-        width: 280px;
-    }
 
     :deep(button) {
         font-size: 1.4em;
