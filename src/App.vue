@@ -47,6 +47,14 @@ body,
         font-size: 1em !important;
     }
 
+    @include bp-sm-phone {
+        font-size: 1.1em !important;
+    }
+
+    @include bp-md-tablet {
+        font-size: 1.2em !important;
+    }
+
     @include bp-xxl-desktop {
         font-size: 1.3em !important;
     }
