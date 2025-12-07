@@ -9,6 +9,7 @@ defineProps({
     iconLeft: { type: Object, default: null },
     iconRight: { type: Object, default: null },
     isLoading: { type: Boolean, default: false },
+    animateSpan: { type: Boolean, default: false },
 });
 
 defineEmits(['click']);
@@ -17,7 +18,8 @@ defineEmits(['click']);
 <template>
     <button :class="preset" @click="$emit('click')">
         <component :is="iconLeft" class="icon icon-left" />
-        <ChangingSpan v-if="showText && !isLoading" :text="text" />
+        <span v-if="showText && !isLoading && !animateSpan">{{ text }}</span>
+        <ChangingSpan v-if="showText && !isLoading && animateSpan" :text="text" />
         <Loader v-if="isLoading" />
         <component :is="iconRight" class="icon icon-right" />
     </button>
