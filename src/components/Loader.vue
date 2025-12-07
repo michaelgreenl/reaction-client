@@ -23,7 +23,7 @@ onUnmounted(() => {
 
 <template>
     <div class="loading-wrapper">
-        <ChangingSpan :text="loadingText" :enter-only="true" />
+        <ChangingSpan :text="loadingText" />
     </div>
 </template>
 
