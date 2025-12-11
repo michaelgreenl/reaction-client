@@ -66,7 +66,7 @@ export function useGameAnimations({ isXlDesktop, showRecentGames }) {
             duration: 0.3,
             ease: 'expo',
             width: !isXlDesktop.value ? '16.6em' : '20.5em',
-            height: !isXlDesktop.value ? '7.125' : '9.125em',
+            height: !isXlDesktop.value ? '7.125em' : '9.125em',
         }).to('.end-screen-child', { duration: 0.3, ease: 'linear', opacity: 1, stagger: 0.05 }, 0.1);
     });
 
