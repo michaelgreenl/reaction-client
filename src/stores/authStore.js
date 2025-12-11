@@ -128,7 +128,10 @@ export const useAuthStore = defineStore('auth', () => {
                 body: { userId: user.value.id, score: game.score, time: game.time, settings, stats: userStats.value },
             });
 
-            recentUserGames.value.pop();
+            if (recentUserGames.value.length >= 5) {
+                recentUserGames.value.pop();
+            }
+
             recentUserGames.value.unshift({
                 userId: user.value.id,
                 createdAt: new Date(),
