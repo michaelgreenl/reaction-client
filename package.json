@@ -16,7 +16,8 @@
         "lint:fix": "eslint . --fix",
         "lint:style": "stylelint '**/*.{vue,css,scss}' --fix",
         "format": "prettier --check .",
-        "format:fix": "prettier --write ."
+        "format:fix": "prettier --write .",
+        "deploy": "gh-pages -d dist"
     },
     "dependencies": {
         "gsap": "^3.13.0",
