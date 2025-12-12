@@ -70,7 +70,9 @@ defineExpose({ openCircle, closeCircle });
             @mousedown="gameCircle ? circleClick() : null"
             @animationend="$emit('endGame')"
         >
-            <span v-if="inputActive && localSize >= 50">{{ localSize }}px</span>
+            <span v-if="inputActive && localSize >= 50" :style="{ fontSize: localSize >= 65 ? '1.2em' : '1em' }"
+                >{{ localSize }}px</span
+            >
         </button>
         <span v-if="inputActive && localSize < 50" class="outer-value">{{ localSize }}px</span>
     </div>

@@ -272,7 +272,7 @@ async function toggleRecentGames() {
                         @click="toggleRecentGames"
                     />
                 </div>
-                <hr :style="{ width: `${!showRecentGames ? '94%' : '96%'}` }" />
+                <hr :style="{ width: `${!showRecentGames ? '94%' : '98%'}` }" />
                 <ul v-if="showRecentGames && (!showSettings || isLgDesktop)" class="recent-games-list">
                     <li v-for="game in authStore.recentUserGames" :key="game.createdAt">
                         <GameStats :score="game.score" :time="game.time" />

@@ -143,7 +143,6 @@ export function useProfileAnimations({ visibleFilterInputs, showSettings, isMobi
                 ease: 'power3.out',
                 height: '6.3em',
                 width: '22em',
-                padding: '0.75em 1em',
             })
             .to('.user-stats hr', { duration: 0.3, ease: 'linear', opacity: 1, scaleX: 1 }, 0.4);
     });
@@ -214,7 +213,6 @@ export function useProfileAnimations({ visibleFilterInputs, showSettings, isMobi
                     opacity: 1,
                     stagger: 0.1,
                     onComplete: () => {
-                        // gsap.set('.table-container', { width: 'auto' });
                         gsap.set('.table-header', { height: 'auto' });
                     },
                 },
