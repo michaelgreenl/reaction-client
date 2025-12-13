@@ -70,7 +70,14 @@ const handleLogin = async () => {
                     </div>
                 </div>
             </div>
-            <Button type="submit" text="Login" preset="secondary" :is-loading="isLoading" :disabled="isLoading" />
+            <Button
+                type="submit"
+                text="Login"
+                preset="secondary"
+                :is-loading="isLoading"
+                :disabled="isLoading"
+                animate-span
+            />
             <hr class="bottom-border" />
             <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
             <p class="form-link">Don't have an account? <router-link to="/register">Register</router-link></p>

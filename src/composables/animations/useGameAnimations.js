@@ -62,12 +62,11 @@ export function useGameAnimations({ isXlDesktop, showRecentGames }) {
     });
 
     const showEndScreenAnim = registerAnim(({ tl }) => {
-        tl.to('.end-screen', {
-            duration: 0.3,
-            ease: 'expo',
-            width: !isXlDesktop.value ? '16.6em' : '20.5em',
-            height: !isXlDesktop.value ? '7.125em' : '9.125em',
-        }).to('.end-screen-child', { duration: 0.3, ease: 'linear', opacity: 1, stagger: 0.05 }, 0.1);
+        tl.to('.end-screen', { duration: 0.3, ease: 'expo', width: '16.6em', height: '7.125em' }).to(
+            '.end-screen-child',
+            { duration: 0.3, ease: 'linear', opacity: 1, stagger: 0.05 },
+            0.1,
+        );
     });
 
     const hideEndScreenAnim = registerAnim(({ tl, onComplete }) => {
@@ -79,20 +78,15 @@ export function useGameAnimations({ isXlDesktop, showRecentGames }) {
     });
 
     const shrinkButtonDivAnim = registerAnim(({ tl, delay }) => {
-        gsap.set('.main-buttons', { width: !isXlDesktop.value ? '17.9em' : '20em' });
+        gsap.set('.main-buttons', { width: '17.9em' });
 
-        tl.to('.main-buttons', {
-            duration: 0.5,
-            ease: 'power3.out',
-            width: !isXlDesktop.value ? '13.9em' : '17.5em',
-            delay,
-        });
+        tl.to('.main-buttons', { duration: 0.5, ease: 'power3.out', width: '13.9em', delay });
     });
 
     const growButtonDivAnim = registerAnim(({ tl }) => {
-        gsap.set('.main-buttons', { width: !isXlDesktop.value ? '13.9em' : '17.5em' });
+        gsap.set('.main-buttons', { width: '13.9em' });
 
-        tl.to('.main-buttons', { duration: 0.3, ease: 'power3.out', width: !isXlDesktop.value ? '17.9em' : '20em' });
+        tl.to('.main-buttons', { duration: 0.3, ease: 'power3.out', width: '17.9em' });
     });
 
     return {

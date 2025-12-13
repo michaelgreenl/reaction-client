@@ -108,7 +108,7 @@ function exitHudAnim({ tl = gsap.timeline() } = {}) {
     tl.to('.stat-wrapper', { duration: 0.3, ease: 'linear', opacity: 0, stagger: 0.05 })
         .to('.stat-wrapper', { duration: 0.3, ease: 'power4.out', width: 0 }, 0.3)
         .to('.hud', { duration: 0.3, ease: 'power4.out', paddingRight: '1em' }, 0.3)
-        .to('.hud', { duration: 0.3, ease: 'power4.out', y: '-60px' }, 0.6);
+        .to('.hud', { duration: 0.3, ease: 'power4.out', y: '-3.75em' }, 0.6);
 }
 </script>
 
@@ -152,7 +152,7 @@ function exitHudAnim({ tl = gsap.timeline() } = {}) {
     gap: $size-2;
     border: solid 1px $color-gray3;
     box-shadow: $box-shadow;
-    transform: translateY(-60px);
+    transform: translateY(-3.75em);
     overflow: hidden;
 
     :deep(.stat-wrapper) {

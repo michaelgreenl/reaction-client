@@ -121,7 +121,14 @@ const handleRegister = async () => {
                 </li>
             </ul>
 
-            <Button type="submit" text="Register" preset="secondary" :is-loading="isLoading" :disabled="isLoading" />
+            <Button
+                type="submit"
+                text="Register"
+                preset="secondary"
+                :is-loading="isLoading"
+                :disabled="isLoading"
+                animate-span
+            />
             <hr class="bottom-border" />
             <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
             <p class="form-link">Already have an account? <router-link to="/login">Login</router-link></p>
