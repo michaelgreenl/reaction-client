@@ -94,7 +94,7 @@ button {
     }
 
     :deep(.loading-wrapper) {
-        span {
+        .changing-span-wrapper {
             width: 5.2ch;
         }
     }
