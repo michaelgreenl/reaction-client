@@ -24,7 +24,7 @@ router.beforeEach(async (to, from, next) => {
     const authStore = useAuthStore();
     const authorized = localStorage.getItem('AUTHORIZED');
 
-    if (authorized) {
+    if (authorized && !authStore.isAuthenticated) {
         await authStore.initializeAuth();
         authStore.initLoading = false;
     }
