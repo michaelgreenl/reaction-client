@@ -426,19 +426,19 @@ function toggleSettingsColumns() {
             <div class="stat-wrapper">
                 <span class="label">High Score:</span>
                 <hr />
-                <span class="stat">{{ authStore.userStats.highScore }}</span>
+                <span class="stat">{{ authStore.userStats?.highScore }}</span>
             </div>
             <span class="seperator user-stats-seperator"> | </span>
             <div class="stat-wrapper">
                 <span class="label">Longest Time:</span>
                 <hr />
-                <span class="stat">{{ formatTime(authStore.userStats.highTime) }}</span>
+                <span class="stat">{{ formatTime(authStore.userStats?.highTime) }}</span>
             </div>
             <span class="seperator user-stats-seperator"> | </span>
             <div class="stat-wrapper">
                 <span class="label">Games Played:</span>
                 <hr />
-                <span class="stat">{{ authStore.userStats.totalGames }}</span>
+                <span class="stat">{{ authStore.userStats?.totalGames }}</span>
             </div>
         </div>
         <div v-if="isLoading" class="loader loader-games">
