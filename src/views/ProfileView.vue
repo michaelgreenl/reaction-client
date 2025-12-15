@@ -429,19 +429,19 @@ function toggleSettingsColumns() {
             <div class="stat-wrapper">
                 <span class="label">High Score:</span>
                 <hr />
-                <span class="stat">{{ authStore.userStats.highScore }}</span>
+                <span class="stat">{{ authStore.userStats?.highScore }}</span>
             </div>
             <span class="seperator user-stats-seperator"> | </span>
             <div class="stat-wrapper">
                 <span class="label">Longest Time:</span>
                 <hr />
-                <span class="stat">{{ formatTime(authStore.userStats.highTime) }}</span>
+                <span class="stat">{{ formatTime(authStore.userStats?.highTime) }}</span>
             </div>
             <span class="seperator user-stats-seperator"> | </span>
             <div class="stat-wrapper">
                 <span class="label">Games Played:</span>
                 <hr />
-                <span class="stat">{{ authStore.userStats.totalGames }}</span>
+                <span class="stat">{{ authStore.userStats?.totalGames }}</span>
             </div>
         </div>
         <div class="main-wrapper">
@@ -576,12 +576,6 @@ function toggleSettingsColumns() {
     padding-left: calc(100vw - 100%); // prevent's layout shift when the page become's scrollable
 }
 
-.main-wrapper {
-    @include flexCenterAll;
-    flex-direction: column;
-    width: 100%;
-}
-
 .user-stats {
     position: relative;
     @include flexCenterAll;
@@ -658,6 +652,12 @@ function toggleSettingsColumns() {
     }
 }
 
+.main-wrapper {
+    @include flexCenterAll;
+    flex-direction: column;
+    width: 100%;
+}
+
 .table-container {
     position: relative;
     @include flexCenterAll;
@@ -729,9 +729,9 @@ function toggleSettingsColumns() {
         margin-top: $size-1;
         padding-left: $size-1;
 
-        @include bp-xl-desktop {
+        @include bp-md-tablet {
             :deep(button) {
-                font-size: 0.9em;
+                font-size: 0.8em;
             }
         }
     }

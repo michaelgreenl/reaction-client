@@ -120,7 +120,6 @@ const handleRegister = async () => {
                     Contains a number
                 </li>
             </ul>
-
             <Button type="submit" text="Register" preset="secondary" :is-loading="isLoading" :disabled="isLoading" />
             <hr class="bottom-border" />
             <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
