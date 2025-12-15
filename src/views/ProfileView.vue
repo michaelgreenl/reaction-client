@@ -421,7 +421,10 @@ function toggleSettingsColumns() {
 </script>
 
 <template>
-    <div class="profile-container">
+    <div v-if="isLoading" class="loader loader-games">
+        <Loader text="Loading Games" />
+    </div>
+    <div v-else class="profile-container">
         <div class="user-stats psuedo-border" :class="`${headerShowSettings ? 'show-settings' : undefined}`">
             <div class="stat-wrapper">
                 <span class="label">High Score:</span>
@@ -441,10 +444,7 @@ function toggleSettingsColumns() {
                 <span class="stat">{{ authStore.userStats?.totalGames }}</span>
             </div>
         </div>
-        <div v-if="isLoading" class="loader loader-games">
-            <Loader text="Loading Games" />
-        </div>
-        <div v-else class="main-wrapper">
+        <div class="main-wrapper">
             <div class="table-container psuedo-border" :class="`${showSettings ? 'show-settings' : undefined}`">
                 <div class="table-header" :class="`${headerShowSettings ? 'show-settings' : undefined}`">
                     <div class="logo">
