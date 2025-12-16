@@ -82,17 +82,16 @@ const {
     growButtonDivAnim,
 } = useGameAnimations({ isXlDesktop, showRecentGames });
 
-onMounted(() => {
+onMounted(async () => {
     showButtonsAnim();
 
     if (authStore.isAuthenticated) {
+        if (!authStore.userStats) {
+            await authStore.initializeAuth();
+        }
+
         showRecentGamesAnim();
     }
-
-    window.addEventListener('resize', () => {
-        isMobile.value = window.innerWidth < 682;
-        isXlDesktop.value = window.innerWidth > 1600;
-    });
 
     isMounted.value = true;
 });
