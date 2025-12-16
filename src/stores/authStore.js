@@ -75,9 +75,19 @@ export const useAuthStore = defineStore('auth', () => {
     }
 
     async function logout() {
-        await apiFetch('/users/logout', { method: 'POST' });
-        localStorage.setItem('AUTHORIZED', false);
-        router.push('/login');
+        try {
+            await apiFetch('/users/logout', { method: 'POST' });
+        } catch (error) {
+            console.error('Logout failed:', error);
+        } finally {
+            localStorage.setItem('AUTHORIZED', false);
+            user.value = null;
+            userStats.value = null;
+            userGames.value = [];
+            recentUserGames.value = [];
+            gameActive.value = false;
+            router.push({ name: 'Login' });
+        }
     }
 
     async function getStats() {
