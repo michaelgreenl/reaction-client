@@ -158,7 +158,6 @@ export function useProfileAnimations({ visibleFilterInputs, showSettings, isMobi
             opacity: !isMobile.value ? 0 : 1,
             stagger: 0.1,
             onComplete: async () => {
-                // showSettings is toggled
                 onComplete();
                 await nextTick();
 
