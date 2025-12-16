@@ -125,6 +125,10 @@ const {
 });
 
 onMounted(async () => {
+    if (!authStore.userStats) {
+        await authStore.initializeAuth();
+    }
+
     await getUnfilteredGames().then(async () => {
         isLoading.value = false;
         loadingGames.value = false;
