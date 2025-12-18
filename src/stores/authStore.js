@@ -17,14 +17,14 @@ export const useAuthStore = defineStore('auth', () => {
 
     async function initializeAuth() {
         try {
-            const data = await apiFetch('/users/check-auth', {
+            const userData = await apiFetch('/users/check-auth', {
                 method: 'GET',
             });
 
-            if (data.success) {
-                user.value = { id: data.id, username: data.username };
-                userStats.value = data.stats;
-                settingsStore.$patch({ ...data.settings });
+            if (userData.success) {
+                user.value = { id: userData.id, username: userData.username };
+                userStats.value = userData.stats;
+                settingsStore.$patch({ ...userData.settings });
 
                 if (!recentUserGames.value.length) {
                     const games = await getGames(5, 0, { by: 'createdAt', order: 'DESC' });
@@ -59,12 +59,12 @@ export const useAuthStore = defineStore('auth', () => {
 
     async function login(username, password) {
         try {
-            const data = await apiFetch('/users/login', {
+            const userData = await apiFetch('/users/login', {
                 method: 'POST',
                 body: { username, password },
             });
 
-            user.value = { id: data.id, username: data.username };
+            user.value = { id: userData.id, username: userData.username };
             localStorage.setItem('AUTHORIZED', true);
 
             return true;
