@@ -31,14 +31,22 @@ export function useProfileAnimations({ visibleFilterInputs, showSettings, isMobi
         );
     });
 
-    const enterFilterInputAnim = registerAnim(({ key, tl, delay, onComplete }) => {
+    const getSeperator = (offset) => {
         let seperatorSelector;
+
+        // These conditional checks are necessary since seperators on mobile are different than on desktop
         if (isMobile.value) {
-            seperatorSelector = `.seperator-${visibleFilterInputs.value.length - 1}`;
+            seperatorSelector = `.seperator-${visibleFilterInputs.value.length - offset}`;
         } else {
             seperatorSelector =
                 visibleFilterInputs.value.length === 1 ? null : `.seperator-${visibleFilterInputs.value.length - 2}`;
         }
+
+        return seperatorSelector;
+    };
+
+    const enterFilterInputAnim = registerAnim(({ key, tl, delay, onComplete }) => {
+        const seperatorSelector = getSeperator(1);
 
         if (!seperatorSelector) {
             tl.to(`.form-group-${key}`, { duration: 0.3, ease: 'power3.out', opacity: 1, delay, onComplete });
@@ -52,13 +60,7 @@ export function useProfileAnimations({ visibleFilterInputs, showSettings, isMobi
     });
 
     const exitFilterInputAnim = registerAnim(({ key, tl, onComplete }) => {
-        let seperatorSelector;
-        if (isMobile.value) {
-            seperatorSelector = `.seperator-${visibleFilterInputs.value.length - 2}`;
-        } else {
-            seperatorSelector =
-                visibleFilterInputs.value.length === 1 ? null : `.seperator-${visibleFilterInputs.value.length - 2}`;
-        }
+        const seperatorSelector = getSeperator(2);
 
         if (!seperatorSelector) {
             tl.to(`.form-group-${key}`, { duration: 0.3, ease: 'power3.out', opacity: 0, onComplete });
@@ -158,7 +160,7 @@ export function useProfileAnimations({ visibleFilterInputs, showSettings, isMobi
             opacity: !isMobile.value ? 0 : 1,
             stagger: 0.1,
             onComplete: async () => {
-                // showSettings is toggled
+                // showSettings is toggled here
                 onComplete();
                 await nextTick();
 

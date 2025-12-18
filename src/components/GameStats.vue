@@ -7,6 +7,7 @@ defineProps({
     adjustTimeSize: { type: Boolean, default: false },
 });
 
+// Hacky solution for preventing the changing time value from changing width of parent element
 function timeValueSize(timeMs) {
     const seconds = timeMs / 1000;
 

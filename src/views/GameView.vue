@@ -187,6 +187,11 @@ async function toggleSettings() {
                 setSettings(true, { tl });
             };
 
+            /*
+             * Handling UI collsions and responsive DOM state
+             *  - on mobile, the recent games elemnt is hiden
+             *  - on lg desktop's, the recent games element isn't changed
+             */
             if (!isMobile.value && !isLgDesktop.value) {
                 closeRecentGamesAnim({ onStart: toggleValues });
             } else if (isMobile.value) {
@@ -232,6 +237,7 @@ async function toggleRecentGames() {
         openRecentGamesAnim();
     };
 
+    // TODO: Add comments
     if (showSettings.value && !showRecentGames.value && !isLgDesktop.value) {
         settingsRef.value?.closeSettings();
         shrinkButtonDivAnim();

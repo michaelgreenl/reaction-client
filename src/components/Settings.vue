@@ -85,6 +85,7 @@ function closeSettings() {
     closeSettingsAnim();
     emit('closeSettings');
 
+    // Closing circle since going going back to end-screen (where the circle doesn't show)
     if (props.gamePlayed) {
         settingsCircleRef.value.closeCircle();
     }
@@ -105,6 +106,7 @@ async function openSettingsAnim({ tl = gsap.timeline() } = {}) {
         0,
     ).to('.form-header, .form-hr, .form-group', { duration: 0.1, ease: 'circ', stagger: 0, opacity: 1 }, 0.1);
 
+    // Opening circle since coming from end-screen (where the circle doesn't show)
     if (props.gamePlayed) {
         await nextTick();
         settingsCircleRef.value.openCircle();

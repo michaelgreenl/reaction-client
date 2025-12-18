@@ -15,14 +15,11 @@ watch(
     () => authStore.gameActive,
     (newVal) => {
         if (isMobile.value) {
-            const targets = `.nav-link, ${isSmPhone.value ? '.nav-logo' : undefined}`;
-            const opts = {
+            gsap.to(`.nav-link, ${isSmPhone.value ? '.nav-logo' : undefined}`, {
                 duration: 0.2,
                 ease: 'linear',
                 opacity: newVal ? 0 : 1,
-            };
-
-            gsap.to(targets, opts);
+            });
         }
     },
 );
