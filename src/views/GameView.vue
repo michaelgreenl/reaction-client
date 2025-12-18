@@ -84,8 +84,7 @@ const {
 
 onMounted(async () => {
     showButtonsAnim();
-
-    if (!authStore.userStats) {
+    if (!authStore.initLoading && !authStore.recentUserGames.length) {
         await authStore.initializeAuth();
     }
 
@@ -189,7 +188,7 @@ async function toggleSettings() {
 
             /*
              * Handling UI collsions and responsive DOM state
-             *  - on mobile, the recent games elemnt is hiden
+             *  - on mobile, the recent games element needs to be hidden
              *  - on lg desktop's, the recent games element isn't changed
              */
             if (!isMobile.value && !isLgDesktop.value) {
@@ -237,7 +236,6 @@ async function toggleRecentGames() {
         openRecentGamesAnim();
     };
 
-    // TODO: Add comments
     if (showSettings.value && !showRecentGames.value && !isLgDesktop.value) {
         settingsRef.value?.closeSettings();
         shrinkButtonDivAnim();

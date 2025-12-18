@@ -125,7 +125,7 @@ const {
 });
 
 onMounted(async () => {
-    if (!authStore.userStats) {
+    if (!authStore.initLoading && !authStore.userStats) {
         await authStore.initializeAuth();
     }
 
