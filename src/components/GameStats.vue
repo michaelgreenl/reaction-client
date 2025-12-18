@@ -1,5 +1,5 @@
 <script setup>
-import { formatTime } from '@/util/time.js';
+import { formatTime } from '@/utils/time.js';
 
 defineProps({
     score: { type: Number, required: true },

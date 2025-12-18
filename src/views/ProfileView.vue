@@ -5,7 +5,7 @@ import { useSettingsStore } from '@/stores/settingsStore.js';
 import { useBreakpoints } from '@/composables/useBreakpoints.js';
 import { useProfileAnimations } from '@/composables/animations/useProfileAnimations.js';
 import { useUtilAnimations } from '@/composables/animations/useUtilAnimations.js';
-import { formatDate, formatTime } from '@/util/time.js';
+import { formatDate, formatTime } from '@/utils/time.js';
 import { gsap } from 'gsap';
 import Flip from 'gsap/Flip';
 import Button from '@/components/Button.vue';

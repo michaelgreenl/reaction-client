@@ -1,6 +1,6 @@
 <script setup>
 import { computed } from 'vue';
-import { formatDate, formatTime } from '@/util/time.js';
+import { formatDate, formatTime } from '@/utils/time.js';
 import Button from '@/components/Button.vue';
 import Loader from '@/components/Loader.vue';
 import ChangingSpan from '@/components/ChangingSpan.vue';
