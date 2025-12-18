@@ -1,48 +1,65 @@
 import { onUnmounted } from 'vue';
 import { gsap } from 'gsap';
 import { useGsap } from '@/composables/useGsap.js';
+import { useAuthStore } from '@/stores/authStore.js';
 
 export function useGameAnimations({ isXlDesktop, showRecentGames }) {
     const { registerAnim } = useGsap();
+    const authStore = useAuthStore();
 
     const openRecentGamesAnim = registerAnim(({ tl }) => {
-        tl.to('.recent-games', { duration: 0.3, ease: 'expo', width: 'auto', height: 'auto', opacity: 1, x: 0 }).to(
-            '.recent-games-list',
-            { duration: 0.3, ease: 'power3.out', opacity: 1 },
-            0.1,
-        );
+        if (authStore.isAuthenticated) {
+            tl.to('.recent-games', { duration: 0.3, ease: 'expo', width: 'auto', height: 'auto', opacity: 1, x: 0 }).to(
+                '.recent-games-list',
+                { duration: 0.3, ease: 'power3.out', opacity: 1 },
+                0.1,
+            );
+        }
     });
 
     const hideRecentGamesAnim = registerAnim(({ tl, onComplete }) => {
-        if (showRecentGames.value) {
-            tl.to('.recent-games-list', { duration: 0.2, ease: 'expo', opacity: 0, onComplete }).to(
-                '.recent-games',
-                { duration: 0.2, ease: 'expo', width: '11.5em', height: '3.25em', opacity: 0, x: -250 },
-                0.1,
-            );
-        } else {
-            tl.to('.recent-games', {
-                duration: 0.2,
-                ease: 'expo',
-                width: '11em',
-                height: '3em',
-                opacity: 0,
-                x: -250,
-                onComplete,
-            });
+        if (authStore.isAuthenticated) {
+            if (showRecentGames.value) {
+                tl.to('.recent-games-list', { duration: 0.2, ease: 'expo', opacity: 0, onComplete }).to(
+                    '.recent-games',
+                    { duration: 0.2, ease: 'expo', width: '11.5em', height: '3.25em', opacity: 0, x: -250 },
+                    0.1,
+                );
+            } else {
+                tl.to('.recent-games', {
+                    duration: 0.2,
+                    ease: 'expo',
+                    width: '11em',
+                    height: '3em',
+                    opacity: 0,
+                    x: -250,
+                    onComplete,
+                });
+            }
         }
     });
 
     const closeRecentGamesAnim = registerAnim(({ tl, onStart }) => {
-        tl.to('.recent-games-list', { duration: 0.2, ease: 'expo', opacity: 0 }).to(
-            '.recent-games',
-            { duration: 0.2, ease: 'expo', width: '11.5em', height: '3.25em', opacity: 1, x: 0, onStart },
-            0.1,
-        );
+        if (authStore.isAuthenticated) {
+            tl.to('.recent-games-list', { duration: 0.2, ease: 'expo', opacity: 0 }).to(
+                '.recent-games',
+                { duration: 0.2, ease: 'expo', width: '11.5em', height: '3.25em', opacity: 1, x: 0, onStart },
+                0.1,
+            );
+        }
     });
 
     const showRecentGamesAnim = registerAnim(({ tl }) => {
-        tl.to('.recent-games', { duration: 0.2, ease: 'expo', width: '11.5em', height: '3.25em', opacity: 1, x: 0 });
+        if (authStore.isAuthenticated) {
+            tl.to('.recent-games', {
+                duration: 0.2,
+                ease: 'expo',
+                width: '11.5em',
+                height: '3.25em',
+                opacity: 1,
+                x: 0,
+            });
+        }
     });
 
     const enterButtonAnim = registerAnim(({ tl }) => {

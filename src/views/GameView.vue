@@ -5,7 +5,7 @@ import { useSettingsStore } from '@/stores/settingsStore.js';
 import { useBreakpoints } from '@/composables/useBreakpoints.js';
 import { useGameAnimations } from '@/composables/animations/useGameAnimations.js';
 import { useUtilAnimations } from '@/composables/animations/useUtilAnimations.js';
-import { getTimePassed } from '@/util/time.js';
+import { getTimePassed } from '@/utils/time.js';
 import { gsap } from 'gsap';
 import Settings from '@/components/Settings.vue';
 import Canvas from '@/components/Canvas.vue';
@@ -85,13 +85,11 @@ const {
 onMounted(async () => {
     showButtonsAnim();
 
-    if (authStore.isAuthenticated) {
-        if (!authStore.userStats) {
-            await authStore.initializeAuth();
-        }
-
-        showRecentGamesAnim();
+    if (!authStore.userStats) {
+        await authStore.initializeAuth();
     }
+
+    showRecentGamesAnim();
 
     isMounted.value = true;
 });
@@ -124,9 +122,7 @@ async function startGame() {
         settingsRef.value?.closeSettingsAnim({ tl });
     }
 
-    if (authStore.isAuthenticated) {
-        hideRecentGamesAnim({ tl });
-    }
+    hideRecentGamesAnim({ tl });
 
     const onComplete = async () => {
         elapsedMs.value = 0;
@@ -158,10 +154,7 @@ async function handleEndGame() {
     gameActive.value = false;
     await nextTick();
 
-    if (authStore.isAuthenticated) {
-        showRecentGamesAnim();
-    }
-
+    showRecentGamesAnim();
     showEndScreenAnim();
     showButtonsAnim();
 
@@ -204,11 +197,11 @@ async function toggleSettings() {
         } else if (!showSettings.value && !showRecentGames.value) {
             setSettings(true, { tl });
 
-            if (isMobile.value && authStore.isAuthenticated) {
+            if (isMobile.value) {
                 hideRecentGamesAnim();
             }
         } else {
-            if (isMobile.value && authStore.isAuthenticated) {
+            if (isMobile.value) {
                 showRecentGamesAnim();
             }
 
