@@ -559,7 +559,7 @@ function toggleSettingsColumns() {
                     :sorted="activeGames.sorted"
                     :page="activePage"
                     :disable-prev="offset === 0"
-                    :disable-next="activeGames.games.length < 10"
+                    :disable-next="activeGames.games.length <= 10"
                     @sort="handleSort"
                     @prev-page="switchPage(offset - 10, activePage - 1)"
                     @next-page="switchPage(offset + 10, activePage + 1)"
