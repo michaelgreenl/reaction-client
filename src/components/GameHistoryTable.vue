@@ -60,6 +60,7 @@ function formatFloat(float) {
                         preset="primary-alt"
                         :text="getSortLabel('score', 'Score')"
                         :disabled="loading"
+                        :aria-label="`Sort by Score`"
                         animate-span
                         @click="$emit('sort', 'score')"
                     />
@@ -81,6 +82,7 @@ function formatFloat(float) {
                         preset="primary-alt"
                         :text="getSortLabel('time', 'Time')"
                         :disabled="loading"
+                        :aria-label="`Sort by Time`"
                         animate-span
                         @click="$emit('sort', 'time')"
                     />
@@ -130,6 +132,7 @@ function formatFloat(float) {
                         preset="primary-alt"
                         :text="getSortLabel('createdAt', 'Date')"
                         :disabled="loading"
+                        :aria-label="`Sort by Date`"
                         animate-span
                         @click="$emit('sort', 'createdAt')"
                     />

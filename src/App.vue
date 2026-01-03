@@ -116,7 +116,8 @@ button {
 }
 
 button:focus-visible {
-    outline: none;
+    outline: 2px solid $color-accent;
+    outline-offset: 2px;
 }
 
 a {

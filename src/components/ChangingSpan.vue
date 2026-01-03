@@ -96,8 +96,8 @@ const onLeave = (el, done) => {
 
 <template>
     <template v-if="!simple">
-        <span class="changing-span-wrapper">
-            <TransitionGroup tag="span" :css="false" @enter="onEnter" @leave="onLeave">
+        <span class="changing-span-wrapper" :aria-label="text" role="text">
+            <TransitionGroup tag="span" :css="false" aria-hidden="true" @enter="onEnter" @leave="onLeave">
                 <span v-for="item in items" :key="item.id" class="char-item">
                     {{ item.char }}
                 </span>

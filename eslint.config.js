@@ -5,6 +5,7 @@ import pluginVue from 'eslint-plugin-vue';
 import pluginVitest from '@vitest/eslint-plugin';
 import pluginPlaywright from 'eslint-plugin-playwright';
 import skipFormatting from '@vue/eslint-config-prettier/skip-formatting';
+import pluginVueA11y from 'eslint-plugin-vuejs-accessibility';
 
 export default defineConfig([
     {
@@ -41,6 +42,10 @@ export default defineConfig([
     {
         ...pluginPlaywright.configs['flat/recommended'],
         files: ['e2e/**/*.{test,spec}.{js,ts,jsx,tsx}'],
+    },
+    {
+        ...pluginVueA11y.configs['flat/recommended'][0],
+        files: ['**/*.vue'],
     },
     skipFormatting,
 ]);

@@ -16,7 +16,7 @@ defineEmits(['click']);
 </script>
 
 <template>
-    <button :class="preset" @click="$emit('click')">
+    <button :class="preset" :aria-label="text" @click="$emit('click')">
         <component :is="iconLeft" class="icon icon-left" />
         <span v-if="showText && !isLoading && !animateSpan">{{ text }}</span>
         <ChangingSpan v-if="showText && !isLoading && animateSpan" :text="text" />
