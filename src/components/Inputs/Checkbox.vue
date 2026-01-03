@@ -37,14 +37,14 @@ input[type='checkbox'] {
     }
 
     &::before {
-        content: '✓';
-        color: white;
-        text-align: center;
         width: 1.2em;
         height: 1.2em;
+        margin: 0;
+        color: white;
+        text-align: center;
+        content: '✓';
         background-color: $color-primary-light;
         border-radius: 5px;
-        margin: 0;
         opacity: 0;
     }
 

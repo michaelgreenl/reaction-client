@@ -193,16 +193,17 @@ defineExpose({ saveSettings, resetLocalSettings, settingsChanged, isLoading, clo
 <style lang="scss" scoped>
 .settings-container {
     @include flexCenterAll;
+
     flex-direction: column;
 }
 
 .form-circle {
     position: relative;
     display: flex;
-    align-items: center;
     flex-direction: column-reverse;
-    font-size: 0.95em;
+    align-items: center;
     margin-bottom: $size-4;
+    font-size: 0.95em;
 
     @include bp-sm-phone {
         flex-direction: row;
@@ -211,11 +212,11 @@ defineExpose({ saveSettings, resetLocalSettings, settingsChanged, isLoading, clo
 
 .form-container {
     width: 22em;
-    overflow: hidden;
-    height: 0;
     width: 0;
-    opacity: 0;
+    height: 0;
     padding: $size-4 $size-6 $size-3;
+    overflow: hidden;
+    opacity: 0;
 }
 
 .form-header {
@@ -228,8 +229,8 @@ defineExpose({ saveSettings, resetLocalSettings, settingsChanged, isLoading, clo
     opacity: 0;
 
     h2 {
-        font-size: 1.4em;
         margin: 0;
+        font-size: 1.4em;
         color: $color-accent;
     }
 
@@ -239,8 +240,8 @@ defineExpose({ saveSettings, resetLocalSettings, settingsChanged, isLoading, clo
         }
 
         :deep(.icon) {
-            height: 0.9em;
             width: 0.9em;
+            height: 0.9em;
             stroke: $color-accent;
 
             path {
@@ -257,10 +258,10 @@ defineExpose({ saveSettings, resetLocalSettings, settingsChanged, isLoading, clo
 .form-hr {
     position: relative;
     z-index: 2;
-    border: 0;
     height: 1px;
-    background-color: $color-primary-light;
     margin: $size-2 0;
+    background-color: $color-primary-light;
+    border: 0;
     opacity: 0;
 }
 
@@ -268,11 +269,11 @@ defineExpose({ saveSettings, resetLocalSettings, settingsChanged, isLoading, clo
     position: relative;
     z-index: 2;
     display: flex;
-    justify-content: space-between;
     align-items: center;
+    justify-content: space-between;
     padding: $size-1;
-    transition: opacity 0.3s ease;
     opacity: 0;
+    transition: opacity 0.3s ease;
 
     label {
         font-size: 0.9em;

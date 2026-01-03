@@ -53,35 +53,36 @@ watch(
 
 <style lang="scss" scoped>
 .nav {
-    font-family: $primary-font-stack;
     display: flex;
     align-items: center;
     justify-content: space-between;
     height: 3.2em;
-    padding-left: $size-3;
     padding-right: $size-4;
+    padding-left: $size-3;
+    font-family: $primary-font-stack;
 
     @include bp-sm-phone {
-        padding-left: $size-4;
         padding-right: $size-5;
+        padding-left: $size-4;
     }
 }
 
 .nav-logo {
     @include flexCenterAll;
+
     transition: transform 0.2s ease;
 
     svg {
-        height: $size-8;
         width: $size-8;
+        height: $size-8;
     }
 
     h2 {
-        color: $color-gray1;
+        margin: 0;
         font-style: italic;
         font-weight: 300;
-        margin: 0;
-        text-shadow: 1px 1px 2px #00000033;
+        color: $color-gray1;
+        text-shadow: 1px 1px 2px #0003;
     }
 
     a {
@@ -95,25 +96,25 @@ watch(
 
 .nav-link {
     position: relative;
-    font-size: 0.9em;
+    padding: 0;
     font-family: $primary-font-stack;
-    color: $color-gray1;
+    font-size: 0.9em;
     font-weight: 300;
+    color: $color-gray1;
     background: transparent;
     border: 0;
-    padding: 0;
     opacity: 1;
 
     &::after {
-        content: '';
         position: absolute;
+        right: 110%;
         bottom: -5px;
         left: -10%;
-        right: 110%;
         height: 2px;
+        content: '';
         background: $color-bg-secondary;
-        transition: all 0.2s ease;
         border-radius: 2px;
+        transition: all 0.2s ease;
     }
 
     &:hover {

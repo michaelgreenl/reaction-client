@@ -36,13 +36,13 @@ defineEmits(['toggleHideButton', 'update:modelValue', 'focus', 'blur']);
 <style lang="scss" scoped>
 input[type='text'],
 input[type='password'] {
-    border-radius: $border-radius-sm;
-    padding: $size-2;
-    outline: 0;
-    border: 2px solid $color-primary-light;
-    background-color: $color-bg-secondary;
-    color: $color-text-secondary-dark;
     width: 100%;
+    padding: $size-2;
+    color: $color-text-secondary-dark;
+    background-color: $color-bg-secondary;
+    border: 2px solid $color-primary-light;
+    border-radius: $border-radius-sm;
+    outline: 0;
 
     &:focus {
         border-color: $color-accent;
@@ -50,14 +50,14 @@ input[type='password'] {
 }
 
 .toggle-password {
-    font-size: 0.8em;
     position: absolute;
-    right: 8px;
     top: 50%;
-    transform: translateY(-50%);
+    right: 8px;
+    font-size: 0.8em;
+    color: $color-accent-light;
     background: none;
     border: none;
-    color: $color-accent-light;
+    transform: translateY(-50%);
 
     &:hover {
         color: $color-accent;

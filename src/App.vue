@@ -62,47 +62,48 @@ body,
 
 .loader {
     @include flexCenterAll;
-    color: $color-bg-secondary;
+
     height: 85vh;
+    color: $color-bg-secondary;
 }
 
 .psuedo-border {
     position: relative;
     z-index: 2;
     background: $color-bg-secondary;
+    border: solid 1px transparent;
     border-radius: $border-radius-lg;
     box-shadow: $box-shadow;
-    border: solid 1px transparent;
 
     &::before {
-        content: '';
         position: absolute;
-        z-index: 1;
         top: 2px;
         right: 2px;
         bottom: 2px;
         left: 2px;
-        border-radius: $border-radius-md;
+        z-index: 1;
+        content: '';
         background: $color-bg-primary-alt;
+        border-radius: $border-radius-md;
     }
 
     &::after {
-        content: '';
         position: absolute;
-        z-index: 1;
         top: 4px;
         right: 4px;
         bottom: 4px;
         left: 4px;
-        border-radius: $border-radius-sm;
+        z-index: 1;
+        content: '';
         background: $color-bg-secondary;
+        border-radius: $border-radius-sm;
     }
 }
 
 main {
-    min-height: $height-minus-nav;
     display: flex;
     justify-content: center;
+    min-height: $height-minus-nav;
 }
 
 h1,

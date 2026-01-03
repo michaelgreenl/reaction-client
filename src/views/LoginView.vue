@@ -80,10 +80,10 @@ const handleLogin = async () => {
 
 <style lang="scss" scoped>
 .auth-container {
-    font-size: 0.8em;
-    @include flexCenterAll;
     width: 100%;
     padding: 0 $size-4 $size-12;
+    font-size: 0.8em;
+    @include flexCenterAll;
 }
 
 .auth-form {
@@ -91,9 +91,9 @@ const handleLogin = async () => {
     display: flex;
     flex-direction: column;
     gap: $size-1;
-    padding: $size-6 $size-7 0;
     width: 90%;
     max-width: 30em;
+    padding: $size-6 $size-7 0;
 }
 
 .auth-header {
@@ -103,34 +103,34 @@ const handleLogin = async () => {
     @include flexCenterAll;
 
     svg {
-        height: $size-9;
         width: $size-9;
+        height: $size-9;
     }
 
     h2 {
+        margin: 0;
         font-size: 2.2em;
         color: $color-accent;
-        margin: 0;
     }
 }
 
 .header-border {
     position: relative;
     z-index: 2;
-    border: 0;
     height: 2px;
-    background-color: $color-primary-light;
     margin: 0 0 $size-1;
+    background-color: $color-primary-light;
+    border: 0;
 }
 
 .bottom-border {
     position: relative;
     z-index: 2;
-    border: 0;
-    height: 1px;
     width: 90%;
-    background-color: $color-gray4;
+    height: 1px;
     margin: $size-2 auto 0;
+    background-color: $color-gray4;
+    border: 0;
 }
 
 .form-groups {
@@ -171,28 +171,28 @@ button[type='submit'] {
     margin-right: $size-4;
 
     :deep(span) {
-        text-shadow: none;
         color: $color-white;
+        text-shadow: none;
     }
 }
 
 .error-message {
     position: relative;
     z-index: 2;
+    margin-top: $size-1;
     font-family: $secondary-font-stack;
     color: $color-error;
     text-align: center;
-    margin-top: $size-1;
 }
 
 .form-link {
     position: relative;
     z-index: 2;
-    font-size: 0.9em;
-    font-family: $secondary-font-stack;
-    text-align: center;
     margin-top: $size-2;
+    font-family: $secondary-font-stack;
+    font-size: 0.9em;
     color: $color-text-secondary-dark;
+    text-align: center;
 
     a {
         color: $color-primary;

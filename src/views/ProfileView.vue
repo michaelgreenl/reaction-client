@@ -5,7 +5,7 @@ import { useSettingsStore } from '@/stores/settingsStore.js';
 import { useBreakpoints } from '@/composables/useBreakpoints.js';
 import { useProfileAnimations } from '@/composables/animations/useProfileAnimations.js';
 import { useUtilAnimations } from '@/composables/animations/useUtilAnimations.js';
-import { formatDate, formatTime } from '@/utils/time.js';
+import { formatTime } from '@/utils/time.js';
 import { gsap } from 'gsap';
 import Flip from 'gsap/Flip';
 import Button from '@/components/Button.vue';
@@ -20,7 +20,7 @@ gsap.registerPlugin(Flip);
 
 const isMounted = ref(false);
 
-const { isMobile, isLgDesktop, isXlDesktop } = useBreakpoints();
+const { isMobile } = useBreakpoints();
 
 const authStore = useAuthStore();
 const settingsStore = useSettingsStore();
@@ -235,7 +235,6 @@ async function switchPage(newOffset, pageNum) {
 
 async function addAllFilters() {
     const state = Flip.getState('.filters, .filter-form-group, .filter-form-buttons, .filter-form-seperator');
-    const tl = gsap.timeline();
 
     showFilterInputs.value = true;
 
@@ -496,9 +495,9 @@ function toggleSettingsColumns() {
                 </div>
                 <hr class="header-border" />
                 <div
+                    v-if="showFilterInputs"
                     class="filters"
                     :class="`${headerShowSettings ? 'show-settings' : undefined}`"
-                    v-if="showFilterInputs"
                 >
                     <form v-if="filtersAdded" @submit.prevent="saveSettingFilters">
                         <div class="form-groups">
@@ -573,20 +572,20 @@ function toggleSettingsColumns() {
 .profile-container {
     position: relative;
     display: flex;
+    flex-direction: column;
+    gap: 0.5em;
     align-items: center;
     justify-content: center;
-    gap: 0.5em;
-    flex-direction: column;
     padding-left: calc(100vw - 100%); // prevent's layout shift when the page become's scrollable
 }
 
 .user-stats {
     position: relative;
-    @include flexCenterAll;
-    gap: $size-1;
     flex-direction: column;
-    padding: $size-3 $size-4;
+    gap: $size-1;
     width: 19em;
+    padding: $size-3 $size-4;
+    @include flexCenterAll;
 
     @include bp-custom-min(450) {
         width: 22em;
@@ -594,9 +593,9 @@ function toggleSettingsColumns() {
 
     @include bp-sm-phone {
         &.show-settings {
-            width: 33.25em;
             flex-direction: row;
             gap: $size-3;
+            width: 33.25em;
 
             .seperator {
                 display: block;
@@ -629,47 +628,48 @@ function toggleSettingsColumns() {
         position: relative;
         z-index: 2;
         display: flex;
-        justify-content: space-between;
         gap: $size-1;
+        justify-content: space-between;
         width: 100%;
 
         span {
             font-size: 0.95em !important;
-            color: $color-text-secondary-dark;
             line-height: 1.6ch;
+            color: $color-text-secondary-dark;
             white-space: nowrap;
 
             &.label {
-                color: $color-accent;
                 line-height: 1.6ch;
+                color: $color-accent;
             }
         }
 
         hr {
-            transform: scaleX(1);
-            border: 0;
-            border-bottom: dotted 2px $color-gray4;
             flex: 1;
             align-self: flex-end;
             margin: 0 0 $size-1;
+            border: 0;
+            border-bottom: dotted 2px $color-gray4;
+            transform: scaleX(1);
         }
     }
 }
 
 .main-wrapper {
     @include flexCenterAll;
+
     flex-direction: column;
     width: 100%;
 }
 
 .table-container {
     position: relative;
-    @include flexCenterAll;
     flex-direction: column;
-    padding: $size-4 $size-6;
-    border: solid 1px $color-gray3;
     max-width: 19em !important;
+    padding: $size-4 $size-6;
     margin-bottom: $size-4;
+    border: solid 1px $color-gray3;
+    @include flexCenterAll;
 
     @include bp-custom-min(450) {
         max-width: 22em !important;
@@ -686,12 +686,12 @@ function toggleSettingsColumns() {
 .header-border {
     position: relative;
     z-index: 2;
-    border: 0;
+    width: 100%;
     min-height: 1px;
     max-height: 1px;
-    background-color: $color-primary-light;
     margin: 0;
-    width: 100%;
+    background-color: $color-primary-light;
+    border: 0;
 }
 
 .table-header {
@@ -699,9 +699,9 @@ function toggleSettingsColumns() {
     z-index: 3;
     display: flex;
     flex-wrap: wrap;
-    padding: $size-1 $size-1 $size-3;
     justify-content: center;
     width: 18em;
+    padding: $size-1 $size-1 $size-3;
 
     @include bp-sm-phone {
         &.show-settings {
@@ -715,23 +715,23 @@ function toggleSettingsColumns() {
         @include flexCenterAll;
 
         svg {
-            height: 1.7em;
             width: 1.7em;
+            height: 1.7em;
         }
 
         h1 {
+            margin: 0;
             margin-left: -2px;
             font-size: 1.5em;
             color: $color-accent;
-            margin: 0;
             white-space: nowrap;
         }
     }
 
     .toggle-buttons {
         display: flex;
-        margin-top: $size-1;
         padding-left: $size-1;
+        margin-top: $size-1;
 
         @include bp-md-tablet {
             :deep(button) {
@@ -743,19 +743,19 @@ function toggleSettingsColumns() {
 
 .filter-toggles {
     position: absolute;
+    top: 3.5em;
+    right: 0;
     z-index: 2;
     display: flex;
     flex-direction: column;
     gap: $size-1;
-    margin: $size-1 $size-2;
+    width: fit-content;
+    width: 0;
+    height: 0;
     padding: 0.5em;
     padding-right: $size-3;
-    width: fit-content;
-    top: 3.5em;
-    right: 0;
+    margin: $size-1 $size-2;
     overflow: hidden;
-    height: 0;
-    width: 0;
 
     @include bp-xs-phone {
         right: $size-4;
@@ -772,8 +772,8 @@ function toggleSettingsColumns() {
         position: relative;
         z-index: 2;
         display: flex;
-        align-items: center;
         gap: $size-1;
+        align-items: center;
         margin: 0 $size-1;
         opacity: 0;
 
@@ -796,9 +796,9 @@ function toggleSettingsColumns() {
         position: relative;
         z-index: 2;
         align-self: flex-end;
-        font-size: 0.75em;
         padding-right: 0;
         margin: 0 $size-1;
+        font-size: 0.75em;
         opacity: 0;
     }
 }
@@ -806,9 +806,9 @@ function toggleSettingsColumns() {
 .filters {
     position: relative;
     z-index: 2;
-    font-size: 0.7em;
     width: 25em;
     height: 0;
+    font-size: 0.7em;
 
     @include bp-sm-phone {
         .seperator {
@@ -819,8 +819,8 @@ function toggleSettingsColumns() {
             width: 49em;
 
             .form-groups {
-                width: fit-content;
                 flex-wrap: nowrap;
+                width: fit-content;
             }
 
             .seperator {
@@ -841,8 +841,8 @@ function toggleSettingsColumns() {
     form {
         display: flex;
         flex-wrap: wrap;
-        justify-content: space-between;
         align-items: center;
+        justify-content: space-between;
         width: 100%;
         padding: $size-1 $size-4;
 
@@ -854,27 +854,28 @@ function toggleSettingsColumns() {
 
         .form-groups {
             @include flexCenterAll;
-            align-self: flex-start;
+
             flex-wrap: wrap;
+            align-self: flex-start;
             width: 100%;
             padding: $size-2;
             margin: 0 auto;
 
             .seperator {
+                margin: 0 $size-4;
                 font-size: 0.5em;
                 color: $color-gray3 !important;
-                margin: 0 $size-4;
-                transform: scale(0);
                 opacity: 0;
+                transform: scale(0);
             }
 
             .form-group {
                 position: relative;
                 display: flex;
-                align-items: center;
-                width: 200%;
-                justify-content: space-between;
                 gap: $size-2;
+                align-items: center;
+                justify-content: space-between;
+                width: 200%;
                 opacity: 0;
 
                 label {
@@ -901,6 +902,7 @@ function toggleSettingsColumns() {
 
         .filter-form-buttons {
             @include flexCenterAll;
+
             margin-left: auto;
 
             :deep(button) {

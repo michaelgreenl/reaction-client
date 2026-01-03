@@ -74,38 +74,38 @@ function getCircleSizePercent() {
 <style lang="scss" scoped>
 input[type='range'] {
     position: relative;
-    appearance: none;
-    font-size: 1em;
-    height: 0.5em;
     width: 50%;
+    height: 0.5em;
     margin: 0.5em 0;
+    font-size: 1em;
     background: $color-gray3;
     border-radius: 10px;
+    appearance: none;
 
     &::-webkit-slider-thumb {
-        appearance: none;
         position: relative;
-        cursor: grab;
-        height: 1em;
+        z-index: 2;
         width: 1em;
+        height: 1em;
+        cursor: grab;
         background: $color-accent;
         border-radius: 50%;
-        z-index: 2;
         transition: all 75ms ease;
+        appearance: none;
 
         &:active {
-            cursor: grabbing;
-            height: 0.5em;
             width: 0.5em;
+            height: 0.5em;
+            cursor: grabbing;
         }
     }
 
     &:active {
         &::-webkit-slider-thumb {
-            transition: all 75ms ease;
-            cursor: grabbing;
-            height: 0.5em;
             width: 0.5em;
+            height: 0.5em;
+            cursor: grabbing;
+            transition: all 75ms ease;
         }
     }
 }

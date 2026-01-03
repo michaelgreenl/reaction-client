@@ -131,56 +131,56 @@ function exitHudAnim({ tl = gsap.timeline() } = {}) {
 <style lang="scss" scoped>
 .game-container {
     position: relative;
-    height: 100%;
     width: 100%;
+    height: 100%;
 }
 
 .hud {
     position: absolute;
     top: $size-1;
-    left: 0;
-    right: 0;
     top: -2.8em;
-    margin: 0 auto;
-    width: fit-content;
+    right: 0;
+    left: 0;
     display: flex;
+    gap: $size-2;
     align-items: center;
     justify-content: space-around;
-    background: $color-bg-secondary;
+    width: fit-content;
     padding: $size-2 $size-4 $size-2 $size-4;
-    border-radius: $border-radius-sm;
-    gap: $size-2;
+    margin: 0 auto;
+    overflow: hidden;
+    background: $color-bg-secondary;
     border: solid 1px $color-gray3;
+    border-radius: $border-radius-sm;
     box-shadow: $box-shadow;
     transform: translateY(-3.75em);
-    overflow: hidden;
 
     :deep(.stat-wrapper) {
-        opacity: 0;
         width: 0;
+        opacity: 0;
     }
 
     @include bp-custom-min(400) {
-        margin-left: auto;
         margin-right: 0.4em;
+        margin-left: auto;
     }
 
     @include bp-sm-phone {
-        font-size: 1em;
         margin: 0 auto;
+        font-size: 1em;
     }
 }
 
 .canvas {
     position: relative;
-    height: 100%;
     width: 100%;
+    height: 100%;
 }
 
 .circle-wrapper {
     position: absolute;
-    height: 100px;
     width: 100px;
+    height: 100px;
     pointer-events: none;
 
     :deep(button) {
@@ -189,10 +189,10 @@ function exitHudAnim({ tl = gsap.timeline() } = {}) {
 }
 
 .countdown {
-    color: $color-text-primary-light;
-    font-weight: 600;
     font-size: 3.5em;
-    text-shadow: 1px 1px 2px #00000033;
+    font-weight: 600;
+    color: $color-text-primary-light;
+    text-shadow: 1px 1px 2px #0003;
     animation: shrink 1s ease-in-out;
     animation-iteration-count: 3;
 }

@@ -33,9 +33,9 @@ onUnmounted(() => {
 
     span {
         width: 7.5ch;
-        text-wrap: nowrap;
         text-align: left;
-        text-shadow: 1px 1px 2px #00000033;
+        text-shadow: 1px 1px 2px #0003;
+        text-wrap: nowrap;
     }
 }
 </style>

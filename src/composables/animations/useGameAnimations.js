@@ -1,9 +1,8 @@
-import { onUnmounted } from 'vue';
 import { gsap } from 'gsap';
 import { useGsap } from '@/composables/useGsap.js';
 import { useAuthStore } from '@/stores/authStore.js';
 
-export function useGameAnimations({ isXlDesktop, showRecentGames }) {
+export function useGameAnimations({ showRecentGames }) {
     const { registerAnim } = useGsap();
     const authStore = useAuthStore();
 

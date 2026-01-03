@@ -323,26 +323,26 @@ async function toggleRecentGames() {
 .game-container {
     position: relative;
     z-index: 1;
-    @include flexCenterAll;
-    height: $height-minus-nav;
     width: 100%;
+    height: $height-minus-nav;
+    @include flexCenterAll;
 }
 
 .recent-games {
-    font-size: 1.1em;
     position: absolute;
-    z-index: 3;
     top: $size-1;
     left: $size-3;
+    z-index: 3;
     display: flex;
     flex-direction: column;
-    background: $color-bg-secondary;
-    box-shadow: $box-shadow;
-    border-radius: $border-radius-lg;
-    border: solid 1px $color-gray3;
-    overflow: hidden;
-    transform: translateX(-250px);
     padding: $size-3 $size-2 0.4em $size-4;
+    overflow: hidden;
+    font-size: 1.1em;
+    background: $color-bg-secondary;
+    border: solid 1px $color-gray3;
+    border-radius: $border-radius-lg;
+    box-shadow: $box-shadow;
+    transform: translateX(-250px);
 
     @include bp-xxl-desktop {
         margin: $size-2 $size-3 0;
@@ -351,11 +351,11 @@ async function toggleRecentGames() {
     hr {
         position: relative;
         z-index: 2;
-        border: 0;
         min-height: 1px;
         max-height: 1px;
-        background-color: $color-primary-light;
         margin: 0;
+        background-color: $color-primary-light;
+        border: 0;
         transform: translateY(-0.2em);
 
         @include bp-xs-phone {
@@ -363,8 +363,8 @@ async function toggleRecentGames() {
         }
 
         @include bp-md-tablet {
-            transform: translateY(0.25em);
             margin-bottom: $size-2;
+            transform: translateY(0.25em);
         }
 
         @include bp-xxl-desktop {
@@ -378,14 +378,14 @@ async function toggleRecentGames() {
     position: relative;
     z-index: 2;
     display: flex;
-    justify-content: space-between;
     gap: 2px;
+    justify-content: space-between;
 
     h2 {
-        font-size: 1em;
-        color: $color-accent;
         margin: 0;
+        font-size: 1em;
         line-height: 1.6ch;
+        color: $color-accent;
         white-space: nowrap;
 
         @include bp-xs-phone {
@@ -396,8 +396,8 @@ async function toggleRecentGames() {
     button {
         padding: 0.6em;
         margin-top: 1px;
-        transform: scale(0.75) translate(-5px, -4px);
         border-radius: 100%;
+        transform: scale(0.75) translate(-5px, -4px);
 
         @include bp-md-tablet {
             transform: scale(0.9) translate(-8px, -1px);
@@ -412,8 +412,8 @@ async function toggleRecentGames() {
         }
 
         :deep(.icon) {
-            height: 1em;
             width: 1em;
+            height: 1em;
             stroke: $color-accent;
         }
     }
@@ -422,23 +422,23 @@ async function toggleRecentGames() {
 .recent-games-list {
     position: relative;
     z-index: 2;
-    font-size: 0.85em;
     display: flex;
     flex-direction: column;
-    list-style: none;
+    width: 20em;
     padding: 0 $size-4 $size-1 $size-1;
     margin: 0 $size-2 0.2em $size-4;
     margin: 0;
-    width: 20em;
     overflow: hidden;
+    font-size: 0.85em;
+    list-style: none;
     opacity: 0;
 
     li {
         display: flex;
-        justify-content: space-between;
         align-items: center;
-        border-bottom: solid 1px $color-gray2;
+        justify-content: space-between;
         padding: 0.3em 0.15em;
+        border-bottom: solid 1px $color-gray2;
 
         &:last-child {
             border: 0;
@@ -458,8 +458,8 @@ async function toggleRecentGames() {
             }
 
             &.separator {
-                font-size: 0.7em;
                 margin: 0 $size-2;
+                font-size: 0.7em;
             }
         }
     }
@@ -467,16 +467,16 @@ async function toggleRecentGames() {
 
 .end-screen {
     position: relative;
-    @include flexCenterAll;
     flex-direction: column;
-    background: $color-bg-secondary;
-    border-radius: $border-radius-md;
-    border: solid 1px $color-gray3;
-    box-shadow: $box-shadow;
-    overflow: hidden;
-    height: 0;
     width: 0;
+    height: 0;
     padding: $size-2;
+    overflow: hidden;
+    background: $color-bg-secondary;
+    border: solid 1px $color-gray3;
+    border-radius: $border-radius-md;
+    box-shadow: $box-shadow;
+    @include flexCenterAll;
 
     h1 {
         position: relative;
@@ -491,28 +491,28 @@ async function toggleRecentGames() {
         position: relative;
         z-index: 2;
         width: 86%;
-        border: 0;
         min-height: 1px;
-        background-color: $color-primary-light;
         margin-top: $size-1;
+        background-color: $color-primary-light;
+        border: 0;
         opacity: 0;
     }
 
     .stats {
         position: relative;
         z-index: 2;
-        font-size: 1.1em;
         display: flex;
-        align-items: center;
         gap: $size-2;
+        align-items: center;
+        font-size: 1.1em;
         opacity: 0;
     }
 }
 
 .main-buttons {
     display: flex;
-    justify-content: flex-end;
     gap: $size-2;
+    justify-content: flex-end;
     width: 13.9em;
     margin: 0 auto;
 

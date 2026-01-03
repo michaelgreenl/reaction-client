@@ -84,30 +84,30 @@ defineExpose({ openCircle, closeCircle });
     @include flexCenterAll;
 
     &.start-circle {
-        transform: scale(0);
         opacity: 0;
+        transform: scale(0);
     }
 
     span {
         font-family: $primary-font-stack;
-        color: $color-text-secondary-dark;
         font-weight: 500;
+        color: $color-text-secondary-dark;
 
         &.outer-value {
             position: absolute;
             right: -$size-11;
             color: $color-text-primary-light;
-            text-shadow: 1px 1px 2px #00000033;
+            text-shadow: 1px 1px 2px #0003;
         }
     }
 
     button {
         background-color: $color-bg-secondary;
-        border-radius: 100%;
         border: 0;
+        border-radius: 100%;
+        box-shadow: 1px 2px 3px #0001;
         opacity: 1;
         transition: opacity 0.3s ease;
-        box-shadow: 1px 2px 3px #00000011;
 
         @keyframes shrink {
             0% {
@@ -126,8 +126,8 @@ defineExpose({ openCircle, closeCircle });
         }
 
         &.fade-out {
-            animation-play-state: paused;
             opacity: 0;
+            animation-play-state: paused;
         }
     }
 }

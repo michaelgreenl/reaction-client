@@ -22,33 +22,35 @@ defineEmits(['stepUp', 'stepDown']);
 <style lang="scss" scoped>
 .number-input {
     @include flexCenterAll;
+
     gap: 0.1em;
 
     span {
         width: $size-10;
-        text-align: right;
         color: $color-text-secondary-dark;
+        text-align: right;
     }
 
     .step-buttons {
         @include flexCenterAll;
+
         flex-direction: column;
         height: 100%;
         padding-top: 0.1em;
 
         button {
             flex: 1;
+            padding: 0 $size-1;
+            font-size: 1.5em;
+            line-height: 0.7em;
+            color: $color-gray4;
             background: transparent;
             border: 0;
-            font-size: 1.5em;
-            padding: 0 $size-1;
-            color: $color-gray4;
             transition: all 0.1s ease;
-            line-height: 0.7em;
 
             &:hover {
-                transform: scale(1.1);
                 color: $color-accent;
+                transform: scale(1.1);
             }
 
             &:active {

@@ -57,8 +57,8 @@ span {
 
     span {
         font-size: 1em !important;
-        color: $color-text-secondary-dark;
         line-height: 1.6ch;
+        color: $color-text-secondary-dark;
 
         &.label {
             color: $color-accent;

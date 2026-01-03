@@ -1,5 +1,4 @@
 $height-minus-nav: calc(100vh - 3.2em);
-
 $primary-font-stack: 'Autowide', helvetica, arial, sans-serif;
 $secondary-font-stack: 'Poppins', helvetica, arial, sans-serif;
 
@@ -15,21 +14,16 @@ $secondary-font-stack: 'Poppins', helvetica, arial, sans-serif;
     --color-gray8: #343a40;
     --color-gray9: #212529;
     --color-black: #000;
-
     --color-success: #4caf50;
     --color-error: #f44336;
-
     --color-primary: #23a6d5;
     --color-primary-light: #d9edff;
-
     --color-accent: #ec6e9e;
     --color-accent-light: #ea89ae;
     --color-accent-dark: var(--color-gray5);
-
     --color-bg-primary: linear-gradient(110deg, #e73c7e, #23a6d5);
     --color-bg-primary-alt: linear-gradient(87deg, #ea89ae, #d9edff);
     --color-bg-secondary: var(--color-gray1);
-
     --color-text-primary-light: var(--color-gray2);
     --color-text-primary-dark: var(--color-gray7);
     --color-text-secondary-light: var(--color-gray4);
@@ -48,20 +42,15 @@ $color-gray7: var(--color-gray7);
 $color-gray8: var(--color-gray8);
 $color-gray9: var(--color-gray9);
 $color-black: var(--color-black);
-
 $color-success: var(--color-success);
 $color-error: var(--color-error);
-
 $color-primary: var(--color-primary);
 $color-primary-light: var(--color-primary-light);
-
 $color-accent: var(--color-accent);
 $color-accent-light: var(--color-accent-light);
-
 $color-bg-primary: var(--color-bg-primary);
 $color-bg-primary-alt: var(--color-bg-primary-alt);
 $color-bg-secondary: var(--color-bg-secondary);
-
 $color-text-primary-light: var(--color-text-primary-light);
 $color-text-primary-dark: var(--color-text-primary-dark);
 $color-text-secondary-light: var(--color-text-secondary-light);
@@ -89,11 +78,9 @@ $size-17: 6.5em;
 $size-18: 7em;
 $size-19: 7.5em;
 $size-20: 8em;
-
 $border-radius-xs: 8px;
 $border-radius-sm: 10px;
 $border-radius-md: 12px;
 $border-radius-lg: 14px;
 $border-radius-xl: 16px;
-
-$box-shadow: 2px 2px 6px 2px #00000022;
+$box-shadow: 2px 2px 6px 2px #0002;

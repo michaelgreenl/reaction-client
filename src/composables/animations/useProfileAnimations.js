@@ -2,7 +2,7 @@ import { nextTick } from 'vue';
 import { gsap } from 'gsap';
 import { useGsap } from '@/composables/useGsap.js';
 
-export function useProfileAnimations({ visibleFilterInputs, showSettings, isMobile }) {
+export function useProfileAnimations({ visibleFilterInputs, isMobile }) {
     const { registerAnim } = useGsap();
 
     const showFilterDropdownAnim = registerAnim(({ tl }) => {

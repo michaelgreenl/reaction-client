@@ -117,8 +117,8 @@ const onLeave = (el, done) => {
 }
 
 .char-item {
-    display: inline-block;
     position: relative;
+    display: inline-block;
     transition: all 0.3s ease;
 }
 

@@ -1,8 +1,6 @@
 <script setup>
-import { computed } from 'vue';
 import { formatDate, formatTime } from '@/utils/time.js';
 import Button from '@/components/Button.vue';
-import Loader from '@/components/Loader.vue';
 import ChangingSpan from '@/components/ChangingSpan.vue';
 
 const props = defineProps({
@@ -161,8 +159,8 @@ function formatFloat(float) {
 .table-wrapper {
     position: relative;
     z-index: 2;
-    padding: $size-1 $size-2;
     max-width: 17em;
+    padding: $size-1 $size-2;
     overflow-x: scroll;
 
     @include bp-custom-min(450) {
@@ -170,8 +168,8 @@ function formatFloat(float) {
     }
 
     @include bp-sm-phone {
-        overflow-x: hidden;
         max-width: 33.25em;
+        overflow-x: hidden;
     }
 
     &::-webkit-scrollbar {
@@ -196,19 +194,19 @@ function formatFloat(float) {
 
 .loader {
     height: 17.5em;
-    color: $color-text-secondary-dark;
     margin: $size-4 auto 0;
+    color: $color-text-secondary-dark;
 
     span {
         font-size: 0.9em;
-        text-shadow: 1px 1px 2px #00000033;
+        text-shadow: 1px 1px 2px #0003;
     }
 }
 
 .table {
-    font-size: 0.95em;
     display: flex;
     height: 100%;
+    font-size: 0.95em;
 
     @include bp-custom-min(450) {
         font-size: 1em;
@@ -219,8 +217,8 @@ function formatFloat(float) {
     display: flex;
     flex-direction: column;
     justify-content: space-evenly;
-    height: 100%;
     max-width: 4.5em;
+    height: 100%;
 
     &:last-child {
         max-width: 9.5em !important;
@@ -231,12 +229,12 @@ function formatFloat(float) {
         }
 
         .column-cell {
-            border-right: solid 1px $color-gray3;
-            font-size: 0.5em;
             font-family: $secondary-font-stack;
+            font-size: 0.5em;
             font-size: 0.75em;
             font-weight: 400;
             color: $color-gray6;
+            border-right: solid 1px $color-gray3;
 
             span {
                 display: flex;
@@ -249,15 +247,16 @@ function formatFloat(float) {
     &-header,
     &-cell {
         @include flexCenterAll;
+
         flex: 1;
-        white-space: nowrap;
         width: 100%;
+        white-space: nowrap;
     }
 
     &-header {
-        font-size: 0.9em;
         height: 2.8em;
         padding: $size-2 0 $size-3;
+        font-size: 0.9em;
         border-bottom: solid 1px $color-gray3;
 
         :deep(button) {
@@ -280,11 +279,11 @@ function formatFloat(float) {
     }
 
     &-cell {
+        padding: 3px $size-4;
         font-size: 0.85em;
+        color: $color-text-secondary-dark;
         border-bottom: solid 1px $color-gray3;
         border-left: solid 1px $color-gray3;
-        padding: 3px $size-4;
-        color: $color-text-secondary-dark;
 
         &.sorted {
             background: darken-color($color-gray1, 2%);
@@ -296,6 +295,7 @@ function formatFloat(float) {
     position: relative;
     z-index: 2;
     @include flexCenterAll;
+
     padding-top: $size-1;
 
     :deep(button) {
@@ -303,10 +303,10 @@ function formatFloat(float) {
     }
 
     span {
-        color: $color-text-secondary-dark;
-        border-bottom: solid 1px $color-gray3;
-        text-align: center;
         margin: 0 $size-1;
+        color: $color-text-secondary-dark;
+        text-align: center;
+        border-bottom: solid 1px $color-gray3;
     }
 }
 </style>

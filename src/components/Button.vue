@@ -31,16 +31,16 @@ button {
     border: 0;
 
     span {
-        white-space: nowrap;
         letter-spacing: 0.05em;
+        white-space: nowrap;
     }
 
     &.primary,
     &.primary-alt,
     &.secondary {
         font-family: $primary-font-stack;
-        transition: transform 0.1s ease-in;
         border-radius: $border-radius-xs;
+        transition: transform 0.1s ease-in;
 
         &:hover {
             transform: scale(1.05);
@@ -53,13 +53,13 @@ button {
 
     &.primary,
     &.primary-alt {
-        background: transparent;
         font-style: oblique;
+        background: transparent;
     }
 
     &.primary {
-        text-shadow: 1px 1px 2px #00000033;
         color: $color-bg-secondary;
+        text-shadow: 1px 1px 2px #0003;
 
         &:disabled {
             color: #dee2e699;
@@ -76,20 +76,21 @@ button {
 
     &.secondary {
         padding: $size-2 $size-4;
-        background: $color-accent;
         color: $color-gray1;
+        background: $color-accent;
 
         &:disabled {
-            background: $color-gray5;
             color: $color-gray3;
+            background: $color-gray5;
         }
     }
 
     &.icon-only {
         @include flexCenterAll;
-        border-radius: 20px;
+
         padding: 0.6em;
         background: $color-bg-secondary;
+        border-radius: 20px;
         transition: background 0.1s ease;
     }
 
