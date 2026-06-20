@@ -25,7 +25,7 @@ Built on Node.js and Express, this API leverages PostgreSQL as its primary data 
 **Orchestrated Entity Initialization:** The User creation flow (`user.controller.js`) automatically provisions dependent resources (Stats and Settings) in a unified sequence, ensuring data consistency for new accounts.
 
 ## 🏗️ Architecture & Design Decisions 
-**HTTP-Only Cookies for Auth:** Instead of storing JWTs in LocalStorage (which is vulnerable to XSS), I use `Boxed Cookies` (HTTP-Only, Secure, SameSite). This decision prioritizes security over the slight convenience of client-side token access.
+**HTTP-Only Cookies for Auth:** Instead of storing JWTs in LocalStorage (which is vulnerable to XSS), I use HTTP-Only. This decision prioritizes security over the slight convenience of client-side token access.
 
 **Declarative App Entry Point:** `app.js` was intentionally kept minimal by offloading setup logic to `src/config`. This makes the application entry point readable at a glance and simplifies the addition of new global middleware.
 
