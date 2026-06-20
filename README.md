@@ -12,7 +12,7 @@
 ## 📖 Overview
 > A precision-focused cognitive training application that gamifies reaction time improvement through a high-performance, GSAP-animated interface and detailed statistical tracking.  
 
-Constructed with Vue 3 and Vite for a reactive, high-performance frontend, leveraging Pinia for intricate state management across game loops and user profiles. The application utilizes GreenSock (GSAP) to drive frame-perfect animations, ensuring the visual feedback loop is tightly coupled with the underlying reliable 10ms timing engine.
+Constructed with Vue 3 and Vite for a reactive, high-performance frontend, leveraging Pinia for intricate state management across game loops and user profiles. The application utilizes GreenStock (GSAP) to drive frame-perfect animations, ensuring the visual feedback loop is tightly coupled with the underlying reliable 10ms timing engine.
 
 ## ⚡ Technical Highlights
 **GSAP-Powered Animation Orchestration:** Complex UI transitions and game state changes are managed via GreenSock (GSAP) timelines, decoupled into reusable composables (`useGameAnimations`) to ensure 60fps performance without cluttering Vue components.
