@@ -1,35 +1,76 @@
-# Reaction Client⚡️ 
-> Architected a reactive Vue 3 frontend utilizing Pinia for modular state management and GSAP for high-fidelity timeline animations, significantly enhancing user engagement through intuitive visual feedback.
+# Reaction Client
+
+> A Vue 3/Pinia reaction-time game with configurable target behavior, saved scores, profile history, GSAP transitions, and an Express/PostgreSQL API.
 
 [![Vue.js](https://img.shields.io/badge/Vue.js-35495E?style=for-the-badge&logo=vuedotjs&logoColor=4FC08D)](https://vuejs.org/) [![Pinia](https://img.shields.io/badge/Pinia-F1C40F?style=for-the-badge&logo=pinia&logoColor=black)](https://pinia.vuejs.org/) [![GSAP](https://img.shields.io/badge/GSAP-88CE02?style=for-the-badge&logo=greensock&logoColor=white)](https://greensock.com/) [![Sass](https://img.shields.io/badge/Sass-CC6699?style=for-the-badge&logo=sass&logoColor=white)](https://sass-lang.com/)
 
-## 🔗 Quick Links
-- **🚀 [Live Site](https://trainreaction.gg)** 
-- **🎥 [Demo Video](https://michaelgreenl.net/#projects?slug=reaction&autoplay=true)** 
-- **⚙ [Backend Repository](https://github.com/michaelgreenl/reaction-api)** 
-- **💼 [Portfolio Link](https://michaelgreenl.net/#projects?slug=reaction&autoplay=false)** 
+## Quick Links
 
-## 📖 Overview
-> A precision-focused cognitive training application that gamifies reaction time improvement through a high-performance, GSAP-animated interface and detailed statistical tracking.  
+- 🌐 **[Live Site](https://trainreaction.gg)**
+- 🎥 **[Demo Video](https://michaelgreenl.net/#projects?slug=reaction&autoplay=true)**
+- **⚙ [Backend Repository](https://github.com/michaelgreenl/reaction-api)**
+- **💼 [Portfolio Link](https://michaelgreenl.net/#projects?slug=reaction&autoplay=false)**
 
-Constructed with Vue 3 and Vite for a reactive, high-performance frontend, leveraging Pinia for intricate state management across game loops and user profiles. The application utilizes GreenStock (GSAP) to drive frame-perfect animations, ensuring the visual feedback loop is tightly coupled with the underlying reliable 10ms timing engine.
+## Overview
 
-## ⚡ Technical Highlights
-**GSAP-Powered Animation Orchestration:** Complex UI transitions and game state changes are managed via GreenStock (GSAP) timelines, decoupled into reusable composables (`useGameAnimations`) to ensure 60fps performance without cluttering Vue components.
+Reaction is an interactive game where players register or log in, tune circle size, spawn interval, and shrink time, then click randomly placed shrinking targets before one expires.
 
-**Unified API Service:** A centralized `api.js` module abstracts fetch complexities, automatically handling credential inclusion (`credentials: 'include'`), JSON headers, and standardized error parsing across the entire application.
+The client stores session state, recent games, aggregate stats, and saved settings in Pinia. The API uses Express, Sequelize, PostgreSQL, bcrypt, and JWT cookies to create users, persist settings, save game results, and update profile stats.
 
-**Adaptive Responsive Logic:** Implemented a custom `useBreakpoints` composable to programmatically handle UI collisions, such as auto-collapsing the "Recent Games" panel when entering settings on mobile devices.
+## Features
 
-## 🏗️ Architecture & Design Decisions 
-**Decoupled Animation Logic:** Animation logic was extracted from View components into specialized composables (e.g., `useUtilAnimations`). This keeps the View components declarative—focused on structure and state, while the imperative animation logic remains reusable and testable.
+- Configurable game settings for circle size, spawn interval, and shrink time, saved through `/settings` for logged-in users.
+- A timed game loop that starts after a three-second countdown, updates elapsed time every 10ms, and ends when an active target finishes shrinking.
+- Recent scores on the game screen for authenticated users, limited to the five latest saved games.
+- Profile history with paginated game results, sortable score/time/date columns, optional settings columns, and filters for saved circle size, spawn interval, and shrink time.
+- Registration hashes passwords with bcrypt and creates stats/settings records; login sets an HTTP-only JWT cookie from the Express API.
+- Game persistence that stores score, elapsed time, and per-game settings, then updates total games, high score, and longest time.
+- GSAP and Flip animations extracted into `useGameAnimations`, `useProfileAnimations`, `useUtilAnimations`, and `useGsap` composables.
 
-**Centralized Authentication State:** Session state is managed purely through `authStore` which serves as the single source of truth for the entire app, leveraging Vue's reactivity system to instantly update UI elements (like Navbars and Loaders) based on login status.
+## Technical Details
 
-## 🛠️ Tech Stack
-- **Framework:** Vue 3 (Composition API)
+- Vue Router exposes `/game`, `/login`, `/register`, and authenticated `/profile` routes.
+- `api.js` wraps `fetch` with `credentials: 'include'`, JSON headers, and API error parsing.
+- `authStore` manages session checks, login/logout, stats, recent games, game creation, and filtered game history.
+- `settingsStore` manages circle size, spawn interval, shrink time, and `/settings` reads/writes.
+- `useBreakpoints` drives viewport-specific UI behavior, including recent-score/settings panel collisions on mobile.
+- The backend exposes `/users`, `/game`, `/stats`, and `/settings` routes with Sequelize models for users, games, stats, and settings.
+- Static client deployment is handled by `gh-pages -d dist` through `npm run deploy`.
+
+## Run Locally
+
+```sh
+npm install
+npm run dev
+```
+
+The client reads the API origin from `VITE_API_URL`.
+
+The API runs from the sibling backend project:
+
+```sh
+cd ../reaction-api
+npm install
+npm run dev
+```
+
+## Project Scripts
+
+- `npm run build` builds the Vite client.
+- `npm run preview` serves the production build.
+- `npm run lint` runs ESLint.
+- `npm run lint:style` runs Stylelint on Vue, CSS, and SCSS files.
+- `npm run format` runs the Prettier check.
+- `npm run test:unit` runs Vitest.
+- `npm run test:e2e` runs Playwright.
+
+## Tech Stack
+
+- **Framework:** Vue 3, Vite, Vue Router
 - **State:** Pinia
 - **Styling:** Sass (SCSS)
-- **Animation:** GSAP (GreenStock)
-- **Infrastructure:** Github Pages
-
+- **Animation:** GSAP, Flip
+- **API:** Express, Sequelize, PostgreSQL
+- **Auth:** bcrypt, JWT cookies
+- **Quality:** ESLint, Stylelint, Prettier, Vitest, Playwright
+- **Deploy:** GitHub Pages
