@@ -7,9 +7,16 @@
 ## Quick Links
 
 - **🌐 [Live Site](https://trainreaction.gg)**
-- **🎥 [Demo Video](https://michaelgreenl.net/#projects?slug=reaction&autoplay=true)**
 - **🖥️ [Frontend Repository](https://github.com/michaelgreenl/reaction-client)**
 - **💼 [Portfolio Link](https://michaelgreenl.net/#projects?slug=reaction&autoplay=false)**
+
+## Demo Video
+
+<p align="center">
+  <a href="https://vimeo.com/1149531486">
+    <img src="https://i.vimeocdn.com/filter/overlay?src0=https%3A%2F%2Fi.vimeocdn.com%2Fvideo%2F2171069670-31a24325e59332df9de457b603a1d5bd318ed9e4aebacd7fcea042f970968b00-d_1280%3Fregion%3Dus&amp;src1=http%3A%2F%2Ff.vimeocdn.com%2Fp%2Fimages%2Fcrawler_play.png" alt="Watch the Reaction demo video" width="800">
+  </a>
+</p>
 
 ## Overview
 
