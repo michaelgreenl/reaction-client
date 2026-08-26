@@ -7,12 +7,9 @@
 ## Quick Links
 
 - 🌐 **[Live Site](https://trainreaction.gg)**
+- 🎥 **[Demo Video](https://michaelgreenl.net/#projects?slug=reaction&autoplay=true)**
 - **⚙ [Backend Repository](https://github.com/michaelgreenl/reaction-api)**
 - **💼 [Portfolio Link](https://michaelgreenl.net/#projects?slug=reaction&autoplay=false)**
-
-## Demo Video
-
-https://github.com/user-attachments/assets/f8ee5d2e-1f97-4163-863b-1959dd56e6be
 
 ## Overview
 
