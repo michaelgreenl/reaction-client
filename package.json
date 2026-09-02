@@ -1,0 +1,40 @@
+{
+    "name": "reaction",
+    "version": "1.0.0",
+    "private": true,
+    "packageManager": "npm@11.19.0",
+    "workspaces": [
+        "app/client",
+        "app/server"
+    ],
+    "engines": {
+        "node": ">=24.20.0",
+        "npm": ">=11.19.0"
+    },
+    "scripts": {
+        "dev": "npm run db:up && concurrently --kill-others-on-fail --names client,server \"npm run dev --workspace=reaction-client\" \"npm run dev --workspace=reaction-api\"",
+        "dev:client": "npm run dev --workspace=reaction-client",
+        "dev:server": "npm run db:up && npm run dev --workspace=reaction-api",
+        "start": "npm start --workspace=reaction-api",
+        "build": "npm run build --workspace=reaction-client",
+        "preview": "npm run preview --workspace=reaction-client",
+        "test": "npm test --workspace=reaction-api",
+        "test:db": "npm run test:db --workspace=reaction-api",
+        "lint": "npm run lint --workspaces --if-present",
+        "lint:style": "npm run lint:style --workspace=reaction-client",
+        "format": "prettier --check .",
+        "format:fix": "prettier --write .",
+        "deploy:client": "npm run build --workspace=reaction-client && npm run deploy --workspace=reaction-client",
+        "db:up": "docker compose up -d --wait postgres",
+        "db:down": "docker compose down"
+    },
+    "devDependencies": {
+        "concurrently": "^10.0.5",
+        "prettier": "^3.9.4"
+    },
+    "overrides": {
+        "sequelize": {
+            "uuid": "^11.1.1"
+        }
+    }
+}
