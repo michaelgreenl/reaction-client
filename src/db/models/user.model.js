@@ -2,7 +2,7 @@ const { DataTypes, Model } = require('sequelize');
 const { sequelize } = require('../sequelize-connection');
 const timestampConfig = require('../timestamp.config');
 
-const { UUID, UUIDV4, STRING, BOOLEAN } = DataTypes;
+const { UUID, UUIDV4, STRING } = DataTypes;
 
 class User extends Model {}
 
@@ -16,6 +16,7 @@ const userDTO = {
         type: STRING,
         unique: true,
         allowNull: false,
+        validate: { notEmpty: true, len: [3, 30] },
     },
     password: {
         type: STRING,
@@ -33,9 +34,9 @@ User.init(userDTO, {
 const applyAssociations = (models) => {
     const { Settings, Stats, Game } = models;
 
-    User.hasOne(Settings);
-    User.hasOne(Stats);
-    User.hasMany(Game);
+    User.hasOne(Settings, { foreignKey: 'userId', onDelete: 'CASCADE' });
+    User.hasOne(Stats, { foreignKey: 'userId', onDelete: 'CASCADE' });
+    User.hasMany(Game, { foreignKey: 'userId', onDelete: 'CASCADE' });
 };
 
 module.exports = {

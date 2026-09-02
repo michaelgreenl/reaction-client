@@ -3,8 +3,8 @@
 // Compute stats from seeded games for each user
 module.exports = {
     async up(queryInterface) {
-        const [users] = await queryInterface.sequelize.query('SELECT id FROM `user`;');
-        const [games] = await queryInterface.sequelize.query('SELECT userId, score, time FROM `game`;');
+        const [users] = await queryInterface.sequelize.query('SELECT id FROM "user";');
+        const [games] = await queryInterface.sequelize.query('SELECT "userId", score, time FROM game;');
         const now = new Date();
 
         const grouped = new Map();

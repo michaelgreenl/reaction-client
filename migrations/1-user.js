@@ -1,7 +1,7 @@
 const { DataTypes } = require('sequelize');
 const timestampConfig = require('../src/db/timestamp.config');
 
-const { UUID, UUIDV4, STRING, BOOLEAN } = DataTypes;
+const { UUID, UUIDV4, STRING } = DataTypes;
 
 const userDTO = {
     id: {

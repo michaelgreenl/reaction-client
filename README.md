@@ -25,7 +25,7 @@ Authenticated players can view recent scores in the game screen and profile hist
 
 **Auth and Session Handling:** Registration hashes passwords with `bcrypt`; login signs a 24-hour JWT and stores it in an HTTP-only cookie. The Vue API helper sends requests with `credentials: 'include'`.
 
-**Request Controls:** The Express config applies Helmet, CORS with credentials, JSON content-type validation, a global rate limiter, a slow-down limiter, and a stricter limiter on registration/login routes.
+**Request Controls:** The Express config applies Helmet, CORS with credentials, request schemas, JSON content-type validation, and rate limits. Authenticated routes use the token identity instead of client-supplied user IDs.
 
 **GSAP-Driven Transitions:** The frontend keeps animation logic in composables such as `useGameAnimations`, `useProfileAnimations`, and `useUtilAnimations`, including GSAP timelines and Flip transitions for game/profile state changes.
 
@@ -33,9 +33,9 @@ Authenticated players can view recent scores in the game screen and profile hist
 
 ## Architecture & Design Decisions
 
-**Account Provisioning:** `user.controller.js` creates default `Stats` and `Settings` rows after a user is registered, so a new account can immediately load gameplay settings and profile stats.
+**Atomic Persistence:** Account provisioning and game/stat updates use database transactions. A failed dependent write rolls back the complete operation.
 
-**Small App Entry Point:** `src/app.js` creates the Express app, applies the shared config array, and exports the app for `server.js` to sync Sequelize and start listening.
+**Small App Entry Point:** `src/app.js` creates the Express app and routes. `server.js` verifies PostgreSQL before it starts listening.
 
 ## Run Locally
 
@@ -51,7 +51,9 @@ The API loads environment values from `.env.${NODE_ENV || 'development'}` and re
 - `npm start` starts the API with Node.
 - `npm run lint` runs ESLint.
 - `npm run format` checks Prettier formatting.
-- `npm test` is still the package placeholder and exits with an error.
+- `npm run migrate` applies pending database migrations. The start and development scripts run it first.
+- `npm test` runs the API contract and model-schema suite.
+- `npm run test:db` runs transaction tests against a disposable PostgreSQL database whose name ends in `_test`.
 
 ## Tech Stack
 

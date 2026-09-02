@@ -1,12 +1,12 @@
 const rateLimit = require('express-rate-limit');
 const slowDown = require('express-slow-down');
 
-const skip = (req) => (process.env.NODE_ENV === 'development' ? true : false);
+const skip = () => process.env.NODE_ENV === 'development';
 
 module.exports.limiter = rateLimit({
     windowMs: 15 * 60 * 1000,
     max: 1500,
-    message: 'Too many requests from this IP, please try again later.',
+    message: { message: 'Too many requests from this IP, please try again later.' },
     standardHeaders: true,
     legacyHeaders: false,
     skip,

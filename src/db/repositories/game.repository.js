@@ -1,13 +1,30 @@
 const { sequelize } = require('../sequelize-connection.js');
 const { Op } = require('sequelize');
-const { Game } = require('../models');
+const { Game, Stats } = require('../models');
 
 const createGame = async ({ userId, score, time, settings }) =>
-    Game.create({
-        userId,
-        score: parseInt(score, 10),
-        time: parseFloat(time, 10),
-        settings,
+    sequelize.transaction(async (transaction) => {
+        const stats = await Stats.findOne({
+            where: { userId },
+            transaction,
+            lock: transaction.LOCK.UPDATE,
+        });
+        if (!stats) {
+            const error = new Error('Stats not found');
+            error.status = 404;
+            throw error;
+        }
+
+        const nextStats = {
+            totalGames: stats.totalGames + 1,
+            highScore: Math.max(score, stats.highScore),
+            highTime: Math.max(time, stats.highTime),
+        };
+
+        await Game.create({ userId, score, time, settings }, { transaction });
+        await Stats.update(nextStats, { where: { userId }, transaction });
+
+        return nextStats;
     });
 
 const getGamesBySetting = async ({ userId, limit, offset, filters, sortedBy, sortedOrder }) => {
@@ -23,13 +40,16 @@ const getGamesBySetting = async ({ userId, limit, offset, filters, sortedBy, sor
 
     return Game.findAll({
         where: { [Op.and]: conditions },
-        order: [[sortedBy, sortedOrder]],
+        order: [
+            [sortedBy, sortedOrder],
+            ['id', sortedOrder],
+        ],
         attributes: {
             include: ['score', 'time', 'settings', 'createdAt'],
             exclude: ['id', 'userId', 'updatedAt'],
         },
-        limit: parseInt(limit, 10) || 10,
-        offset: parseInt(offset, 10) || 0,
+        limit,
+        offset,
     });
 };
 
@@ -38,20 +58,47 @@ const getAllGames = async ({ userId, limit, offset, sortedBy, sortedOrder }) =>
         where: {
             userId,
         },
-        order: [[sortedBy, sortedOrder]],
+        order: [
+            [sortedBy, sortedOrder],
+            ['id', sortedOrder],
+        ],
         attributes: {
             include: ['score', 'time', 'settings', 'createdAt'],
             exclude: ['id', 'userId', 'updatedAt'],
         },
-        limit: parseInt(limit, 10) || 10,
-        offset: parseInt(offset, 10) || 0,
+        limit,
+        offset,
     });
 
 const deleteGames = async (userId) => Game.destroy({ where: { userId } });
+
+const deleteGamesAndResetStats = async (userId) =>
+    sequelize.transaction(async (transaction) => {
+        const stats = await Stats.findOne({
+            where: { userId },
+            transaction,
+            lock: transaction.LOCK.UPDATE,
+        });
+        if (!stats) {
+            const error = new Error('Stats not found');
+            error.status = 404;
+            throw error;
+        }
+
+        await Game.destroy({ where: { userId }, transaction });
+        await Stats.update(
+            { totalGames: 0, highScore: 0, highTime: 0 },
+            {
+                where: { userId },
+                transaction,
+            },
+        );
+    });
 
 module.exports = {
     getAllGames,
     getGamesBySetting,
     createGame,
     deleteGames,
+    deleteGamesAndResetStats,
 };

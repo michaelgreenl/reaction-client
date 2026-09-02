@@ -1,10 +1,5 @@
 const { Settings } = require('../models');
 
-const createSettings = async ({ userId }) =>
-    Settings.create({
-        userId,
-    });
-
 const getSettingsById = async (userId) =>
     Settings.findOne({
         where: {
@@ -30,11 +25,7 @@ const updateSettings = async ({ userId, circleSize, spawnInterval, shrinkTime })
         },
     );
 
-const deleteSettings = async (userId) => Settings.destroy({ where: { userId } });
-
 module.exports = {
-    createSettings,
     getSettingsById,
     updateSettings,
-    deleteSettings,
 };

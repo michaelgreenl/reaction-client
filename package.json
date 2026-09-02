@@ -4,7 +4,11 @@
     "description": "",
     "main": "server.js",
     "scripts": {
-        "test": "echo \"Error: no test specified\" && exit 1",
+        "test": "node --test test/api.test.js test/config.test.js test/schema.test.js",
+        "test:db": "node --test test/database.integration.js",
+        "migrate": "sequelize-cli db:migrate",
+        "predev": "npm run migrate",
+        "prestart": "npm run migrate",
         "start": "node server",
         "dev": "nodemon server",
         "lint": "eslint .",
@@ -17,7 +21,6 @@
     "license": "ISC",
     "dependencies": {
         "bcrypt": "^6.0.0",
-        "body-parser": "^1.20.5",
         "cookie-parser": "^1.4.7",
         "cors": "^2.8.6",
         "dotenv": "^16.3.1",
@@ -28,18 +31,16 @@
         "jsonwebtoken": "^9.0.2",
         "pg": "^8.22.0",
         "pg-hstore": "^2.3.4",
-        "redis": "^4.6.13",
         "sequelize": "^6.37.8",
+        "sequelize-cli": "^6.6.5",
         "uuid": "^11.1.1"
     },
     "devDependencies": {
         "eslint": "^8.57.0",
         "eslint-config-prettier": "^10.1.8",
         "eslint-plugin-prettier": "^5.5.6",
-        "eslint-plugin-react": "^7.37.5",
         "nodemon": "^3.1.14",
-        "prettier": "^3.9.4",
-        "sequelize-cli": "^6.6.5"
+        "prettier": "^3.9.4"
     },
     "overrides": {
         "sequelize": {

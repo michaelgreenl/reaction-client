@@ -1,20 +1,15 @@
-const { User } = require('../models');
+const { sequelize } = require('../sequelize-connection');
+const { Settings, Stats, User } = require('../models');
 
-const createUser = async ({ username, password }) => User.create({ username, password });
+const createUser = async ({ username, password }) =>
+    sequelize.transaction(async (transaction) => {
+        const user = await User.create({ username, password }, { transaction });
+        await Stats.create({ userId: user.id }, { transaction });
+        await Settings.create({ userId: user.id }, { transaction });
+        return user;
+    });
 
 const deleteUser = async (userId) => User.destroy({ where: { id: userId } });
-
-const getAllUsers = async ({ limit, offset }) => User.findAll({ limit, offset, attributes: { exclude: ['password'] } });
-
-const getUserByUsername = (username) =>
-    User.findOne({
-        where: {
-            username,
-        },
-        attributes: {
-            exclude: ['password'],
-        },
-    });
 
 const getUserById = (userId) =>
     User.findOne({
@@ -33,25 +28,9 @@ const getUserWithPasswordByUsername = (username) =>
         },
     });
 
-const updateUserInfo = ({ userId, username, password }) =>
-    User.update(
-        {
-            username,
-            password,
-        },
-        {
-            where: {
-                id: userId,
-            },
-        },
-    ).then(Boolean);
-
 module.exports = {
-    getAllUsers,
-    getUserByUsername,
     getUserById,
     getUserWithPasswordByUsername,
     createUser,
-    updateUserInfo,
     deleteUser,
 };
