@@ -30,6 +30,7 @@
     },
     "devDependencies": {
         "concurrently": "^10.0.5",
+        "postcss-html": "1.8.0",
         "prettier": "^3.9.4"
     },
     "overrides": {
