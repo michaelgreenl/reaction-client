@@ -4,8 +4,8 @@ const { v4: uuidv4 } = require('uuid');
 
 module.exports = {
     async up(queryInterface) {
-        const [users] = await queryInterface.sequelize.query('SELECT id FROM `user`;');
-        const [settings] = await queryInterface.sequelize.query('SELECT * FROM `settings`;');
+        const [users] = await queryInterface.sequelize.query('SELECT id FROM "user";');
+        const [settings] = await queryInterface.sequelize.query('SELECT * FROM settings;');
 
         const userIdToSettings = new Map(settings.map((s) => [s.userId, s]));
         const now = new Date();
@@ -16,7 +16,7 @@ module.exports = {
 
             for (let i = 0; i < 15; i++) {
                 const baseScore = 20 + Math.floor(Math.random() * 30);
-                const baseTime = 10 + Math.random() * 20;
+                const baseTime = 10_000 + Math.random() * 20_000;
 
                 const csFactor = 100 / (userSettings?.circleSize ?? 100);
                 const spFactor = 1.0 / (userSettings?.spawnInterval ?? 1.0);

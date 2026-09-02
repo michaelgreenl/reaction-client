@@ -1,9 +1,10 @@
 const express = require('express');
-const { get, put } = require('../controllers/stats.controller');
+const { get } = require('../controllers/stats.controller');
+const { jwt } = require('../middlewares/auth.middleware');
 
 const router = express.Router();
 
+router.use(jwt);
 router.get('/', get);
-router.put('/', put);
 
 module.exports = router;

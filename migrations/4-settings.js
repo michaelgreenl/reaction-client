@@ -1,23 +1,32 @@
 const { DataTypes } = require('sequelize');
 const timestampConfig = require('../src/db/timestamp.config');
 
-const { STRING, INTEGER, FLOAT } = DataTypes;
+const { UUID, INTEGER, FLOAT } = DataTypes;
 
 const settingsDTO = {
     userId: {
-        type: STRING,
+        type: UUID,
         primaryKey: true,
+        allowNull: false,
+        references: {
+            model: 'user',
+            key: 'id',
+        },
+        onDelete: 'CASCADE',
     },
     circleSize: {
         type: INTEGER,
+        allowNull: false,
         defaultValue: 100,
     },
     spawnInterval: {
         type: FLOAT,
+        allowNull: false,
         defaultValue: 1.0,
     },
     shrinkTime: {
         type: FLOAT,
+        allowNull: false,
         defaultValue: 1.0,
     },
     ...timestampConfig.fields,

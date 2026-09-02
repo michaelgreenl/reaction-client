@@ -1,7 +1,7 @@
 const { DataTypes } = require('sequelize');
 const timestampConfig = require('../src/db/timestamp.config');
 
-const { UUID, UUIDV4, STRING, INTEGER, FLOAT, JSONB } = DataTypes;
+const { UUID, UUIDV4, INTEGER, FLOAT, JSONB } = DataTypes;
 
 const gameDTO = {
     id: {
@@ -10,8 +10,13 @@ const gameDTO = {
         primaryKey: true,
     },
     userId: {
-        type: STRING,
-        foreignKey: true,
+        type: UUID,
+        allowNull: false,
+        references: {
+            model: 'user',
+            key: 'id',
+        },
+        onDelete: 'CASCADE',
     },
     score: {
         type: INTEGER,

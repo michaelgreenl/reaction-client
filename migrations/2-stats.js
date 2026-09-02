@@ -1,23 +1,32 @@
 const { DataTypes } = require('sequelize');
 const timestampConfig = require('../src/db/timestamp.config');
 
-const { STRING, INTEGER, FLOAT } = DataTypes;
+const { UUID, INTEGER, FLOAT } = DataTypes;
 
 const statsDTO = {
     userId: {
-        type: STRING,
+        type: UUID,
         primaryKey: true,
+        allowNull: false,
+        references: {
+            model: 'user',
+            key: 'id',
+        },
+        onDelete: 'CASCADE',
     },
     totalGames: {
         type: INTEGER,
+        allowNull: false,
         defaultValue: 0,
     },
     highScore: {
         type: INTEGER,
+        allowNull: false,
         defaultValue: 0,
     },
     highTime: {
         type: FLOAT,
+        allowNull: false,
         defaultValue: 0,
     },
     ...timestampConfig.fields,

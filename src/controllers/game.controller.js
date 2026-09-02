@@ -1,74 +1,59 @@
 const gameRepository = require('../db/repositories/game.repository');
-const statsRepository = require('../db/repositories/stats.repository');
+const { CREATED } = require('../constants');
 
-module.exports.post = async (req, res) => {
-    const { userId, score, time, settings, stats } = req.body;
+module.exports.post = async (req, res, next) => {
+    const { id: userId } = req.context.user;
+    const { score, time, settings } = req.body;
 
     try {
-        let { totalGames, highScore, highTime } = stats;
-
-        gameRepository.createGame({
+        const stats = await gameRepository.createGame({
             userId,
             score,
             time,
             settings,
         });
-
-        totalGames = totalGames + 1;
-        highScore = score > highScore ? score : highScore;
-        highTime = parseFloat(time, 10) > highTime ? parseFloat(time, 10) : highTime;
-
-        const updateStats = await statsRepository.updateStats({
-            userId,
-            totalGames,
-            highScore,
-            highTime,
-        });
-
-        res.send({ totalGames, highScore, highTime });
+        res.status(CREATED).send(stats);
     } catch (error) {
-        console.error(error);
-        res.send(error);
+        next(error);
     }
 };
 
-module.exports.get = async (req, res) => {
+module.exports.get = async (req, res, next) => {
     try {
-        const { userId, limit, offset, sortedBy, sortedOrder } = req.query;
+        const { id: userId } = req.context.user;
+        const { limit, offset, sortedBy, sortedOrder } = req.validatedQuery;
         const games = await gameRepository.getAllGames({ userId, limit, offset, sortedBy, sortedOrder });
         res.send({ games });
     } catch (error) {
-        console.error(error);
-        res.send(error);
+        next(error);
     }
 };
 
-module.exports.getGamesBySetting = async (req, res) => {
+module.exports.getGamesBySetting = async (req, res, next) => {
     try {
-        const { userId, limit, offset, filters, sortedBy, sortedOrder } = req.query;
+        const { id: userId } = req.context.user;
+        const { limit, offset, sortedBy, sortedOrder } = req.validatedQuery;
 
         const games = await gameRepository.getGamesBySetting({
             userId,
             limit,
             offset,
-            filters: JSON.parse(filters),
+            filters: req.validatedFilters,
             sortedBy,
             sortedOrder,
         });
         res.send({ games });
     } catch (error) {
-        console.error(error);
-        res.send(error);
+        next(error);
     }
 };
 
-module.exports.remove = async (req, res) => {
+module.exports.remove = async (req, res, next) => {
     try {
-        const { userId, statsId } = req.params;
-        await gameRepository.deleteGames(userId);
-        statsRepository.updateStats({ userId, totalGames: 0, highScore: 0, highTime: 0 });
-        res.send();
+        const { id: userId } = req.context.user;
+        await gameRepository.deleteGamesAndResetStats(userId);
+        res.json({ ok: true });
     } catch (error) {
-        res.send(error);
+        next(error);
     }
 };

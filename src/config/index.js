@@ -1,4 +1,4 @@
-const bodyParser = require('body-parser');
+const express = require('express');
 const cookieParser = require('cookie-parser');
 const { cors } = require('./cors.config.js');
 const { helmet } = require('./helmet.config.js');
@@ -12,10 +12,11 @@ const config = [
     speedLimiter,
     cors,
     jsonMiddleware,
-    bodyParser.json(),
+    express.json({ limit: '16kb' }),
     cookieParser(),
-    bodyParser.urlencoded({
+    express.urlencoded({
         extended: true,
+        limit: '16kb',
     }),
     routes,
 ];

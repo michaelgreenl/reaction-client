@@ -1,19 +1,14 @@
 module.exports = {
     root: true,
     env: {
-        browser: true,
         es2021: true,
         node: true,
     },
-    extends: ['eslint:recommended', 'plugin:prettier/recommended', 'plugin:react/recommended'],
-    plugins: ['react'],
+    extends: ['eslint:recommended', 'plugin:prettier/recommended'],
     parserOptions: {
         ecmaVersion: 'latest',
         parser: '@babel/eslint-parser',
         sourceType: 'module',
-        ecmaFeatures: {
-            jsx: true,
-        },
     },
     rules: {
         // Only allow debugger in development

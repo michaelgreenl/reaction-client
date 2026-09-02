@@ -1,7 +1,7 @@
 const { UNPROCESSABLE_ENTITY } = require('../constants');
 
 module.exports = (req, res, next) => {
-    if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(req.method)) {
+    if (['POST', 'PUT', 'PATCH'].includes(req.method)) {
         const contentType = req.headers['content-type'];
 
         if (!contentType || !contentType.includes('application/json')) {

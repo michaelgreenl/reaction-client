@@ -1,27 +1,11 @@
 const statsRepository = require('../db/repositories/stats.repository');
 
-module.exports.get = async (req, res) => {
+module.exports.get = async (req, res, next) => {
     try {
-        const { userId } = req.query;
+        const { id: userId } = req.context.user;
         const stats = await statsRepository.getStatsById(userId);
-        res.send({ stats });
+        res.send(stats);
     } catch (error) {
-        res.send(error);
+        next(error);
     }
-};
-
-module.exports.post = async (req) => {
-    const { userId } = req.body;
-    statsRepository.createStats({ userId });
-};
-
-module.exports.put = async (req, res) => {
-    const { userId, highScore, totalGames, highTime } = req.body;
-    const stats = await statsRepository.updateStats({
-        userId,
-        totalGames,
-        highScore,
-        highTime,
-    });
-    res.send({ stats });
 };

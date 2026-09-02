@@ -12,6 +12,6 @@ module.exports = {
         },
     },
     tableOptions: {
-        timestamps: false,
+        timestamps: true,
     },
 };
