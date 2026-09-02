@@ -6,6 +6,8 @@ module.exports = {
         'stylelint-config-recess-order',
     ],
     rules: {
+        'no-descending-specificity': null,
+        'scss/at-mixin-pattern': null,
         'selector-max-type': null,
         'no-empty-source': null,
     },
